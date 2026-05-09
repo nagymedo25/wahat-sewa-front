@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --olive-deep: #2d3418;
+    --olive: #4a5a2a;
+    --olive-light: #7a8a4a;
+    --olive-glow: #a4b86b;
+    --sand: #d4c5a9;
+    --sand-light: #e8dcc4;
+    --sand-warm: #c9b896;
+    --cream: #f5efe3;
+    --warm-white: #faf7f0;
+    --bronze: #b8956b;
+    --bronze-light: #d4b896;
+    --sunset: #e8a87c;
+    --sunset-deep: #c97b4f;
+    --shadow: #1a1814;
+    --shadow-soft: rgba(26, 24, 20, 0.08);
+    --glow-olive: rgba(74, 90, 42, 0.15);
+    --glow-sand: rgba(212, 197, 169, 0.3);
+    --glow-sunset: rgba(232, 168, 124, 0.2);
+
+    --font-ar: 'Tajawal', sans-serif;
+    --font-en: 'Cormorant Garamond', serif;
+
+    --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
+    --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-size: 16px;
+  }
+
+  body {
+    font-family: var(--font-ar);
+    background: var(--shadow);
+    color: var(--cream);
+    overflow-x: hidden;
+    line-height: 1.8;
+    direction: rtl;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--shadow);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--olive);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--olive-light);
+  }
+}
+
+@layer utilities {
+  .text-stroke-cream {
+    -webkit-text-stroke: 1.5px var(--sand-light);
+  }
+}
