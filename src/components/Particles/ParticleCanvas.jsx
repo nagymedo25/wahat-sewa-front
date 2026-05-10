@@ -16,11 +16,14 @@ export default function ParticleCanvas() {
     let mouseX = 0;
     let mouseY = 0;
     let raf = 0;
+    let lastTs = 0;
+    let isRunning = true;
+    const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
     function resizeCanvas() {
       width = window.innerWidth;
       height = window.innerHeight;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = width < 768 ? 1 : Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       canvas.style.width = `${width}px`;
@@ -66,7 +69,7 @@ export default function ParticleCanvas() {
         const dist = Math.sqrt(dx * dx + dy * dy);
         const interactionRadius = 150;
 
-        if (dist < interactionRadius) {
+        if (!isTouch && dist < interactionRadius) {
           const force = (interactionRadius - dist) / interactionRadius;
           const angle = Math.atan2(dy, dx);
           this.x += Math.cos(angle) * force * 0.5;
@@ -101,13 +104,23 @@ export default function ParticleCanvas() {
 
     function initParticles() {
       particles = [];
-      const count = width < 768 ? 80 : 180;
+      const count = width < 768 ? 28 : 140;
       for (let i = 0; i < count; i++) {
         particles.push(new Particle());
       }
     }
 
-    function animateParticles() {
+    function animateParticles(ts) {
+      if (!isRunning) return;
+      if (!lastTs) lastTs = ts;
+
+      const dt = ts - lastTs;
+      if (dt < (width < 768 ? 33 : 16)) {
+        raf = window.requestAnimationFrame(animateParticles);
+        return;
+      }
+      lastTs = ts;
+
       ctx.clearRect(0, 0, width, height);
       for (const p of particles) {
         p.update();
@@ -128,14 +141,32 @@ export default function ParticleCanvas() {
 
     resizeCanvas();
     initParticles();
-    animateParticles();
+    raf = window.requestAnimationFrame(animateParticles);
 
-    document.addEventListener('mousemove', onMouseMove, { passive: true });
+    if (!isTouch) {
+      document.addEventListener('mousemove', onMouseMove, { passive: true });
+    }
     window.addEventListener('resize', onResize);
 
+    const onVis = () => {
+      const hidden = document.visibilityState === 'hidden';
+      isRunning = !hidden;
+      if (hidden) {
+        if (raf) window.cancelAnimationFrame(raf);
+        raf = 0;
+        lastTs = 0;
+      } else if (!raf) {
+        raf = window.requestAnimationFrame(animateParticles);
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+
     return () => {
-      document.removeEventListener('mousemove', onMouseMove);
+      if (!isTouch) {
+        document.removeEventListener('mousemove', onMouseMove);
+      }
       window.removeEventListener('resize', onResize);
+      document.removeEventListener('visibilitychange', onVis);
       if (raf) window.cancelAnimationFrame(raf);
     };
   }, []);

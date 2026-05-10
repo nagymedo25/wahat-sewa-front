@@ -23,6 +23,7 @@ export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isNavHidden, setIsNavHidden] = useState(false);
+  const [isLiteMode, setIsLiteMode] = useState(false);
   const lastScrollY = useRef(0);
 
   const products = useMemo(
@@ -91,6 +92,23 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    const mqSmall = window.matchMedia('(max-width: 768px)');
+    const mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => {
+      const cores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : 8;
+      const saveData = typeof navigator !== 'undefined' && navigator.connection ? navigator.connection.saveData : false;
+      setIsLiteMode(Boolean(mqSmall.matches || mqReduced.matches || saveData || (cores && cores <= 4)));
+    };
+    update();
+    mqSmall.addEventListener?.('change', update);
+    mqReduced.addEventListener?.('change', update);
+    return () => {
+      mqSmall.removeEventListener?.('change', update);
+      mqReduced.removeEventListener?.('change', update);
+    };
+  }, []);
+
+  useEffect(() => {
     const t1 = window.setTimeout(() => {
       setIsLoaded(true);
       const t2 = window.setTimeout(() => {
@@ -126,6 +144,8 @@ export default function HomePage() {
     let mouseY = 0;
     let rafId = 0;
 
+    if (isLiteMode) return;
+
     const updateParallax = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -160,7 +180,7 @@ export default function HomePage() {
       document.removeEventListener('mousemove', onMouseMove);
       if (rafId) window.cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [isLiteMode]);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -198,6 +218,7 @@ export default function HomePage() {
   }, []);
 
   useLayoutEffect(() => {
+    if (isLiteMode) return;
     gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
@@ -399,7 +420,7 @@ export default function HomePage() {
     }, rootRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isLiteMode]);
 
   return (
     <div ref={rootRef}>
@@ -412,10 +433,10 @@ export default function HomePage() {
         onToggleMobileMenu={() => setIsMobileMenuOpen((v) => !v)}
       />
 
-      <ParticleCanvas />
+      {!isLiteMode && <ParticleCanvas />}
       <LightRays />
       <FloatingElements />
-      <SidePalmTrees isLoaded={isLoaded} />
+      {!isLiteMode && <SidePalmTrees isLoaded={isLoaded} />}
       <Birds />
 
       <main className="relative">
