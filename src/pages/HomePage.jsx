@@ -77,16 +77,17 @@ export default function HomePage() {
   );
 
   useEffect(() => {
-    const body = document.body;
-    body.style.opacity = '0';
-    body.style.transition = 'opacity 0.8s ease';
-
-    const onLoad = () => {
-      body.style.opacity = '1';
-    };
-
-    window.addEventListener('load', onLoad);
-    return () => window.removeEventListener('load', onLoad);
+    if (document.readyState === 'complete') {
+      document.body.style.opacity = '1';
+    } else {
+      document.body.style.opacity = '0';
+      document.body.style.transition = 'opacity 0.8s ease';
+      const onLoad = () => {
+        document.body.style.opacity = '1';
+      };
+      window.addEventListener('load', onLoad);
+      return () => window.removeEventListener('load', onLoad);
+    }
   }, []);
 
   useEffect(() => {

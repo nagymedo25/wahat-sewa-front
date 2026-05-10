@@ -11,6 +11,7 @@ export default function Loader({ isHidden }) {
     const el = overlayRef.current;
     const content = contentRef.current;
 
+    // Primary exit: clip-path wipe
     el.style.transition = 'clip-path 1.2s cubic-bezier(0.87, 0, 0.13, 1), opacity 0.8s ease 1.1s';
     el.style.clipPath = 'circle(0% at 50% 50%)';
     el.style.opacity = '0';
@@ -21,10 +22,13 @@ export default function Loader({ isHidden }) {
       content.style.opacity = '0';
     }
 
+    // Fallback: force-hide after 2.5s (in case CSS transition fails on mobile)
     const t = setTimeout(() => {
       el.style.visibility = 'hidden';
       el.style.pointerEvents = 'none';
-    }, 2000);
+      el.style.opacity = '0';
+      el.style.clipPath = 'circle(0% at 50% 50%)';
+    }, 2500);
 
     return () => clearTimeout(t);
   }, [isHidden]);
