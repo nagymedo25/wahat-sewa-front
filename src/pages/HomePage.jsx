@@ -96,7 +96,7 @@ export default function HomePage() {
         setIsNavVisible(true);
       }, 400);
       return () => window.clearTimeout(t2);
-    }, 2500);
+    }, 4500);
 
     return () => window.clearTimeout(t1);
   }, []);
