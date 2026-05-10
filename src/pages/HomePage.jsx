@@ -440,7 +440,7 @@ export default function HomePage() {
       <Birds />
 
       <main className="relative">
-        <HeroSection isLoaded={isLoaded} />
+        <HeroSection isLoaded={isLoaded} isLiteMode={isLiteMode} />
         <div className="relative h-[60px] mt-[-60px] bg-[linear-gradient(to_bottom,transparent_0%,var(--shadow)_60%,var(--shadow)_100%)] z-[4] pointer-events-none max-md:h-[40px] max-md:mt-[-40px] max-[480px]:h-[30px] max-[480px]:mt-[-30px]" />
         <JourneySection />
         <ProductsSection products={products} />
