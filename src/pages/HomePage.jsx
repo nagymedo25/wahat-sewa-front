@@ -106,12 +106,13 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const delay = isLiteMode ? 1800 : 4500;
+    const isMobile = typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false;
+    const delay = isMobile ? 1200 : (isLiteMode ? 1800 : 3200);
     const t1 = window.setTimeout(() => {
       setIsLoaded(true);
       const t2 = window.setTimeout(() => {
         setIsNavVisible(true);
-      }, 400);
+      }, 300);
       return () => window.clearTimeout(t2);
     }, delay);
 

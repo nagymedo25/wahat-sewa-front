@@ -12,24 +12,30 @@ export default function Loader({ isHidden }) {
     const el = overlayRef.current;
     const content = contentRef.current;
 
-    // Primary exit: clip-path wipe
-    el.style.transition = 'clip-path 1.2s cubic-bezier(0.87, 0, 0.13, 1), opacity 0.8s ease 1.1s';
+    // Primary exit: clip-path wipe (faster on mobile)
+    if (isMobile) {
+      el.style.transition = 'clip-path 0.5s cubic-bezier(0.87, 0, 0.13, 1), opacity 0.4s ease 0.3s';
+    } else {
+      el.style.transition = 'clip-path 1.2s cubic-bezier(0.87, 0, 0.13, 1), opacity 0.8s ease 1.1s';
+    }
     el.style.clipPath = 'circle(0% at 50% 50%)';
     el.style.opacity = '0';
 
     if (content) {
-      content.style.transition = 'transform 0.6s ease, opacity 0.6s ease';
+      content.style.transition = isMobile
+        ? 'transform 0.35s ease, opacity 0.35s ease'
+        : 'transform 0.6s ease, opacity 0.6s ease';
       content.style.transform = 'scale(0.92)';
       content.style.opacity = '0';
     }
 
-    // Fallback: force-hide after 2.5s (in case CSS transition fails on mobile)
+    // Fallback: force-hide after timeout (in case CSS transition fails on mobile)
     const t = setTimeout(() => {
       el.style.visibility = 'hidden';
       el.style.pointerEvents = 'none';
       el.style.opacity = '0';
       el.style.clipPath = 'circle(0% at 50% 50%)';
-    }, 2500);
+    }, isMobile ? 1200 : 2500);
 
     return () => clearTimeout(t);
   }, [isHidden]);

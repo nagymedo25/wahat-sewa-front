@@ -14,6 +14,8 @@ export default function SidePalmTrees({ isLoaded }) {
     const container = containerRef.current;
     if (!container) return;
 
+    const isMobile = typeof window !== 'undefined' ? window.matchMedia?.('(max-width: 768px)')?.matches : false;
+
     const palms = container.querySelectorAll('.palm-grow');
     const allLeaves = container.querySelectorAll('.palm-leaf');
 
@@ -22,19 +24,27 @@ export default function SidePalmTrees({ isLoaded }) {
       gsap.set(palms, { scaleY: 0, transformOrigin: 'bottom center' });
       gsap.set(allLeaves, { scale: 0, rotate: -15, transformOrigin: '50% 100%' });
 
-      // Find the hero section as the trigger (palms are fixed, so we need a real section element)
-      const heroEl = document.querySelector('.hero');
-      if (!heroEl) return;
+      const heroEl = !isMobile ? document.querySelector('.hero') : null;
+      if (!isMobile && !heroEl) return;
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: heroEl,
-          start: 'top 80%',
-          end: 'bottom top',
-          toggleActions: 'play none none reverse',
-          invalidateOnRefresh: true,
-        },
-      });
+      const tl = gsap.timeline(
+        isMobile
+          ? {
+              onComplete: () => {
+                gsap.set(palms, { scaleY: 1 });
+              },
+            }
+          : {
+              scrollTrigger: {
+                // Find the hero section as the trigger (palms are fixed, so we need a real section element)
+                trigger: heroEl,
+                start: 'top 80%',
+                end: 'bottom top',
+                toggleActions: 'play none none reverse',
+                invalidateOnRefresh: true,
+              },
+            }
+      );
 
       // Initial delay after hero enters view
       tl.fromTo({}, {}, { duration: 1.5 });
