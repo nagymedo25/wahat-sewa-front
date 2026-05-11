@@ -1,66 +1,81 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail } from 'lucide-react';
-import GlassShell from '@/components/Layout/GlassShell.jsx';
+import { Mail, Send, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
+import AuthShell from '@/components/Layout/AuthShell.jsx';
+import { useToast } from '@/store/toast.jsx';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
+  const toast = useToast();
 
   const onSubmit = (e) => {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim()) {
+      toast.error('أدخل البريد الإلكتروني أولاً');
+      return;
+    }
     setDone(true);
+    toast.success('تم إرسال رابط الاستعادة (تجريبي)');
   };
 
   return (
-    <GlassShell title="استعادة كلمة المرور" subtitle="أدخل بريدك وسنرسل لك رابط الاستعادة (واجهة تجريبية).">
-      <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(22px)] p-8 max-w-[720px]">
-        {!done ? (
-          <form onSubmit={onSubmit} className="flex flex-col gap-5">
-            <div>
-              <label className="block mb-2 text-sand-light">البريد الإلكتروني</label>
-              <div className="flex items-center gap-3 rounded-2xl px-4 py-3 border border-[rgba(212,197,169,0.14)] bg-[rgba(10,9,7,0.35)]">
-                <Mail className="w-4 h-4 text-olive-glow" />
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  type="email"
-                  className="w-full bg-transparent outline-none text-cream placeholder:text-[rgba(245,239,227,0.35)]"
-                  placeholder="name@email.com"
-                  autoComplete="email"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="rounded-2xl px-5 py-3 bg-[linear-gradient(135deg,rgba(74,90,42,0.55),rgba(164,184,107,0.22))] border border-[rgba(164,184,107,0.35)] text-cream font-ar font-semibold transition-all duration-300 hover:shadow-[0_18px_50px_rgba(164,184,107,0.10)] active:scale-[0.99]"
-            >
-              إرسال الرابط
-            </button>
-
-            <div className="text-[0.9rem] text-sand opacity-80">
-              رجوع إلى{' '}
-              <Link to="/auth/login" className="no-underline text-sand-light hover:text-cream transition-colors">
-                تسجيل الدخول
-              </Link>
-            </div>
-          </form>
-        ) : (
+    <AuthShell title="استعادة كلمة المرور" subtitle="أدخل بريدك وسنرسل لك رابط الاستعادة.">
+      {!done ? (
+        <form onSubmit={onSubmit} className="flex flex-col gap-5">
           <div>
-            <div className="rounded-2xl border border-[rgba(164,184,107,0.25)] bg-[rgba(164,184,107,0.07)] px-4 py-3 text-sand-light">
-              تم (تجريبياً) إرسال رابط الاستعادة إلى: <span className="text-cream">{email}</span>
-            </div>
-            <div className="mt-6 text-[0.9rem] text-sand opacity-80">
-              تابع إلى{' '}
-              <Link to="/auth/login" className="no-underline text-sand-light hover:text-cream transition-colors">
-                تسجيل الدخول
-              </Link>
+            <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">البريد الإلكتروني</label>
+            <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
+              <Mail className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
+              <input
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                className="w-full bg-transparent outline-none text-cream placeholder:text-[rgba(245,239,227,0.30)] font-ar text-[0.95rem]"
+                placeholder="name@email.com"
+                autoComplete="email"
+              />
             </div>
           </div>
-        )}
-      </div>
-    </GlassShell>
+
+          <button
+            type="submit"
+            className="group relative overflow-hidden rounded-2xl px-5 py-3.5 bg-[linear-gradient(135deg,rgba(74,90,42,0.60),rgba(164,184,107,0.25))] border border-[rgba(164,184,107,0.40)] text-cream font-ar font-semibold transition-all duration-300 hover:shadow-[0_18px_50px_rgba(164,184,107,0.14)] active:scale-[0.98] flex items-center justify-center gap-2"
+          >
+            <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+            <Send className="w-[18px] h-[18px]" strokeWidth={2} />
+            إرسال الرابط
+          </button>
+
+          <div className="text-[0.85rem] text-sand opacity-70 font-ar text-center">
+            رجوع إلى{' '}
+            <Link to="/auth/login" className="no-underline text-olive-glow hover:text-cream transition-colors inline-flex items-center gap-1">
+              تسجيل الدخول
+              <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
+            </Link>
+          </div>
+        </form>
+      ) : (
+        <div className="flex flex-col items-center text-center gap-4">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.12)] border border-[rgba(164,184,107,0.25)]">
+            <CheckCircle2 className="w-7 h-7 text-olive-glow" strokeWidth={1.5} />
+          </div>
+          <div>
+            <div className="font-ar text-cream font-semibold text-[1.1rem]">تم الإرسال</div>
+            <div className="mt-2 rounded-2xl border border-[rgba(164,184,107,0.20)] bg-[rgba(164,184,107,0.06)] px-4 py-3 text-sand-light text-[0.9rem] font-ar flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-olive-glow shrink-0" strokeWidth={2} />
+              تم إرسال رابط الاستعادة إلى: <span className="text-cream font-en">{email}</span>
+            </div>
+          </div>
+          <Link
+            to="/auth/login"
+            className="mt-2 inline-flex items-center gap-1 no-underline text-olive-glow hover:text-cream transition-colors font-ar text-[0.9rem]"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
+            تسجيل الدخول
+          </Link>
+        </div>
+      )}
+    </AuthShell>
   );
 }

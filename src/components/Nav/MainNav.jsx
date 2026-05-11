@@ -2,6 +2,8 @@ import { useEffect, useRef, useLayoutEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../../images/Logo1.png';
 import { gsap } from 'gsap';
+import { Compass, LogIn, ShoppingBasket, UserCircle } from 'lucide-react';
+import { useCart } from '@/store/cart.jsx';
 
 const links = [
   { href: '#journey', label: 'الرحلة' },
@@ -11,8 +13,8 @@ const links = [
 ];
 
 const routeLinks = [
-  { to: '/shop', label: 'المتجر' },
-  { to: '/auth/login', label: 'تسجيل الدخول' },
+  { to: '/shop', label: 'المتجر', icon: Compass },
+  { to: '/auth/login', label: 'تسجيل الدخول', icon: LogIn },
 ];
 
 // Random scatter directions for assembly animation
@@ -27,6 +29,7 @@ const scatterDirs = [
 
 export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMenuOpen, onToggleMobileMenu }) {
   const location = useLocation();
+  const { items } = useCart();
   const navRef = useRef(null);
   const menuRef = useRef(null);
   const linksRef = useRef(null);
@@ -200,20 +203,36 @@ export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMe
 
             {routeLinks.map((l) => {
               const isActive = location.pathname === l.to;
+              const Icon = l.icon;
               return (
                 <Link
                   key={l.to}
                   to={l.to}
                   className={
-                    'nav-piece group relative no-underline font-ar text-[1.05rem] font-medium transition-colors duration-300 overflow-hidden ' +
+                    'nav-piece group relative no-underline font-ar text-[1.05rem] font-medium transition-colors duration-300 overflow-hidden inline-flex items-center gap-1.5 ' +
                     (isActive ? 'text-cream ' : 'text-sand-light hover:text-cream ')
                   }
                 >
+                  <Icon className="w-[16px] h-[16px] opacity-70 group-hover:opacity-100 transition-opacity" strokeWidth={1.5} />
                   {l.label}
                   <span className="absolute bottom-[-4px] right-0 w-0 h-[1.5px] bg-olive-glow transition-[width] duration-[400ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-full" />
                 </Link>
               );
             })}
+
+            {/* Cart Quick Link */}
+            <Link
+              to="/shop/cart"
+              className="nav-piece relative inline-flex items-center gap-1.5 no-underline font-ar text-[1.05rem] font-medium text-sand-light hover:text-cream transition-colors duration-300"
+            >
+              <ShoppingBasket className="w-[16px] h-[16px] opacity-70" strokeWidth={1.5} />
+              السلة
+              {items.length > 0 && (
+                <span className="relative -top-1 -left-0.5 min-w-[16px] h-[16px] rounded-full bg-sunset text-[0.55rem] font-number text-cream flex items-center justify-center px-1 shadow-md">
+                  {items.length}
+                </span>
+              )}
+            </Link>
           </div>
 
           {/* Burger Button — nav-piece */}
@@ -315,19 +334,39 @@ export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMe
             </a>
           ))}
 
-          {routeLinks.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              onClick={() => onToggleMobileMenu()}
-              className="mobile-link group relative flex flex-col items-center py-3 no-underline transition-all duration-300"
-            >
-              <span className="font-ar text-[clamp(1.35rem,6vw,2.1rem)] font-semibold text-sand-light transition-colors duration-300 group-hover:text-cream">
-                {l.label}
-              </span>
-              <span className="mt-2 w-0 h-[1px] bg-olive-glow transition-[width] duration-[350ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-12 opacity-40" />
-            </Link>
-          ))}
+          {routeLinks.map((l) => {
+            const Icon = l.icon;
+            return (
+              <Link
+                key={l.to}
+                to={l.to}
+                onClick={() => onToggleMobileMenu()}
+                className="mobile-link group relative flex flex-col items-center py-3 no-underline transition-all duration-300"
+              >
+                <span className="font-ar text-[clamp(1.35rem,6vw,2.1rem)] font-semibold text-sand-light transition-colors duration-300 group-hover:text-cream inline-flex items-center gap-2">
+                  <Icon className="w-5 h-5 opacity-50" strokeWidth={1.5} />
+                  {l.label}
+                </span>
+                <span className="mt-2 w-0 h-[1px] bg-olive-glow transition-[width] duration-[350ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-12 opacity-40" />
+              </Link>
+            );
+          })}
+          <Link
+            to="/shop/cart"
+            onClick={() => onToggleMobileMenu()}
+            className="mobile-link group relative flex flex-col items-center py-3 no-underline transition-all duration-300"
+          >
+            <span className="font-ar text-[clamp(1.35rem,6vw,2.1rem)] font-semibold text-sand-light transition-colors duration-300 group-hover:text-cream inline-flex items-center gap-2">
+              <ShoppingBasket className="w-5 h-5 opacity-50" strokeWidth={1.5} />
+              السلة
+              {items.length > 0 && (
+                <span className="min-w-[20px] h-[20px] rounded-full bg-sunset text-[0.65rem] font-number text-cream flex items-center justify-center px-1">
+                  {items.length}
+                </span>
+              )}
+            </span>
+            <span className="mt-2 w-0 h-[1px] bg-olive-glow transition-[width] duration-[350ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-12 opacity-40" />
+          </Link>
         </div>
 
         {/* Bottom quote */}

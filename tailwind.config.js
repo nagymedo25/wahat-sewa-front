@@ -26,6 +26,7 @@ export default {
       fontFamily: {
         ar: 'var(--font-ar)',
         en: 'var(--font-en)',
+        number: 'var(--font-number)',
       },
       transitionTimingFunction: {
         cinematic: 'var(--ease-cinematic)',
