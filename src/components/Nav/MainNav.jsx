@@ -122,8 +122,8 @@ export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMe
       if (linkEls?.length) {
         tl.fromTo(
           linkEls,
-          { y: 80, opacity: 0, rotateX: -35, skewX: -5 },
-          { y: 0, opacity: 1, rotateX: 0, skewX: 0, duration: 0.7, stagger: 0.1, ease: 'power3.out' },
+          { y: 28, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: 'power2.out' },
           0.3
         );
       }
@@ -308,10 +308,10 @@ export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMe
               onClick={() => onToggleMobileMenu()}
               className="mobile-link group relative flex flex-col items-center py-3 no-underline transition-all duration-300"
             >
-              <span className="font-ar text-[clamp(1.75rem,7vw,3rem)] font-bold text-sand-light transition-all duration-500 group-hover:text-cream group-hover:scale-[1.03] group-hover:tracking-[0.02em] [text-shadow:0_0_0px_rgba(212,197,169,0)] group-hover:[text-shadow:0_0_30px_rgba(212,197,169,0.15)]">
+              <span className="font-ar text-[clamp(1.35rem,6vw,2.1rem)] font-semibold text-sand-light transition-colors duration-300 group-hover:text-cream">
                 {l.label}
               </span>
-              <span className="mt-2 w-0 h-[1px] bg-olive-glow transition-[width] duration-[500ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-16 opacity-50" />
+              <span className="mt-2 w-0 h-[1px] bg-olive-glow transition-[width] duration-[350ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-12 opacity-40" />
             </a>
           ))}
 
@@ -322,10 +322,10 @@ export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMe
               onClick={() => onToggleMobileMenu()}
               className="mobile-link group relative flex flex-col items-center py-3 no-underline transition-all duration-300"
             >
-              <span className="font-ar text-[clamp(1.75rem,7vw,3rem)] font-bold text-sand-light transition-all duration-500 group-hover:text-cream group-hover:scale-[1.03] group-hover:tracking-[0.02em] [text-shadow:0_0_0px_rgba(212,197,169,0)] group-hover:[text-shadow:0_0_30px_rgba(212,197,169,0.15)]">
+              <span className="font-ar text-[clamp(1.35rem,6vw,2.1rem)] font-semibold text-sand-light transition-colors duration-300 group-hover:text-cream">
                 {l.label}
               </span>
-              <span className="mt-2 w-0 h-[1px] bg-olive-glow transition-[width] duration-[500ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-16 opacity-50" />
+              <span className="mt-2 w-0 h-[1px] bg-olive-glow transition-[width] duration-[350ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-12 opacity-40" />
             </Link>
           ))}
         </div>

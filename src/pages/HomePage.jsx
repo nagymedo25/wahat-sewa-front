@@ -92,18 +92,15 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const mqSmall = window.matchMedia('(max-width: 768px)');
     const mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     const update = () => {
-      const cores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : 8;
       const saveData = typeof navigator !== 'undefined' && navigator.connection ? navigator.connection.saveData : false;
-      setIsLiteMode(Boolean(mqSmall.matches || mqReduced.matches || saveData || (cores && cores <= 4)));
+      const isDesktop = typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false;
+      setIsLiteMode(Boolean(!isDesktop && (mqReduced.matches || saveData)));
     };
     update();
-    mqSmall.addEventListener?.('change', update);
     mqReduced.addEventListener?.('change', update);
     return () => {
-      mqSmall.removeEventListener?.('change', update);
       mqReduced.removeEventListener?.('change', update);
     };
   }, []);
@@ -438,7 +435,7 @@ export default function HomePage() {
       {!isLiteMode && <ParticleCanvas />}
       <LightRays />
       <FloatingElements />
-      {!isLiteMode && <SidePalmTrees isLoaded={isLoaded} />}
+      <SidePalmTrees isLoaded={isLoaded} />
       <Birds />
 
       <main className="relative">

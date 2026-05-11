@@ -9,6 +9,7 @@ export default function SidePalmTrees({ isLoaded }) {
 
   useLayoutEffect(() => {
     if (!isLoaded) return;
+    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
 
     const container = containerRef.current;
     if (!container) return;
@@ -138,7 +139,7 @@ export default function SidePalmTrees({ isLoaded }) {
         </div>
       </div>
 
-      <div className="palm-grow absolute bottom-[-2vh] right-[10%] origin-bottom opacity-90 w-[clamp(120px,14vw,240px)] h-[60vh] flex items-end justify-center z-[1] max-md:block max-md:w-[22vw] max-md:h-[38vh] max-md:right-[6vw] max-md:bottom-[-1vh] max-[480px]:w-[18vw] max-[480px]:h-[30vh] max-[480px]:right-[5vw]">
+      <div className="palm-grow absolute bottom-[-2vh] right-[10%] origin-bottom opacity-90 w-[clamp(120px,14vw,240px)] h-[60vh] flex items-end justify-center z-[1] max-md:hidden">
         <div className="palm-tree origin-bottom [animation:palmSwayRight_6s_ease-in-out_infinite_0.5s] w-full h-full flex items-end justify-center">
           <svg viewBox="0 0 300 500" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" className="w-full h-full block overflow-visible">
           <path d="M152,500 Q158,470 150,440 Q145,410 155,380 Q162,350 152,320 Q147,290 154,270" fill="none" stroke="url(#trunkGrad)" strokeWidth="14" strokeLinecap="round" />
@@ -248,7 +249,7 @@ export default function SidePalmTrees({ isLoaded }) {
         </div>
       </div>
 
-      <div className="palm-grow absolute bottom-[-2vh] left-[10%] origin-bottom opacity-90 w-[clamp(120px,14vw,240px)] h-[60vh] flex items-end justify-center z-[1] max-md:block max-md:w-[22vw] max-md:h-[38vh] max-md:left-[6vw] max-md:bottom-[-1vh] max-[480px]:w-[18vw] max-[480px]:h-[30vh] max-[480px]:left-[5vw]">
+      <div className="palm-grow absolute bottom-[-2vh] left-[10%] origin-bottom opacity-90 w-[clamp(120px,14vw,240px)] h-[60vh] flex items-end justify-center z-[1] max-md:hidden">
         <div className="palm-tree origin-bottom [animation:palmSwayLeft_6.5s_ease-in-out_infinite_0.3s] w-full h-full flex items-end justify-center">
           <svg viewBox="0 0 300 500" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" className="w-full h-full block overflow-visible">
           <path d="M148,500 Q142,470 150,440 Q155,410 145,380 Q138,350 148,320 Q153,290 146,270" fill="none" stroke="url(#trunkGrad)" strokeWidth="14" strokeLinecap="round" />
