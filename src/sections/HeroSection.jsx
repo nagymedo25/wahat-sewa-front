@@ -163,7 +163,7 @@ export default function HeroSection({ isLoaded, isLiteMode = false }) {
         <div className="hero-dunes hero-dunes-near absolute bottom-0 left-0 right-0 h-[35%] bg-[linear-gradient(to_top,var(--shadow)_0%,rgba(26,24,20,0.9)_40%,transparent_100%)] [clip-path:polygon(0%_100%,0%_75%,25%_65%,50%_72%,75%_60%,100%_68%,100%_100%)] [animation:duneBreath_12s_ease-in-out_infinite_2s]" />
         <div className="absolute bottom-0 right-[-5%] w-[45%] h-[55%] opacity-60 bg-[linear-gradient(180deg,transparent_0%,rgba(26,24,20,0.3)_30%,var(--shadow)_100%)] [clip-path:polygon(50%_0%,52%_15%,60%_12%,58%_18%,65%_8%,70%_14%,68%_20%,75%_5%,82%_12%,78%_22%,85%_10%,90%_18%,85%_28%,92%_15%,95%_25%,88%_35%,94%_28%,96%_38%,90%_45%,80%_42%,75%_48%,70%_45%,60%_50%,55%_55%,52%_100%,48%_100%,45%_55%,35%_50%,30%_45%,25%_48%,20%_42%,10%_45%,4%_38%,6%_28%,12%_35%,5%_25%,10%_15%,15%_28%,22%_18%,18%_12%,25%_22%,32%_14%,30%_8%,35%_20%,42%_18%,40%_12%,45%_15%,48%_0%)] max-md:w-[70%]" />
         <div
-          className="absolute inset-0 z-[5] pointer-events-none bg-center bg-cover opacity-80 mix-blend-multiply [filter:contrast(1.1)_brightness(0.9)_saturate(0.75)] max-md:opacity-60 max-md:mix-blend-normal max-md:[filter:none]"
+          className="absolute inset-0 z-[5] pointer-events-none bg-center bg-cover opacity-80 mix-blend-multiply [filter:contrast(1.1)_brightness(0.9)_saturate(0.75)] max-md:opacity-60 max-md:mix-blend-normal max-md:[filter:none] max-md:hidden"
           style={{ backgroundImage: `url(${heroBg1})` }}
         />
         <div className="absolute bottom-0 left-0 right-0 h-[22%] z-[6] pointer-events-none overflow-hidden max-md:h-[18%] max-[480px]:h-[15%]">

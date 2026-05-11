@@ -109,16 +109,17 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    const delay = isLiteMode ? 1800 : 4500;
     const t1 = window.setTimeout(() => {
       setIsLoaded(true);
       const t2 = window.setTimeout(() => {
         setIsNavVisible(true);
       }, 400);
       return () => window.clearTimeout(t2);
-    }, 4500);
+    }, delay);
 
     return () => window.clearTimeout(t1);
-  }, []);
+  }, [isLiteMode]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -183,6 +184,7 @@ export default function HomePage() {
   }, [isLiteMode]);
 
   useEffect(() => {
+    if (isLiteMode) return;
     const intervalId = window.setInterval(() => {
       const orbs = document.querySelectorAll('.product-orb');
       const randomOrb = orbs[Math.floor(Math.random() * orbs.length)];
@@ -192,7 +194,7 @@ export default function HomePage() {
     }, 5000);
 
     return () => window.clearInterval(intervalId);
-  }, []);
+  }, [isLiteMode]);
 
   useEffect(() => {
     const onAnchorClick = (e) => {

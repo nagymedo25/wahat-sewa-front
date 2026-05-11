@@ -41,6 +41,8 @@ export default function PhilosophySection() {
               <img
                 src={heroBg2}
                 alt="سيوة - من قلب الصحراء"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover block [filter:brightness(0.85)_contrast(1.1)_saturate(0.9)] transition-[transform,filter] duration-[800ms] [transition-timing-function:var(--ease-cinematic)] hover:scale-[1.05] hover:[filter:brightness(0.9)_contrast(1.15)_saturate(1)]"
               />
               <div className="absolute inset-0 pointer-events-none z-[1] bg-[linear-gradient(to_bottom,rgba(26,24,20,0.1)_0%,rgba(26,24,20,0.3)_60%,rgba(26,24,20,0.7)_100%)]" />

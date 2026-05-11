@@ -4,6 +4,7 @@ import logoImg from '../../images/Logo1.png';
 export default function Loader({ isHidden }) {
   const overlayRef = useRef(null);
   const contentRef = useRef(null);
+  const isMobile = typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false;
 
   useEffect(() => {
     if (!isHidden || !overlayRef.current) return;
@@ -47,45 +48,49 @@ export default function Loader({ isHidden }) {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_30%,rgba(184,149,107,0.06)_0%,transparent_50%)]" />
 
       {/* LARGE outer arabesque ring */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none ldr-outer-ring">
-        <svg width="600" height="600" viewBox="0 0 600 600" fill="none" className="max-md:w-[380px] max-md:h-[380px]">
-          {/* Big 8-point star */}
-          <path d="M300 10 L340 210 L540 210 L370 320 L430 540 L300 410 L170 540 L230 320 L60 210 L260 210Z"
-            stroke="var(--olive-glow)" strokeWidth="1" opacity="0.25" />
-          <path d="M300 50 L325 220 L490 220 L350 305 L400 490 L300 380 L200 490 L250 305 L110 220 L275 220Z"
-            stroke="var(--sand)" strokeWidth="0.7" opacity="0.18" />
-          {/* Concentric circles */}
-          <circle cx="300" cy="300" r="270" stroke="var(--olive-glow)" strokeWidth="0.6" opacity="0.15" />
-          <circle cx="300" cy="300" r="240" stroke="var(--sand)" strokeWidth="0.5" opacity="0.12" strokeDasharray="14 10" />
-          <circle cx="300" cy="300" r="210" stroke="var(--olive-glow)" strokeWidth="0.5" opacity="0.18" />
-          <circle cx="300" cy="300" r="180" stroke="var(--sand)" strokeWidth="0.4" opacity="0.1" strokeDasharray="8 6" />
-          {/* Corner diamond ornaments */}
-          <path d="M300 35 L315 60 L300 85 L285 60Z" stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.35" />
-          <path d="M300 515 L315 540 L300 565 L285 540Z" stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.35" />
-          <path d="M35 300 L60 285 L85 300 L60 315Z" stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.35" />
-          <path d="M515 300 L540 285 L565 300 L540 315Z" stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.35" />
-          {/* Side diamond ornaments */}
-          <path d="M170 90 L180 110 L170 130 L160 110Z" stroke="var(--sand)" strokeWidth="0.7" opacity="0.22" />
-          <path d="M430 90 L440 110 L430 130 L420 110Z" stroke="var(--sand)" strokeWidth="0.7" opacity="0.22" />
-          <path d="M170 470 L180 490 L170 510 L160 490Z" stroke="var(--sand)" strokeWidth="0.7" opacity="0.22" />
-          <path d="M430 470 L440 490 L430 510 L420 490Z" stroke="var(--sand)" strokeWidth="0.7" opacity="0.22" />
-        </svg>
-      </div>
+      {!isMobile && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none ldr-outer-ring">
+          <svg width="600" height="600" viewBox="0 0 600 600" fill="none" className="max-md:w-[380px] max-md:h-[380px]">
+            {/* Big 8-point star */}
+            <path d="M300 10 L340 210 L540 210 L370 320 L430 540 L300 410 L170 540 L230 320 L60 210 L260 210Z"
+              stroke="var(--olive-glow)" strokeWidth="1" opacity="0.25" />
+            <path d="M300 50 L325 220 L490 220 L350 305 L400 490 L300 380 L200 490 L250 305 L110 220 L275 220Z"
+              stroke="var(--sand)" strokeWidth="0.7" opacity="0.18" />
+            {/* Concentric circles */}
+            <circle cx="300" cy="300" r="270" stroke="var(--olive-glow)" strokeWidth="0.6" opacity="0.15" />
+            <circle cx="300" cy="300" r="240" stroke="var(--sand)" strokeWidth="0.5" opacity="0.12" strokeDasharray="14 10" />
+            <circle cx="300" cy="300" r="210" stroke="var(--olive-glow)" strokeWidth="0.5" opacity="0.18" />
+            <circle cx="300" cy="300" r="180" stroke="var(--sand)" strokeWidth="0.4" opacity="0.1" strokeDasharray="8 6" />
+            {/* Corner diamond ornaments */}
+            <path d="M300 35 L315 60 L300 85 L285 60Z" stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.35" />
+            <path d="M300 515 L315 540 L300 565 L285 540Z" stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.35" />
+            <path d="M35 300 L60 285 L85 300 L60 315Z" stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.35" />
+            <path d="M515 300 L540 285 L565 300 L540 315Z" stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.35" />
+            {/* Side diamond ornaments */}
+            <path d="M170 90 L180 110 L170 130 L160 110Z" stroke="var(--sand)" strokeWidth="0.7" opacity="0.22" />
+            <path d="M430 90 L440 110 L430 130 L420 110Z" stroke="var(--sand)" strokeWidth="0.7" opacity="0.22" />
+            <path d="M170 470 L180 490 L170 510 L160 490Z" stroke="var(--sand)" strokeWidth="0.7" opacity="0.22" />
+            <path d="M430 470 L440 490 L430 510 L420 490Z" stroke="var(--sand)" strokeWidth="0.7" opacity="0.22" />
+          </svg>
+        </div>
+      )}
 
       {/* MID inner ring */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none ldr-mid-ring">
-        <svg width="380" height="380" viewBox="0 0 380 380" fill="none" className="max-md:w-[260px] max-md:h-[260px]">
-          <path d="M190 25 L215 130 L330 130 L245 195 L275 310 L190 250 L105 310 L135 195 L50 130 L165 130Z"
-            stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.28" />
-          <path d="M190 55 L205 140 L295 140 L230 190 L250 280 L190 230 L130 280 L150 190 L85 140 L175 140Z"
-            stroke="var(--sand)" strokeWidth="0.6" opacity="0.2" />
-          <circle cx="190" cy="190" r="160" stroke="var(--olive-glow)" strokeWidth="0.5" opacity="0.16" />
-          <circle cx="190" cy="190" r="135" stroke="var(--sand)" strokeWidth="0.4" opacity="0.12" strokeDasharray="10 6" />
-          {/* Inner diamond accents */}
-          <path d="M190 50 L200 70 L190 90 L180 70Z" stroke="var(--olive-glow)" strokeWidth="0.7" opacity="0.3" />
-          <path d="M190 290 L200 310 L190 330 L180 310Z" stroke="var(--olive-glow)" strokeWidth="0.7" opacity="0.3" />
-        </svg>
-      </div>
+      {!isMobile && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none ldr-mid-ring">
+          <svg width="380" height="380" viewBox="0 0 380 380" fill="none" className="max-md:w-[260px] max-md:h-[260px]">
+            <path d="M190 25 L215 130 L330 130 L245 195 L275 310 L190 250 L105 310 L135 195 L50 130 L165 130Z"
+              stroke="var(--olive-glow)" strokeWidth="0.9" opacity="0.28" />
+            <path d="M190 55 L205 140 L295 140 L230 190 L250 280 L190 230 L130 280 L150 190 L85 140 L175 140Z"
+              stroke="var(--sand)" strokeWidth="0.6" opacity="0.2" />
+            <circle cx="190" cy="190" r="160" stroke="var(--olive-glow)" strokeWidth="0.5" opacity="0.16" />
+            <circle cx="190" cy="190" r="135" stroke="var(--sand)" strokeWidth="0.4" opacity="0.12" strokeDasharray="10 6" />
+            {/* Inner diamond accents */}
+            <path d="M190 50 L200 70 L190 90 L180 70Z" stroke="var(--olive-glow)" strokeWidth="0.7" opacity="0.3" />
+            <path d="M190 290 L200 310 L190 330 L180 310Z" stroke="var(--olive-glow)" strokeWidth="0.7" opacity="0.3" />
+          </svg>
+        </div>
+      )}
 
       {/* SMALL inner ornament around logo area */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none ldr-inner-ring">
@@ -101,7 +106,7 @@ export default function Loader({ isHidden }) {
 
       {/* Floating particles */}
       <div className="absolute inset-0 pointer-events-none ldr-particles">
-        {Array.from({ length: 24 }).map((_, i) => {
+        {Array.from({ length: isMobile ? 10 : 24 }).map((_, i) => {
           const size = 1.2 + (i % 4) * 0.7;
           const left = 6 + ((i * 41) % 88);
           const top = 5 + ((i * 47) % 90);

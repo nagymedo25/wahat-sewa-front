@@ -104,7 +104,7 @@ export default function ParticleCanvas() {
 
     function initParticles() {
       particles = [];
-      const count = width < 768 ? 28 : 140;
+      const count = width < 768 ? 10 : 140;
       for (let i = 0; i < count; i++) {
         particles.push(new Particle());
       }
@@ -115,7 +115,7 @@ export default function ParticleCanvas() {
       if (!lastTs) lastTs = ts;
 
       const dt = ts - lastTs;
-      if (dt < (width < 768 ? 33 : 16)) {
+      if (dt < (width < 768 ? 50 : 16)) {
         raf = window.requestAnimationFrame(animateParticles);
         return;
       }
