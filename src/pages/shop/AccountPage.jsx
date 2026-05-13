@@ -1,19 +1,50 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, ShoppingBag, UserCircle, ClipboardList, Settings2, Sparkles, Compass, CheckCircle2, PackageOpen, Clock, CalendarDays, MapPinned, Phone, CreditCard } from 'lucide-react';
+import { LogOut, ShoppingBag, UserCircle, ClipboardList, Settings2, Sparkles, Compass, CheckCircle2, PackageOpen, Clock, CalendarDays, MapPinned, Phone, CreditCard, Bell, Package, Truck, CheckCircle } from 'lucide-react';
 import GlassShell from '@/components/Layout/GlassShell.jsx';
 import { useAuth } from '@/store/auth.jsx';
 import { useToast } from '@/store/toast.jsx';
+import { useNotifications } from '@/context/NotificationContext.jsx';
+import { formatDistanceToNow } from 'date-fns';
+import { ar } from 'date-fns/locale';
 
-const ORDERS_KEY = 'wahat_orders_v1';
+const statusLabels = {
+  pending: 'قيد الانتظار',
+  confirmed: 'مؤكد',
+  processing: 'قيد المعالجة',
+  shipped: 'تم الشحن',
+  delivered: 'تم التسليم',
+  cancelled: 'ملغي',
+  returned: 'مسترجع',
+};
 
-function getOrders() {
-  try {
-    const raw = window.localStorage.getItem(ORDERS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
+function parseShippingAddress(value) {
+  if (!value) return {};
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return {};
+    }
   }
+  return value;
+}
+
+function normalizeOrder(order) {
+  const shippingAddress = parseShippingAddress(order.shipping_address);
+  const rawItems = Array.isArray(order.items) ? order.items : [];
+
+  return {
+    id: order.id,
+    status: statusLabels[order.status] || order.status || 'جارِ التجهيز',
+    date: order.created_at || order.date || new Date().toISOString(),
+    total: Number(order.total_amount ?? order.total ?? 0),
+    city: shippingAddress.city || order.city || 'غير محدد',
+    items: rawItems.map((item) => ({
+      name: item.product_name || item.name,
+      qty: item.quantity || item.qty || 1,
+    })),
+  };
 }
 
 function getStatusColor(status) {
@@ -22,8 +53,85 @@ function getStatusColor(status) {
   return 'text-sand-light';
 }
 
+function NotificationsTab() {
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+
+  const getIcon = (type) => {
+    switch (type) {
+      case 'order_update': return <Package className="w-5 h-5 text-olive-glow" />;
+      case 'shipping': return <Truck className="w-5 h-5 text-blue-400" />;
+      case 'delivery': return <CheckCircle className="w-5 h-5 text-emerald-400" />;
+      default: return <Bell className="w-5 h-5 text-sand" />;
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 font-ar text-cream font-semibold text-[1.15rem]">
+          <Bell className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
+          الإشعارات
+        </div>
+        {unreadCount > 0 && (
+          <button 
+            onClick={markAllAsRead}
+            className="text-xs text-olive-glow hover:text-white flex items-center gap-1 transition-colors font-ar"
+          >
+            تحديد الكل كمقروء
+          </button>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-4">
+        {notifications.length === 0 ? (
+          <div className="flex flex-col items-center text-center py-12">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.06)] border border-[rgba(164,184,107,0.12)] mb-5">
+              <Bell className="w-8 h-8 text-olive-glow opacity-40" strokeWidth={1.5} />
+            </div>
+            <div className="text-cream font-ar font-semibold text-[1.1rem]">لا توجد إشعارات</div>
+            <p className="mt-2 text-sand opacity-50 font-ar text-[0.9rem]">ستظهر هنا تنبيهات حالة طلباتك وتحديثات المتجر.</p>
+          </div>
+        ) : (
+          notifications.map((n) => (
+            <div 
+              key={n.id}
+              onClick={() => !n.is_read && markAsRead(n.id)}
+              className={`rounded-2xl border transition-all p-5 flex gap-4 cursor-pointer relative group ${
+                !n.is_read 
+                  ? 'bg-olive/10 border-olive/30 shadow-[0_0_20px_rgba(164,184,107,0.05)]' 
+                  : 'bg-[rgba(10,9,7,0.22)] border-[rgba(212,197,169,0.08)] opacity-80 hover:opacity-100 hover:border-[rgba(164,184,107,0.15)]'
+              }`}
+            >
+              {!n.is_read && (
+                <div className="absolute top-6 left-6 w-2.5 h-2.5 bg-olive-glow rounded-full shadow-[0_0_10px_rgba(164,184,107,0.5)]" />
+              )}
+              
+              <div className="mt-1">
+                <div className={`p-3 rounded-xl bg-shadow-soft border border-olive/20`}>
+                  {getIcon(n.type)}
+                </div>
+              </div>
+
+              <div className="flex-1 space-y-1.5">
+                <div className="flex justify-between items-start">
+                  <p className="font-bold text-cream group-hover:text-olive-glow transition-colors">{n.title}</p>
+                </div>
+                <p className="text-sm text-sand leading-relaxed opacity-80">{n.message}</p>
+                <div className="pt-2 flex items-center gap-2 text-[0.75rem] text-sand opacity-40 font-ar">
+                  <Clock className="w-3.5 h-3.5" />
+                  {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ar })}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AccountPage() {
-  const { user, isAuthed, logout } = useAuth();
+  const { user, isAuthed, logout, api } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const toast = useToast();
@@ -32,8 +140,26 @@ export default function AccountPage() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    if (tab === 'orders') setOrders(getOrders());
-  }, [tab]);
+    let isMounted = true;
+
+    async function loadOrders() {
+      if (tab !== 'orders') return;
+
+      try {
+        const response = await api.get('/orders');
+        if (!isMounted) return;
+        setOrders(response.data.orders.map(normalizeOrder));
+      } catch {
+        if (!isMounted) return;
+        setOrders([]);
+      }
+    }
+
+    loadOrders();
+    return () => {
+      isMounted = false;
+    };
+  }, [api, tab]);
 
   const handleLogout = useCallback(() => {
     logout();
@@ -72,6 +198,7 @@ export default function AccountPage() {
   const tabs = [
     { key: 'profile', label: 'الملف الشخصي', icon: UserCircle },
     { key: 'orders', label: 'الطلبات', icon: ClipboardList },
+    { key: 'notifications', label: 'الإشعارات', icon: Bell },
     { key: 'settings', label: 'الإعدادات', icon: Settings2 },
   ];
 
@@ -125,6 +252,7 @@ export default function AccountPage() {
         {/* Content */}
         <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-7">
           {tab === 'orders' && <OrdersTab orders={orders} />}
+          {tab === 'notifications' && <NotificationsTab />}
           {tab === 'settings' && <SettingsTab />}
           {tab === 'profile' && <ProfileTab user={user} />}
         </div>
@@ -229,7 +357,7 @@ function OrdersTab({ orders }) {
 }
 
 function SettingsTab() {
-  const { user, login } = useAuth();
+  const { user, updateProfile, changePassword } = useAuth();
   const toast = useToast();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -239,12 +367,20 @@ function SettingsTab() {
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
 
-  const handleSave = () => {
-    login({ name: name.trim() || user?.name, email: email.trim() || user?.email });
-    toast.success('تم حفظ التغييرات');
+  const handleSave = async () => {
+    const result = await updateProfile({
+      name: name.trim() || user?.name || '',
+      email: email.trim() || user?.email || '',
+    });
+
+    if (result.success) {
+      toast.success('تم حفظ التغييرات');
+    } else {
+      toast.error(result.error);
+    }
   };
 
-  const handlePassword = () => {
+  const handlePassword = async () => {
     if (!currentPass || !newPass) {
       toast.error('أدخل كلمة المرور الحالية والجديدة');
       return;
@@ -253,10 +389,17 @@ function SettingsTab() {
       toast.error('كلمتا المرور الجديدتين غير متطابقتين');
       return;
     }
-    if (newPass.length < 6) {
-      toast.error('كلمة المرور الجديدة قصيرة');
+    if (newPass.length < 8) {
+      toast.error('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل');
       return;
     }
+
+    const result = await changePassword(currentPass, newPass);
+    if (!result.success) {
+      toast.error(result.error);
+      return;
+    }
+
     setCurrentPass('');
     setNewPass('');
     setConfirmPass('');

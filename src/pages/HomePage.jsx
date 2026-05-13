@@ -15,6 +15,7 @@ import PhilosophySection from '@/sections/PhilosophySection.jsx';
 import ContactSection from '@/sections/ContactSection.jsx';
 import WaveTransition from '@/components/WaveTransition/WaveTransition.jsx';
 import SiteFooter from '@/components/Footer/SiteFooter.jsx';
+import { loadCatalog } from '@/services/catalog.js';
 
 export default function HomePage() {
   const rootRef = useRef(null);
@@ -24,9 +25,10 @@ export default function HomePage() {
   const [isNavScrolled, setIsNavScrolled] = useState(false);
   const [isNavHidden, setIsNavHidden] = useState(false);
   const [isLiteMode, setIsLiteMode] = useState(false);
+  const [dynamicProducts, setDynamicProducts] = useState([]);
   const lastScrollY = useRef(0);
 
-  const products = useMemo(
+  const fallbackProducts = useMemo(
     () => [
       {
         id: 'olive',
@@ -55,27 +57,22 @@ export default function HomePage() {
         price: 'ج.م 180',
         Icon: HerbsIcon,
       },
-      {
-        id: 'soap',
-        category: 'سيوة الأصلية',
-        name: 'صابون طبيعي',
-        desc: 'صابون يدوي الصنع من زيت الزيتون والأعشاب الطبيعية، ينظف بلطف ويرطب بعمق كمياه الينابيع.',
-        weight: '120 جرام',
-        price: 'ج.م 95',
-        Icon: SoapIcon,
-      },
-      {
-        id: 'organic',
-        category: 'سيوة الأصلية',
-        name: 'علبة الهدايا العضوية',
-        desc: 'تشكيلة فاخرة من خيرات الواحة في علبة يدوية الصنع، هدية تحمل روح سيوة لمن تحب.',
-        weight: 'مجموعة',
-        price: 'ج.م 650',
-        Icon: OrganicIcon,
-      },
     ],
     []
   );
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const catalog = await loadCatalog();
+      if (catalog.products && catalog.products.length > 0) {
+        // Take the first 5 products or featured ones
+        setDynamicProducts(catalog.products.slice(0, 5));
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  const products = dynamicProducts.length > 0 ? dynamicProducts : fallbackProducts;
 
   useEffect(() => {
     if (document.readyState === 'complete') {

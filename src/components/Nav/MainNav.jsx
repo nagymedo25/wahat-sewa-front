@@ -2,19 +2,16 @@ import { useEffect, useRef, useLayoutEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logoImg from '../../images/Logo1.png';
 import { gsap } from 'gsap';
-import { Compass, LogIn, ShoppingBasket, UserCircle } from 'lucide-react';
+import { Compass, LogIn, ShoppingBasket, UserCircle, ShieldCheck } from 'lucide-react';
 import { useCart } from '@/store/cart.jsx';
+import { useAuth } from '@/store/auth.jsx';
+import NotificationBell from './NotificationBell.jsx';
 
 const links = [
   { href: '#journey', label: 'الرحلة' },
   { href: '#products', label: 'المنتجات' },
   { href: '#philosophy', label: 'الفلسفة' },
   { href: '#contact', label: 'تواصل' },
-];
-
-const routeLinks = [
-  { to: '/shop', label: 'المتجر', icon: Compass },
-  { to: '/auth/login', label: 'تسجيل الدخول', icon: LogIn },
 ];
 
 // Random scatter directions for assembly animation
@@ -30,6 +27,7 @@ const scatterDirs = [
 export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMenuOpen, onToggleMobileMenu }) {
   const location = useLocation();
   const { items } = useCart();
+  const { isAuthed, isAdmin } = useAuth();
   const navRef = useRef(null);
   const menuRef = useRef(null);
   const linksRef = useRef(null);
@@ -42,6 +40,12 @@ export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMe
   const dustRef = useRef(null);
   const closeBtnRef = useRef(null);
   const hasAssembled = useRef(false);
+  const routeLinks = [
+    { to: '/shop', label: 'المتجر', icon: Compass },
+    isAuthed
+      ? { to: isAdmin ? '/admin/dashboard' : '/shop/account', label: isAdmin ? 'لوحة الأدمن' : 'حسابي', icon: isAdmin ? ShieldCheck : UserCircle }
+      : { to: '/auth/login', label: 'تسجيل الدخول', icon: LogIn },
+  ];
 
   // Close menu on resize to desktop
   useEffect(() => {
@@ -198,6 +202,9 @@ export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMe
                 <span className="absolute bottom-[-4px] right-0 w-0 h-[1.5px] bg-olive-glow transition-[width] duration-[400ms] [transition-timing-function:var(--ease-cinematic)] group-hover:w-full" />
               </a>
             ))}
+
+            {/* Notification Bell */}
+            {isAuthed && <NotificationBell />}
 
             <div className="w-px h-6 bg-[rgba(212,197,169,0.12)] nav-piece" />
 

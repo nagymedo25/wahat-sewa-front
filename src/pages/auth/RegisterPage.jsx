@@ -7,7 +7,7 @@ import { useToast } from '@/store/toast.jsx';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { register } = useAuth();
   const toast = useToast();
 
   const [name, setName] = useState('');
@@ -17,7 +17,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -36,19 +36,37 @@ export default function RegisterPage() {
       toast.error('كلمة المرور مطلوبة');
       return;
     }
-    if (password.length < 6) {
-      setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
+    if (password.length < 8) {
+      setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل.');
       toast.error('كلمة المرور قصيرة جداً');
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError('كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل.');
+      toast.error('كلمة المرور يجب أن تحتوي على حرف كبير');
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      setError('كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل.');
+      toast.error('كلمة المرور يجب أن تحتوي على حرف صغير');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError('كلمة المرور يجب أن تحتوي على رقم واحد على الأقل.');
+      toast.error('كلمة المرور يجب أن تحتوي على رقم');
       return;
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      login({ name: name.trim(), email: email.trim() });
+    const result = await register(name.trim(), email.trim(), password);
+    if (result.success) {
       toast.success(`أهلاً ${name.trim()}، تم إنشاء حسابك`);
-      setIsSubmitting(false);
-      navigate('/shop', { replace: true });
-    }, 600);
+      navigate(result.user?.role === 'admin' ? '/admin/dashboard' : '/shop', { replace: true });
+    } else {
+      setError(result.error);
+      toast.error(result.error);
+    }
+    setIsSubmitting(false);
   };
 
   return (

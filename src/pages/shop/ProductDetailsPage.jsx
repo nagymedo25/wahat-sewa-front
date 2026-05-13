@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Minus, Plus, ShoppingBasket, Star, Check, Truck, Package, ShieldCheck, Sparkles, ChevronLeft, Heart, Share2 } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, ShoppingBasket, Star, Check, Truck, Package, ShieldCheck, ChevronLeft, Heart, Share2, Loader2 } from 'lucide-react';
 import GlassShell from '@/components/Layout/GlassShell.jsx';
-import { getProductById, shopProducts } from '@/data/shopProducts.js';
 import { useCart } from '@/store/cart.jsx';
 import { useToast } from '@/store/toast.jsx';
+import { loadCatalog } from '@/services/catalog.js';
 
 function money(value, currency) {
   return `${value} ${currency}`;
@@ -12,13 +12,55 @@ function money(value, currency) {
 
 export default function ProductDetailsPage() {
   const { productId } = useParams();
-  const product = useMemo(() => getProductById(productId), [productId]);
   const { items, addItem } = useCart();
   const toast = useToast();
+  const [catalogProducts, setCatalogProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [added, setAdded] = useState(false);
   const [liked, setLiked] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchCatalog() {
+      setLoading(true);
+      const catalog = await loadCatalog();
+      if (!isMounted) return;
+      setCatalogProducts(catalog.products);
+      setLoading(false);
+    }
+
+    fetchCatalog();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const product = useMemo(
+    () => catalogProducts.find((item) => item.id === productId) || null,
+    [catalogProducts, productId]
+  );
+
+  const related = useMemo(
+    () =>
+      catalogProducts
+        .filter((p) => p.category === product?.category && p.id !== product?.id)
+        .slice(0, 3),
+    [catalogProducts, product]
+  );
+
+  if (loading) {
+    return (
+      <GlassShell title="جاري تحميل المنتج" subtitle="نجهز لك التفاصيل الآن.">
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Loader2 className="w-8 h-8 text-olive-glow animate-spin" strokeWidth={1.5} />
+          <p className="text-sand opacity-60 font-ar">جاري تحميل تفاصيل المنتج…</p>
+        </div>
+      </GlassShell>
+    );
+  }
 
   if (!product) {
     return (
@@ -37,10 +79,6 @@ export default function ProductDetailsPage() {
     toast.success(`تمت إضافة ${product.name} للسلة`);
     setTimeout(() => setAdded(false), 2200);
   };
-
-  const related = shopProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 3);
 
   return (
     <GlassShell
@@ -66,30 +104,29 @@ export default function ProductDetailsPage() {
       </div>
 
       <div className="grid lg:grid-cols-[1fr_0.85fr] gap-8">
-        {/* Left: Image + Gallery feel */}
+        {/* Left: Image */}
         <div className="space-y-6">
           <div className="relative rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] overflow-hidden">
-            <div className="relative h-[380px] md:h-[480px] overflow-hidden bg-[rgba(10,9,7,0.40)]">
-              {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-[rgba(212,197,169,0.08)]" />}
+            {/* Image container — light gray background */}
+            <div className="relative h-[380px] md:h-[480px] overflow-hidden bg-gray-100 flex items-center justify-center">
+              {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-gray-200/50" />}
               <img
                 src={product.image}
                 alt={product.name}
                 onLoad={() => setImgLoaded(true)}
-                className={`w-full h-full object-cover transition-opacity duration-700 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                className={`w-full h-full object-contain p-4 transition-all duration-700 hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
               />
-              {/* Overlays */}
+              {/* Overlays — Vibrant themed badges */}
               {product.badge && (
-                <div className="absolute top-5 right-5 rounded-full px-4 py-1.5 text-[0.75rem] font-ar font-medium bg-[rgba(164,184,107,0.20)] border border-[rgba(164,184,107,0.35)] text-cream backdrop-blur-md shadow-lg">
+                <div className="absolute top-5 right-5 rounded-2xl px-5 py-2 text-[0.8rem] font-ar font-bold bg-olive text-white border border-olive-light/20 shadow-xl backdrop-blur-md z-10">
                   {product.badge}
                 </div>
               )}
               {product.oldPrice && (
-                <div className="absolute top-5 left-5 rounded-full px-4 py-1.5 text-[0.75rem] font-number font-bold bg-[rgba(232,168,124,0.20)] border border-[rgba(232,168,124,0.35)] text-sunset backdrop-blur-md shadow-lg">
+                <div className="absolute top-5 left-5 rounded-2xl px-5 py-2 text-[0.8rem] font-number font-bold bg-sunset text-white border border-sunset-deep/20 shadow-xl backdrop-blur-md z-10">
                   توفير {product.oldPrice - product.price} ج.م
                 </div>
               )}
-              {/* Bottom gradient */}
-              <div className="absolute bottom-0 left-0 right-0 h-32 bg-[linear-gradient(to_top,rgba(10,9,7,0.85)_0%,transparent_100%)]" />
             </div>
           </div>
 
@@ -199,8 +236,8 @@ export default function ProductDetailsPage() {
               )}
               {added ? (
                 <>
-                  <Check className="w-5 h-5 animate-[checkPop_0.4s_ease-out]" strokeWidth={2.5} />
-                  <span className="animate-[fadeIn_0.3s_ease-out]">تمت الإضافة للسلة</span>
+                  <Check className="w-5 h-5" strokeWidth={2.5} />
+                  <span>تمت الإضافة للسلة</span>
                 </>
               ) : (
                 <>
@@ -255,8 +292,14 @@ export default function ProductDetailsPage() {
                 to={`/shop/product/${p.id}`}
                 className="group rounded-2xl border border-[rgba(212,197,169,0.10)] bg-[rgba(26,24,20,0.45)] overflow-hidden transition-all duration-300 hover:border-[rgba(164,184,107,0.25)] hover:-translate-y-1"
               >
-                <div className="relative h-40 overflow-hidden bg-[rgba(10,9,7,0.40)]">
-                  <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                {/* Related product image — light gray background */}
+                <div className="relative h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    loading="lazy"
+                    className="w-full h-full object-contain p-3 transition-transform duration-500 group-hover:scale-105"
+                  />
                 </div>
                 <div className="p-4">
                   <div className="text-[0.65rem] text-olive-glow opacity-70 uppercase font-en">{p.categoryLabel}</div>

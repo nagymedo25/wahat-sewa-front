@@ -25,8 +25,8 @@ export default function ProductsSection({ products }) {
           </h2>
         </div>
 
-        <div className="products-gallery grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-8 max-w-[1200px] mx-auto max-md:grid-cols-1">
-          {products.map((p) => (
+        <div className="products-gallery grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8 max-w-[900px] mx-auto">
+          {products.slice(0, 8).map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>

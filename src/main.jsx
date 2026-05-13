@@ -5,6 +5,7 @@ import App from './App.jsx';
 import { AuthProvider } from './store/auth.jsx';
 import { CartProvider } from './store/cart.jsx';
 import { ToastProvider } from './store/toast.jsx';
+import { NotificationProvider } from './context/NotificationContext.jsx';
 import './styles/globals.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -13,7 +14,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <AuthProvider>
         <CartProvider>
           <ToastProvider>
-            <App />
+            <NotificationProvider>
+              <App />
+            </NotificationProvider>
           </ToastProvider>
         </CartProvider>
       </AuthProvider>

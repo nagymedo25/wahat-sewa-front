@@ -22,7 +22,7 @@ export default function LoginPage() {
     return params.get('next') || '/shop';
   }, [location.search]);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -38,12 +38,15 @@ export default function LoginPage() {
     }
 
     setIsSubmitting(true);
-    setTimeout(() => {
-      login({ email: email.trim() });
+    const result = await login(email.trim(), password);
+    if (result.success) {
       toast.success(`أهلاً بك مجدداً`);
-      setIsSubmitting(false);
-      navigate(nextPath, { replace: true });
-    }, 600);
+      navigate(result.user?.role === 'admin' ? '/admin/dashboard' : nextPath, { replace: true });
+    } else {
+      setError(result.error);
+      toast.error(result.error);
+    }
+    setIsSubmitting(false);
   };
 
   return (

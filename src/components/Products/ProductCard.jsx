@@ -55,18 +55,18 @@ export default function ProductCard({ product }) {
 
         {/* Media area: image OR icon */}
         {hasImage ? (
-          <div className="relative h-44 overflow-hidden bg-[rgba(10,9,7,0.40)]">
-            {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-[rgba(212,197,169,0.08)]" />}
+          <div className="relative h-52 overflow-hidden bg-gray-100 flex items-center justify-center">
+            {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-gray-200/50" />}
             <img
               src={product.image}
               alt={product.name}
               loading="lazy"
               decoding="async"
               onLoad={() => setImgLoaded(true)}
-              className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full object-contain p-2 transition-transform duration-700 group-hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             />
             {product.badge && (
-              <div className="absolute top-3 right-3 rounded-full px-3 py-1 text-[0.65rem] font-ar font-medium bg-[rgba(164,184,107,0.18)] border border-[rgba(164,184,107,0.30)] text-cream backdrop-blur-sm">
+              <div className="absolute top-3 right-3 rounded-xl px-3 py-1.5 text-[0.7rem] font-ar font-bold bg-olive text-white border border-olive-light/20 shadow-lg backdrop-blur-md z-10">
                 {product.badge}
               </div>
             )}

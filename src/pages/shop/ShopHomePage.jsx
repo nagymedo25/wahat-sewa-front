@@ -1,40 +1,68 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, ShoppingBasket, Star, Search, Loader2, Sparkles, PackageSearch } from 'lucide-react';
+import { Plus, Star, Search, Loader2, Sparkles, PackageSearch } from 'lucide-react';
 import GlassShell from '@/components/Layout/GlassShell.jsx';
-import { categories, shopProducts, searchProducts, getProductsByCategory } from '@/data/shopProducts.js';
 import { useCart } from '@/store/cart.jsx';
 import { useToast } from '@/store/toast.jsx';
+import { loadCatalog } from '@/services/catalog.js';
 
 function money(value, currency) {
   return `${value} ${currency}`;
 }
 
 export default function ShopHomePage() {
-  const { items, addItem } = useCart();
+  const { addItem } = useCart();
   const toast = useToast();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
+  const [catalogProducts, setCatalogProducts] = useState([]);
+  const [categories, setCategories] = useState([{ key: 'all', label: 'الكل', emoji: '✨' }]);
 
   useEffect(() => {
-    setLoading(true);
-    const timer = setTimeout(() => {
-      const results = searchQuery
-        ? searchProducts(searchQuery)
-        : getProductsByCategory(activeCategory);
-      setProducts(results);
+    let isMounted = true;
+
+    async function fetchCatalog() {
+      setLoading(true);
+      const catalog = await loadCatalog();
+      if (!isMounted) return;
+      setCatalogProducts(catalog.products);
+      setCategories(catalog.categories);
       setLoading(false);
-    }, 500);
+    }
+
+    fetchCatalog();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const normalizedQuery = searchQuery.trim().toLowerCase();
+      const filtered = catalogProducts.filter((product) => {
+        const matchesCategory = activeCategory === 'all' || product.category === activeCategory;
+        const matchesSearch =
+          normalizedQuery.length === 0 ||
+          product.name.toLowerCase().includes(normalizedQuery) ||
+          product.shortDesc.toLowerCase().includes(normalizedQuery) ||
+          product.desc.toLowerCase().includes(normalizedQuery);
+
+        return matchesCategory && matchesSearch;
+      });
+
+      setProducts(filtered);
+    }, 250);
+
     return () => clearTimeout(timer);
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, catalogProducts, searchQuery]);
 
   const stats = useMemo(() => {
-    const total = shopProducts.length;
-    const saleCount = shopProducts.filter((p) => p.oldPrice).length;
+    const total = catalogProducts.length;
+    const saleCount = catalogProducts.filter((p) => p.oldPrice).length;
     return { total, saleCount };
-  }, []);
+  }, [catalogProducts]);
 
   const handleAdd = useCallback((p) => {
     addItem(p, 1);
@@ -125,30 +153,42 @@ function ProductCard({ product, onAdd }) {
 
   return (
     <div className="group relative rounded-2xl border border-[rgba(212,197,169,0.08)] bg-[rgba(26,24,20,0.50)] overflow-hidden transition-all duration-500 hover:border-[rgba(164,184,107,0.25)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.35),0_0_30px_rgba(164,184,107,0.06)] hover:-translate-y-1">
-      {/* Image Area */}
-      <div className="relative h-48 overflow-hidden bg-[rgba(10,9,7,0.40)]">
-        {!imgLoaded && (
-          <div className="absolute inset-0 animate-pulse bg-[rgba(212,197,169,0.06)]" />
+
+      {/* Image Area — light gray background (degree darker than white) */}
+      <div className="relative h-52 overflow-hidden bg-gray-100 flex items-center justify-center">
+        {product.image ? (
+          <>
+            {!imgLoaded && (
+              <div className="absolute inset-0 animate-pulse bg-gray-200/50" />
+            )}
+            <img
+              src={product.image}
+              alt={product.name}
+              loading="lazy"
+              decoding="async"
+              onLoad={() => setImgLoaded(true)}
+              className={`w-full h-full object-contain p-3 transition-transform duration-700 group-hover:scale-105 ${
+                imgLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center opacity-30 text-sand">
+            <PackageSearch className="w-10 h-10 mb-2" />
+            <span className="text-[0.65rem] font-ar">لا توجد صورة</span>
+          </div>
         )}
-        <img
-          src={product.image}
-          alt={product.name}
-          loading="lazy"
-          decoding="async"
-          onLoad={() => setImgLoaded(true)}
-          className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
-            imgLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-        {/* Badge */}
+
+        {/* Badge — Vibrant Olive for general badges */}
         {product.badge && (
-          <div className="absolute top-3 right-3 rounded-full px-3 py-1 text-[0.7rem] font-ar font-medium bg-[rgba(164,184,107,0.15)] border border-[rgba(164,184,107,0.28)] text-cream backdrop-blur-sm">
+          <div className="absolute top-3 right-3 rounded-xl px-3 py-1.5 text-[0.7rem] font-ar font-bold bg-olive text-white border border-olive-light/20 shadow-lg backdrop-blur-md z-10">
             {product.badge}
           </div>
         )}
-        {/* Sale Tag */}
+
+        {/* Sale Tag — Vibrant Sunset for discounts */}
         {product.oldPrice && (
-          <div className="absolute top-3 left-3 rounded-full px-3 py-1 text-[0.7rem] font-number font-bold bg-[rgba(232,168,124,0.15)] border border-[rgba(232,168,124,0.25)] text-sunset backdrop-blur-sm">
+          <div className="absolute top-3 left-3 rounded-xl px-3 py-1.5 text-[0.7rem] font-number font-bold bg-sunset text-white border border-sunset-deep/20 shadow-lg backdrop-blur-md z-10">
             خصم
           </div>
         )}

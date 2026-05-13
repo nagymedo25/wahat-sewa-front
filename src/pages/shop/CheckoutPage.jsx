@@ -10,21 +10,10 @@ function money(value, currency) {
   return `${value} ${currency}`;
 }
 
-const ORDERS_KEY = 'wahat_orders_v1';
-
-function saveOrder(order) {
-  try {
-    const raw = window.localStorage.getItem(ORDERS_KEY);
-    const parsed = raw ? JSON.parse(raw) : [];
-    parsed.unshift(order);
-    window.localStorage.setItem(ORDERS_KEY, JSON.stringify(parsed.slice(0, 50)));
-  } catch {}
-}
-
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, totals, clear } = useCart();
-  const { user, isAuthed } = useAuth();
+  const { user, isAuthed, api } = useAuth();
   const toast = useToast();
 
   const [name, setName] = useState(user?.name || '');
@@ -37,30 +26,34 @@ export default function CheckoutPage() {
     return items.length > 0 && name.trim() && phone.trim() && address.trim() && city.trim();
   }, [address, city, items.length, name, phone]);
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
     setIsSubmitting(true);
 
-    const order = {
-      id: 'WS-' + Math.floor(1000 + Math.random() * 9000),
-      items: items.map((it) => ({ name: it.name, qty: it.qty, price: it.price })),
-      total: totals.total,
-      name: name.trim(),
-      phone: phone.trim(),
-      address: address.trim(),
-      city: city.trim(),
-      date: new Date().toISOString(),
-      status: 'جارِ التجهيز',
-    };
+    try {
+      const response = await api.post('/orders', {
+        items: items.map((it) => ({
+          product_id: it.id,
+          quantity: it.qty,
+        })),
+        shipping_address: {
+          name: name.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+          city: city.trim(),
+        },
+      });
 
-    setTimeout(() => {
-      saveOrder(order);
+      const remoteOrder = response.data.order;
       clear();
-      toast.success(`تم تأكيد طلبك ${order.id}`);
-      setIsSubmitting(false);
+      toast.success(`تم تأكيد طلبك #${String(remoteOrder.id).slice(0, 8)}`);
       navigate('/shop/account?tab=orders', { replace: true });
-    }, 800);
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'تعذر إنشاء الطلب الآن. حاول مرة أخرى بعد قليل.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isAuthed) {
