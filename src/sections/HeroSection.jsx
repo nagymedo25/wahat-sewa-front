@@ -18,19 +18,8 @@ export default function HeroSection({ isLoaded, isLiteMode = false }) {
   const dustRef = useRef(null);
 
   useEffect(() => {
-    if (!isLoaded) return;
-    const isMobile = typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false;
-    if (!isMobile) {
-      setIsMobileBgReady(true);
-      return;
-    }
-
-    const w = window;
-    const schedule = w.requestIdleCallback || ((cb) => w.setTimeout(() => cb({ didTimeout: true, timeRemaining: () => 0 }), 600));
-    const cancel = w.cancelIdleCallback || w.clearTimeout;
-    const id = schedule(() => setIsMobileBgReady(true), { timeout: 1500 });
-    return () => cancel(id);
-  }, [isLoaded]);
+    setIsMobileBgReady(true);
+  }, []);
   useLayoutEffect(() => {
     if (!isLoaded) return;
     if (isLiteMode) return;
@@ -46,6 +35,16 @@ export default function HeroSection({ isLoaded, isLiteMode = false }) {
     const scroll = scrollRef.current;
     const veg = vegGroupRef.current;
     const dust = dustRef.current;
+
+    const isMobile = typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false;
+    if (isMobile) {
+      gsap.set([w1, w2, w3], { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 });
+      gsap.set(sub, { opacity: 1, y: 0, filter: 'none' });
+      gsap.set(btn, { opacity: 1, y: 0, scale: 1 });
+      gsap.set(scroll, { opacity: 1, y: 0 });
+      if (veg) gsap.set(veg, { scaleY: 1 });
+      return;
+    }
 
     const ctx = gsap.context(() => {
       // Set initial scattered states

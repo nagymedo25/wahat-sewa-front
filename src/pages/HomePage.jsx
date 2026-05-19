@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Loader from '@/components/Loader/Loader.jsx';
 import MainNav from '@/components/Nav/MainNav.jsx';
+import SidePalmTrees from '@/components/Atmosphere/SidePalmTrees.jsx';
 import HeroSection from '@/sections/HeroSection.jsx';
 import JourneySection from '@/sections/JourneySection.jsx';
 import ProductsSection from '@/sections/ProductsSection.jsx';
@@ -68,19 +68,7 @@ export default function HomePage() {
 
   const products = dynamicProducts.length > 0 ? dynamicProducts : fallbackProducts;
 
-  useEffect(() => {
-    if (document.readyState === 'complete') {
-      document.body.style.opacity = '1';
-    } else {
-      document.body.style.opacity = '0';
-      document.body.style.transition = 'opacity 0.8s ease';
-      const onLoad = () => {
-        document.body.style.opacity = '1';
-      };
-      window.addEventListener('load', onLoad);
-      return () => window.removeEventListener('load', onLoad);
-    }
-  }, []);
+
 
   useEffect(() => {
     const mqReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -97,18 +85,9 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const isMobile = typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false;
-    const delay = isMobile ? 1200 : (isLiteMode ? 1800 : 3200);
-    const t1 = window.setTimeout(() => {
-      setIsLoaded(true);
-      const t2 = window.setTimeout(() => {
-        setIsNavVisible(true);
-      }, 300);
-      return () => window.clearTimeout(t2);
-    }, delay);
-
-    return () => window.clearTimeout(t1);
-  }, [isLiteMode]);
+    setIsLoaded(true);
+    setIsNavVisible(true);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -415,7 +394,6 @@ export default function HomePage() {
 
   return (
     <div ref={rootRef}>
-      <Loader isHidden={isLoaded} />
       <MainNav
         isVisible={isNavVisible}
         isScrolled={isNavScrolled}
@@ -424,7 +402,7 @@ export default function HomePage() {
         onToggleMobileMenu={() => setIsMobileMenuOpen((v) => !v)}
       />
 
-
+      <SidePalmTrees isLoaded={isLoaded} />
 
       <main className="relative">
         <HeroSection isLoaded={isLoaded} isLiteMode={isLiteMode} />
