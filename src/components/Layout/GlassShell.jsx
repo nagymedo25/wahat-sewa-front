@@ -6,10 +6,7 @@ export default function GlassShell({ title, subtitle, children, topRight }) {
   const { items } = useCart();
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_top,rgba(74,90,42,0.10)_0%,transparent_62%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center_bottom,rgba(232,168,124,0.08)_0%,transparent_58%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,9,7,0.98)_0%,rgba(18,16,12,0.98)_50%,rgba(10,9,7,0.98)_100%)]" />
+    <div className="min-h-screen relative overflow-hidden bg-[#0A0907]">
 
       <header className="relative z-[2]">
         <div className="mx-auto max-w-[1200px] px-6 pt-7">
@@ -75,8 +72,7 @@ export default function GlassShell({ title, subtitle, children, topRight }) {
         <div className="mx-auto max-w-[1200px] px-6 py-10">{children}</div>
       </main>
 
-      <div className="pointer-events-none absolute -top-32 right-[-140px] w-[520px] h-[520px] rounded-full bg-[radial-gradient(circle,rgba(164,184,107,0.10)_0%,transparent_70%)] blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-40 left-[-160px] w-[560px] h-[560px] rounded-full bg-[radial-gradient(circle,rgba(212,197,169,0.11)_0%,transparent_70%)] blur-2xl" />
+
 
       <style>{`
         @keyframes cartBadgeBounce {

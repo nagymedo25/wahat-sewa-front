@@ -3,17 +3,11 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Loader from '@/components/Loader/Loader.jsx';
 import MainNav from '@/components/Nav/MainNav.jsx';
-import ParticleCanvas from '@/components/Particles/ParticleCanvas.jsx';
-import LightRays from '@/components/Atmosphere/LightRays.jsx';
-import FloatingElements from '@/components/Atmosphere/FloatingElements.jsx';
-import SidePalmTrees from '@/components/Atmosphere/SidePalmTrees.jsx';
-import Birds from '@/components/Atmosphere/Birds.jsx';
 import HeroSection from '@/sections/HeroSection.jsx';
 import JourneySection from '@/sections/JourneySection.jsx';
 import ProductsSection from '@/sections/ProductsSection.jsx';
 import PhilosophySection from '@/sections/PhilosophySection.jsx';
 import ContactSection from '@/sections/ContactSection.jsx';
-import WaveTransition from '@/components/WaveTransition/WaveTransition.jsx';
 import SiteFooter from '@/components/Footer/SiteFooter.jsx';
 import { loadCatalog } from '@/services/catalog.js';
 
@@ -430,11 +424,7 @@ export default function HomePage() {
         onToggleMobileMenu={() => setIsMobileMenuOpen((v) => !v)}
       />
 
-      {!isLiteMode && <ParticleCanvas />}
-      <LightRays />
-      <FloatingElements />
-      <SidePalmTrees isLoaded={isLoaded} />
-      <Birds />
+
 
       <main className="relative">
         <HeroSection isLoaded={isLoaded} isLiteMode={isLiteMode} />
@@ -445,7 +435,7 @@ export default function HomePage() {
         <ContactSection />
       </main>
 
-      <WaveTransition />
+
       <SiteFooter />
     </div>
   );
