@@ -16,9 +16,9 @@ export default function JourneySection() {
             الرحلة
           </span>
           <h2 className="font-ar text-[clamp(2.5rem,6vw,5rem)] font-extralight text-cream leading-[1.15] tracking-[-0.02em]">
-            في كل قطرة
+            حكايات من
             <br />
-            حكاية
+            قلب الواحة
           </h2>
         </div>
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import logoImg from '../../images/Logo1.png';
+import logoImg from '@/images/Logo1.png';
 
 export default function Loader({ isHidden }) {
   const overlayRef = useRef(null);

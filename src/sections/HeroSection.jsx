@@ -275,15 +275,18 @@ export default function HeroSection({ isLoaded, isLiteMode = false }) {
             سيوة
           </span>
         </h1>
-        <p
+        <div
           ref={subRef}
-          className="font-ar text-[clamp(1rem,2.5vw,1.4rem)] font-light text-sand leading-[1.8] mb-10"
+          className="flex flex-col items-center gap-4 mb-10"
           data-parallax="0.7"
         >
-          حيث يلتقي التراث بالطبيعة
-          <br />
-          في قلب الصحراء الغربية
-        </p>
+          <p className="font-ar text-[clamp(2rem,5vw,3.8rem)] font-bold leading-[1.2] tracking-[0.04em] text-transparent bg-clip-text bg-[linear-gradient(135deg,#d4c5a9_0%,#a4b86b_35%,#f5efe3_60%,#c8a96e_100%)] [text-shadow:none] drop-shadow-[0_0_30px_rgba(164,184,107,0.35)] mt-2">
+            لقلب بيتك
+          </p>
+          <p className="font-ar text-[clamp(1rem,2.5vw,1.4rem)] font-light text-sand leading-[1.8] mt-2">
+            منتجات أصلية من واحة سيوة
+          </p>
+        </div>
         <div ref={btnRef} data-parallax="0.9">
           <a
             href="#journey"

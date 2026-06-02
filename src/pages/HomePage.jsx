@@ -25,31 +25,64 @@ export default function HomePage() {
   const fallbackProducts = useMemo(
     () => [
       {
-        id: 'olive',
-        category: 'سيوة الأصلية',
-        name: 'زيت الزيتون البكر',
-        desc: 'زيت نقي من أشجار الزيتون العتيقة، عصرة أولى على البارد، مليء بالنكهة الأصيلة.',
-        weight: '500 مل',
-        price: 'ج.م 280',
-        Icon: OliveIcon,
-      },
-      {
-        id: 'dates',
-        category: 'سيوة الأصلية',
-        name: 'تمور سيوة الملكية',
-        desc: 'أفخر أنواع التمور من نخيل الواحة العريق، حلاوة طبيعية وقوام فاخر يجسد عراقة الأرض.',
+        id: 'c49bac0c-764f-4d2d-b716-bf025922c2de',
+        category: 'التمور السيوية',
+        name: 'تمور لّاب (كيلو)',
+        desc: 'تمور لّاب مختارة بعناية وزن 1 كيلو، حلاوة طبيعية وفوائد غذائية عالية.',
         weight: '1 كجم',
-        price: 'ج.م 350',
+        price: 'ج.م 245',
+        image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438227/4_mgejnp.png',
         Icon: DatesIcon,
       },
       {
-        id: 'herbs',
-        category: 'سيوة الأصلية',
-        name: 'أعشاب الواحة',
-        desc: 'خليط سري من الأعشاب العطرية المجففة بعناية، يحمل نسيم الصحراء وعبق النخيل في كل رشة.',
-        weight: '200 جرام',
-        price: 'ج.م 180',
-        Icon: HerbsIcon,
+        id: 'a7dc95fd-7c63-4989-abb4-caa8bf59af7c',
+        category: 'التمور السيوية',
+        name: 'علبة تمور لوز / كاجو',
+        desc: 'تمور فاخرة محشوة باللوز والكاجو الطازج.',
+        weight: 'علبة فاخرة',
+        price: 'ج.م 150',
+        image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438321/20_tfoow0.png',
+        Icon: DatesIcon,
+      },
+      {
+        id: 'b9829fc5-45f8-4f89-9a15-fcb47e3e463a',
+        category: 'التمور السيوية',
+        name: 'معمول سيوة',
+        desc: 'معمول سيوة اللذيذ المصنوع بالتمر السيوى الطبيعى.',
+        weight: 'علبة معمول',
+        price: 'ج.م 115',
+        image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438238/6_if2nu0.png',
+        Icon: DatesIcon,
+      },
+      {
+        id: '0ee70894-8c58-4c26-83ce-6e6d063ddc45',
+        category: 'الزيوت السيوية',
+        name: 'زجاجة زيت زيتون (لتر)',
+        desc: 'زيت زيتون سيوي أصلي سعة 1 لتر، للحفاظ على الصحة والمناعة.',
+        weight: '1 لتر',
+        price: 'ج.م 520',
+        image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438257/12_kulhxk.png',
+        Icon: OliveIcon,
+      },
+      {
+        id: 'ec15e720-d283-4947-a6cc-4f3b17dad70d',
+        category: 'العناية والتجميل',
+        name: 'زيتون تفاحي (برطمان)',
+        desc: 'زيتون تفاحي سيوى مخلل بطرق تقليدية طبيعية.',
+        weight: 'برطمان مخلل',
+        price: 'ج.م 120',
+        image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438253/10_xdjdqg.png',
+        Icon: OliveIcon,
+      },
+      {
+        id: '942d5111-279c-4b2c-9968-6ff20d92480d',
+        category: 'الزيوت السيوية',
+        name: 'زجاجة زيت زيتون (1/2 لتر)',
+        desc: 'زجاجة نصف لتر زيت زيتون سيوي عصرة أولى.',
+        weight: '500 مل',
+        price: 'ج.م 290',
+        image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438257/12_kulhxk.png',
+        Icon: OliveIcon,
       },
     ],
     []
@@ -59,8 +92,9 @@ export default function HomePage() {
     async function fetchProducts() {
       const catalog = await loadCatalog();
       if (catalog.products && catalog.products.length > 0) {
-        // Take the first 5 products or featured ones
-        setDynamicProducts(catalog.products.slice(0, 5));
+        // Filter only products marked as 'most_requested'
+        const featured = catalog.products.filter(p => p.rawBadge === 'most_requested');
+        setDynamicProducts(featured);
       }
     }
     fetchProducts();

@@ -19,9 +19,9 @@ export default function ProductsSection({ products }) {
             المنتجات
           </span>
           <h2 className="font-ar text-[clamp(2.5rem,6vw,5rem)] font-extralight text-cream leading-[1.15] tracking-[-0.02em]">
-            هدايا من
+            المنتجات
             <br />
-            الطبيعة
+            الأكثر طلباً
           </h2>
         </div>
 

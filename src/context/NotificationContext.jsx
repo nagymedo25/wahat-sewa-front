@@ -35,15 +35,20 @@ export const NotificationProvider = ({ children }) => {
       newSocket.on('notification', (notification) => {
         setNotifications(prev => [notification, ...prev]);
         setUnreadCount(prev => prev + 1);
-        
+
         // Show real-time toast
         toast.info(notification.title, notification.message);
-        
+
         // Play notification sound (optional)
         try {
           const audio = new Audio('/assets/notification.mp3');
-          audio.play();
-        } catch (e) {}
+          const playPromise = audio.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              // Ignore NotSupportedError or Autoplay restrictions
+            });
+          }
+        } catch (e) { }
       });
 
       setSocket(newSocket);
@@ -65,7 +70,7 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (id) => {
     try {
       await api.post(`/notifications/${id}/read`);
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(n => n.id === id ? { ...n, is_read: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
@@ -85,12 +90,12 @@ export const NotificationProvider = ({ children }) => {
   };
 
   return (
-    <NotificationContext.Provider value={{ 
-      notifications, 
-      unreadCount, 
-      markAsRead, 
+    <NotificationContext.Provider value={{
+      notifications,
+      unreadCount,
+      markAsRead,
       markAllAsRead,
-      fetchNotifications 
+      fetchNotifications
     }}>
       {children}
     </NotificationContext.Provider>

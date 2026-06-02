@@ -49,6 +49,7 @@ function normalizeProduct(product, index = 0) {
     rating: 4.7,
     reviews: Number(product.total_sold || 0),
     badge: badgeLabels[product.badge] || '',
+    rawBadge: product.badge || 'none',
     tags: [product.category_name, product.badge].filter(Boolean),
     stock: Number(product.stock || 0),
     sortOrder: Number(product.sort_order || 0),

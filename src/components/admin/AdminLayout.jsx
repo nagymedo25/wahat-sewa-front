@@ -1,20 +1,22 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Package, 
-  ShoppingBag, 
-  TrendingUp, 
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingBag,
+  TrendingUp,
   Bell,
   LogOut,
   Menu,
   Users,
   X,
-  Home
+  Home,
+  Settings,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../../store/auth';
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/store/toast.jsx';
-import logoImg from '../../images/Logo1.png';
+import logoImg from '@/images/Logo1.png';
 
 export default function AdminLayout() {
   const { user, logout, isAdmin } = useAuth();
@@ -59,13 +61,15 @@ export default function AdminLayout() {
     { path: '/admin/orders', icon: ShoppingBag, label: 'الطلبات' },
     { path: '/admin/users', icon: Users, label: 'المستخدمون' },
     { path: '/admin/analytics', icon: TrendingUp, label: 'التحليلات' },
+    { path: '/admin/featured', icon: Sparkles, label: 'معروضات الرئيسية' },
+    { path: '/admin/settings', icon: Settings, label: 'الإعدادات' },
   ];
 
   return (
     <div className="min-h-screen bg-shadow text-cream flex font-ar selection:bg-olive selection:text-cream">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-shadow/80 backdrop-blur-sm lg:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
@@ -88,7 +92,7 @@ export default function AdminLayout() {
           >
             <X className="h-5 w-5" />
           </button>
-          
+
           <Link to="/admin/dashboard" className="flex flex-col items-center gap-3 group">
             <div className="w-20 h-20 rounded-full bg-olive-deep/50 border border-olive/30 flex items-center justify-center p-2 group-hover:scale-105 transition-transform duration-300">
               <img src={logoImg} alt="Wahat Sewa Logo" className="w-full h-auto object-contain drop-shadow-lg" />
@@ -108,7 +112,7 @@ export default function AdminLayout() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
-            
+
             return (
               <Link
                 key={item.path}
@@ -116,18 +120,18 @@ export default function AdminLayout() {
                 onClick={() => setSidebarOpen(false)}
                 className={`
                   group flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 relative overflow-hidden
-                  ${isActive 
-                    ? 'text-cream font-bold shadow-[0_0_20px_rgba(74,90,42,0.2)]' 
+                  ${isActive
+                    ? 'text-cream font-bold shadow-[0_0_20px_rgba(74,90,42,0.2)]'
                     : 'text-sand hover:text-cream'
                   }
                 `}
               >
                 {/* Active Background indicator */}
                 <div className={`absolute inset-0 bg-gradient-to-l from-olive to-olive-deep transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'}`} />
-                
+
                 {/* Active left border indicator */}
                 {isActive && <div className="absolute right-0 top-0 bottom-0 w-1 bg-olive-glow rounded-r-full shadow-[0_0_10px_var(--olive-glow)]" />}
-                
+
                 <Icon className={`w-5 h-5 relative z-10 transition-transform duration-300 ${isActive ? 'scale-110 text-olive-glow' : 'group-hover:scale-110 group-hover:text-olive-light'}`} />
                 <span className="relative z-10">{item.label}</span>
               </Link>
@@ -186,7 +190,7 @@ export default function AdminLayout() {
           {/* Subtle background glow effect */}
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-olive-glow/5 rounded-full blur-[100px] pointer-events-none" />
           <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-sunset/5 rounded-full blur-[80px] pointer-events-none" />
-          
+
           <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out">
             <Outlet />
           </div>

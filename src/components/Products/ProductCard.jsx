@@ -35,14 +35,16 @@ export default function ProductCard({ product }) {
     };
   }, []);
 
-  const hasImage = !!product.image;
+  const imgUrl = product.image || product.image_url;
+  const hasImage = !!imgUrl;
   const hasRating = typeof product.rating === 'number';
   const Icon = product.Icon || null;
 
-  // Price formatting: support both number+currency and pre-formatted string
+  // Price formatting: add fallback currency for DB products
+  const numericPrice = typeof product.price === 'string' ? Number(product.price) : product.price;
   const priceDisplay =
-    typeof product.price === 'number'
-      ? `${product.price} ${product.currency || ''}`
+    !isNaN(numericPrice)
+      ? `${numericPrice} ${product.currency || 'ج.م'}`
       : product.price;
 
   return (
@@ -58,7 +60,7 @@ export default function ProductCard({ product }) {
           <div className="relative h-52 overflow-hidden bg-gray-100 flex items-center justify-center">
             {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-gray-200/50" />}
             <img
-              src={product.image}
+              src={imgUrl}
               alt={product.name}
               loading="lazy"
               decoding="async"
@@ -84,11 +86,11 @@ export default function ProductCard({ product }) {
         <div className="relative z-[1] p-6">
           <div className="text-center">
             <span className="block font-ar text-[0.65rem] font-medium text-olive-glow tracking-[0.2em] mb-1 uppercase">
-              {product.categoryLabel || product.category}
+              {product.categoryLabel || product.category_name || product.category}
             </span>
             <h3 className="font-ar text-[1.2rem] font-semibold text-cream mb-2 leading-[1.4]">{product.name}</h3>
             <p className="text-[0.8rem] font-light text-sand leading-[1.7] mb-4 line-clamp-2">
-              {product.shortDesc || product.desc}
+              {product.shortDesc || product.desc || product.description}
             </p>
 
             {/* Rating (only for new shop products) */}

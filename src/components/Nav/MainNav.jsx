@@ -1,6 +1,6 @@
 import { useEffect, useRef, useLayoutEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logoImg from '../../images/Logo1.png';
+import logoImg from '@/images/Logo1.png';
 import { gsap } from 'gsap';
 import { Compass, LogIn, ShoppingBasket, UserCircle, ShieldCheck } from 'lucide-react';
 import { useCart } from '@/store/cart.jsx';

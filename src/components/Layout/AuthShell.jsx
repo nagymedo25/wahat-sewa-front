@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
-import logoImg from '../../images/Logo1.png';
+import logoImg from '@/images/Logo1.png';
 
 export default function AuthShell({ title, subtitle, children }) {
   const shellRef = useRef(null);

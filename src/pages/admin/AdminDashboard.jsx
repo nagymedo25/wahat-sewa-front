@@ -1,19 +1,26 @@
 import { useAuth } from '../../store/auth';
 import { useEffect, useState } from 'react';
-import { 
-  Package, 
-  ShoppingBag, 
-  Users, 
+import {
+  Package,
+  ShoppingBag,
+  Users,
   TrendingUp,
   AlertTriangle,
   Loader2,
-  DollarSign
+  DollarSign,
+  Trash2
 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { api } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [resetting, setResetting] = useState(false);
+  const [resetTargets, setResetTargets] = useState([]);
+  const { toast } = useAuth(); // or useToast() if you have it imported
+
+  // Actually, we must import useToast
+
 
   useEffect(() => {
     fetchDashboardStats();
@@ -28,6 +35,37 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleResetRecords = async () => {
+    if (resetTargets.length === 0) {
+      alert('يجب تحديد سجل واحد على الأقل لتنظيفه!');
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      'تحذير خطير: هل أنت متأكد من مسح السجلات المحددة؟ هذا الإجراء لا يمكن التراجع عنه وسيحذف البيانات نهائياً.'
+    );
+    if (!confirmDelete) return;
+
+    setResetting(true);
+    try {
+      await api.post('/admin/reset-records', { targets: resetTargets });
+      alert('تم تنظيف السجلات المحددة بنجاح.');
+      setResetTargets([]);
+      fetchDashboardStats();
+    } catch (error) {
+      console.error('Reset error:', error);
+      alert('حدث خطأ أثناء محاولة مسح السجلات. تفقد الكونسول.');
+    } finally {
+      setResetting(false);
+    }
+  };
+
+  const toggleResetTarget = (target) => {
+    setResetTargets(prev =>
+      prev.includes(target) ? prev.filter(t => t !== target) : [...prev, target]
+    );
   };
 
   if (loading) {
@@ -108,13 +146,13 @@ export default function AdminDashboard() {
         {statCards.map((card, index) => {
           const Icon = card.icon;
           return (
-            <div 
-              key={card.title} 
+            <div
+              key={card.title}
               className="bg-shadow-soft backdrop-blur-xl rounded-2xl border border-olive/20 p-6 relative overflow-hidden group hover:border-olive/40 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(74,90,42,0.3)]"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${card.color} opacity-10 rounded-bl-full -mr-10 -mt-10 transition-transform duration-500 group-hover:scale-110`} />
-              
+
               <div className="flex items-start justify-between relative z-10">
                 <div>
                   <p className="text-sm text-sand font-medium">{card.title}</p>
@@ -149,8 +187,8 @@ export default function AdminDashboard() {
             ) : (
               <div className="space-y-4">
                 {stats?.recentOrders?.slice(0, 5).map((order, i) => (
-                  <div 
-                    key={order.id} 
+                  <div
+                    key={order.id}
                     className="flex items-center justify-between p-4 bg-olive-deep/20 rounded-xl border border-olive/10 hover:bg-olive-deep/40 transition-colors group"
                   >
                     <div className="flex items-center gap-4">
@@ -196,8 +234,8 @@ export default function AdminDashboard() {
                 {stats?.lowStockProducts?.map((product) => (
                   <div key={product.id} className="flex items-center gap-4 p-3 bg-sunset/5 rounded-xl border border-sunset/10 hover:bg-sunset/10 transition-colors">
                     <div className="w-14 h-14 rounded-lg bg-shadow overflow-hidden border border-sunset/20 flex-shrink-0">
-                      <img 
-                        src={product.image_url} 
+                      <img
+                        src={product.image_url}
                         alt={product.name}
                         className="w-full h-full object-cover"
                         onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
@@ -271,6 +309,52 @@ export default function AdminDashboard() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Danger Zone: Reset Records */}
+      <div className="bg-red-950/20 backdrop-blur-xl rounded-2xl border border-red-500/30 overflow-hidden mt-8">
+        <div className="p-6 border-b border-red-500/20 bg-red-900/10">
+          <h2 className="text-xl font-bold text-red-400 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5" />
+            منطقة الخطر: تصفير السجلات (Reset Records)
+          </h2>
+        </div>
+        <div className="p-6">
+          <p className="text-sm text-sand mb-6">
+            استخدم هذه اللوحة لمسح أو تصفير أي سجلات تريدها لتنظيف النظام. <strong className="text-red-400">تحذير: لا يمكن التراجع عن هذا الإجراء!</strong>
+          </p>
+
+          <div className="flex flex-wrap gap-4 mb-6">
+            <label className="flex items-center gap-2 cursor-pointer bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-xl transition-colors">
+              <input
+                type="checkbox"
+                checked={resetTargets.includes('orders')}
+                onChange={() => toggleResetTarget('orders')}
+                className="w-5 h-5 accent-red-500 cursor-pointer"
+              />
+              <span className="text-cream text-lg font-bold">كل الطلبات والإيرادات</span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer bg-red-500/5 hover:bg-red-500/10 border border-red-500/20 px-4 py-3 rounded-xl transition-colors">
+              <input
+                type="checkbox"
+                checked={resetTargets.includes('notifications')}
+                onChange={() => toggleResetTarget('notifications')}
+                className="w-5 h-5 accent-red-500 cursor-pointer"
+              />
+              <span className="text-cream text-lg font-bold">جميع إشعارات التطبيق</span>
+            </label>
+          </div>
+
+          <button
+            onClick={handleResetRecords}
+            disabled={resetting || resetTargets.length === 0}
+            className="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-red-500/20"
+          >
+            {resetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+            مسح البيانات المحددة بشكل نهائي
+          </button>
         </div>
       </div>
     </div>

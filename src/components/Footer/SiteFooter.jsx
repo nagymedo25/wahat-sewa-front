@@ -1,4 +1,4 @@
-import logoImg from '../../images/Logo1.png';
+import logoImg from '@/images/Logo1.png';
 
 export default function SiteFooter() {
   return (
@@ -165,26 +165,26 @@ export default function SiteFooter() {
         {/* Small palm silhouette on right */}
         <div className="absolute bottom-[20px] right-[8%] opacity-20 max-md:right-[4%] max-md:opacity-15">
           <svg width="60" height="100" viewBox="0 0 60 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M30,100 Q32,85 30,70 Q28,55 31,40 Q33,25 30,10" stroke="rgba(26,24,20,0.8)" strokeWidth="3" strokeLinecap="round" fill="none"/>
-            <path d="M30,35 Q20,25 10,20 Q5,18 2,22 Q10,24 18,30 Q25,34 28,38" fill="rgba(26,24,20,0.7)"/>
-            <path d="M30,35 Q40,25 50,20 Q55,18 58,22 Q50,24 42,30 Q35,34 32,38" fill="rgba(26,24,20,0.7)"/>
-            <path d="M30,30 Q22,18 16,8 Q14,4 12,6 Q16,10 22,20 Q26,26 29,32" fill="rgba(26,24,20,0.6)"/>
-            <path d="M30,30 Q38,18 44,8 Q46,4 48,6 Q44,10 38,20 Q34,26 31,32" fill="rgba(26,24,20,0.6)"/>
-            <path d="M30,25 Q25,12 22,2 Q21,0 20,1 Q22,6 26,16 Q28,22 29,26" fill="rgba(26,24,20,0.5)"/>
-            <path d="M30,25 Q35,12 38,2 Q39,0 40,1 Q38,6 34,16 Q32,22 31,26" fill="rgba(26,24,20,0.5)"/>
+            <path d="M30,100 Q32,85 30,70 Q28,55 31,40 Q33,25 30,10" stroke="rgba(26,24,20,0.8)" strokeWidth="3" strokeLinecap="round" fill="none" />
+            <path d="M30,35 Q20,25 10,20 Q5,18 2,22 Q10,24 18,30 Q25,34 28,38" fill="rgba(26,24,20,0.7)" />
+            <path d="M30,35 Q40,25 50,20 Q55,18 58,22 Q50,24 42,30 Q35,34 32,38" fill="rgba(26,24,20,0.7)" />
+            <path d="M30,30 Q22,18 16,8 Q14,4 12,6 Q16,10 22,20 Q26,26 29,32" fill="rgba(26,24,20,0.6)" />
+            <path d="M30,30 Q38,18 44,8 Q46,4 48,6 Q44,10 38,20 Q34,26 31,32" fill="rgba(26,24,20,0.6)" />
+            <path d="M30,25 Q25,12 22,2 Q21,0 20,1 Q22,6 26,16 Q28,22 29,26" fill="rgba(26,24,20,0.5)" />
+            <path d="M30,25 Q35,12 38,2 Q39,0 40,1 Q38,6 34,16 Q32,22 31,26" fill="rgba(26,24,20,0.5)" />
           </svg>
         </div>
 
         {/* Small palm silhouette on left */}
         <div className="absolute bottom-[15px] left-[5%] opacity-15 max-md:left-[2%] max-md:opacity-10">
           <svg width="45" height="75" viewBox="0 0 60 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M30,100 Q32,85 30,70 Q28,55 31,40 Q33,25 30,10" stroke="rgba(26,24,20,0.8)" strokeWidth="3" strokeLinecap="round" fill="none"/>
-            <path d="M30,35 Q20,25 10,20 Q5,18 2,22 Q10,24 18,30 Q25,34 28,38" fill="rgba(26,24,20,0.7)"/>
-            <path d="M30,35 Q40,25 50,20 Q55,18 58,22 Q50,24 42,30 Q35,34 32,38" fill="rgba(26,24,20,0.7)"/>
-            <path d="M30,30 Q22,18 16,8 Q14,4 12,6 Q16,10 22,20 Q26,26 29,32" fill="rgba(26,24,20,0.6)"/>
-            <path d="M30,30 Q38,18 44,8 Q46,4 48,6 Q44,10 38,20 Q34,26 31,32" fill="rgba(26,24,20,0.6)"/>
-            <path d="M30,25 Q25,12 22,2 Q21,0 20,1 Q22,6 26,16 Q28,22 29,26" fill="rgba(26,24,20,0.5)"/>
-            <path d="M30,25 Q35,12 38,2 Q39,0 40,1 Q38,6 34,16 Q32,22 31,26" fill="rgba(26,24,20,0.5)"/>
+            <path d="M30,100 Q32,85 30,70 Q28,55 31,40 Q33,25 30,10" stroke="rgba(26,24,20,0.8)" strokeWidth="3" strokeLinecap="round" fill="none" />
+            <path d="M30,35 Q20,25 10,20 Q5,18 2,22 Q10,24 18,30 Q25,34 28,38" fill="rgba(26,24,20,0.7)" />
+            <path d="M30,35 Q40,25 50,20 Q55,18 58,22 Q50,24 42,30 Q35,34 32,38" fill="rgba(26,24,20,0.7)" />
+            <path d="M30,30 Q22,18 16,8 Q14,4 12,6 Q16,10 22,20 Q26,26 29,32" fill="rgba(26,24,20,0.6)" />
+            <path d="M30,30 Q38,18 44,8 Q46,4 48,6 Q44,10 38,20 Q34,26 31,32" fill="rgba(26,24,20,0.6)" />
+            <path d="M30,25 Q25,12 22,2 Q21,0 20,1 Q22,6 26,16 Q28,22 29,26" fill="rgba(26,24,20,0.5)" />
+            <path d="M30,25 Q35,12 38,2 Q39,0 40,1 Q38,6 34,16 Q32,22 31,26" fill="rgba(26,24,20,0.5)" />
           </svg>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, UserPlus, ShieldCheck, UserCog, Trash2, Search, Check, X, Eye, EyeOff, Edit, ShoppingBag } from 'lucide-react';
+import { Users, UserPlus, ShieldCheck, UserCog, Trash2, Search, Check, X, Eye, EyeOff, Edit, ShoppingBag, Loader2 } from 'lucide-react';
 import { useToast } from '@/store/toast.jsx';
 import { useAuth } from '@/store/auth.jsx';
 
@@ -11,6 +11,7 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
   const [showModal, setShowModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -30,7 +31,7 @@ export default function AdminUsersPage() {
 
   const handleRoleChange = async (user, newRole) => {
     if (!window.confirm(`هل أنت متأكد من تغيير دور "${user.name}" إلى ${newRole === 'admin' ? 'مدير' : 'عميل'}؟`)) return;
-    
+
     try {
       await api.patch(`/admin/users/${user.id}/role`, { role: newRole });
       toast.success('تم تحديث الدور بنجاح');
@@ -42,7 +43,7 @@ export default function AdminUsersPage() {
 
   const handleDelete = async (user) => {
     if (!window.confirm(`هل أنت متأكد من حذف المستخدم "${user.name}"؟ لا يمكن التراجع عن هذا الإجراء.`)) return;
-    
+
     try {
       await api.delete(`/admin/users/${user.id}`);
       toast.success('تم حذف المستخدم بنجاح');
@@ -53,8 +54,8 @@ export default function AdminUsersPage() {
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = filterRole === 'all' || user.role === filterRole;
     return matchesSearch && matchesRole;
   });
@@ -75,7 +76,7 @@ export default function AdminUsersPage() {
           </h1>
           <p className="text-sand mt-1">تحكم في صلاحيات الوصول وإدارة أعضاء الفريق والعملاء.</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowModal(true)}
           className="bg-olive hover:bg-olive-light text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-olive/20 active:scale-95"
         >
@@ -120,7 +121,7 @@ export default function AdminUsersPage() {
         {/* Mobile Cards View */}
         <div className="grid grid-cols-1 gap-4 md:hidden">
           {loading ? (
-             <div className="p-12 text-center text-sand">جارٍ التحميل...</div>
+            <div className="p-12 text-center text-sand">جارٍ التحميل...</div>
           ) : filteredUsers.length === 0 ? (
             <div className="bg-shadow-soft border border-olive/20 rounded-2xl p-12 text-center text-sand">
               <Users className="w-10 h-10 mx-auto opacity-20 mb-3" />
@@ -128,7 +129,7 @@ export default function AdminUsersPage() {
             </div>
           ) : (
             filteredUsers.map((item, index) => (
-              <div 
+              <div
                 key={item.id}
                 className="bg-shadow-soft border border-olive/20 rounded-2xl p-4 space-y-4 animate-in fade-in slide-in-from-bottom-2"
                 style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
@@ -156,7 +157,7 @@ export default function AdminUsersPage() {
                       {new Date(item.created_at).toLocaleDateString('ar-EG')}
                     </p>
                   </div>
-                  
+
                   <div className="flex gap-2">
                     {currentUser?.id !== item.id ? (
                       <>
@@ -165,6 +166,12 @@ export default function AdminUsersPage() {
                           className={`rounded-xl px-3 py-1.5 text-[0.65rem] font-bold transition-all border ${item.role === 'admin' ? 'bg-violet-500/10 border-violet-500/20 text-violet-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}
                         >
                           {item.role === 'admin' ? 'تخفيض' : 'ترقية'}
+                        </button>
+                        <button
+                          onClick={() => setEditingUser(item)}
+                          className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-2 text-sky-400"
+                        >
+                          <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(item)}
@@ -212,8 +219,8 @@ export default function AdminUsersPage() {
                   </tr>
                 ) : (
                   filteredUsers.map((item, index) => (
-                    <tr 
-                      key={item.id} 
+                    <tr
+                      key={item.id}
                       className="hover:bg-olive/10 transition-colors group animate-in fade-in slide-in-from-bottom-2"
                       style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
                     >
@@ -251,6 +258,13 @@ export default function AdminUsersPage() {
                                 {item.role === 'admin' ? 'تخفيض لعميل' : 'ترقية لأدمن'}
                               </button>
                               <button
+                                onClick={() => setEditingUser(item)}
+                                className="rounded-xl border border-sky-500/20 bg-sky-500/10 p-2 text-sky-400 transition-all duration-300 hover:bg-sky-500/20 hover:border-sky-500/40 group/edit"
+                                title="تعديل المستخدم"
+                              >
+                                <Edit className="h-4 w-4 group-hover/edit:scale-110 transition-transform" />
+                              </button>
+                              <button
                                 onClick={() => handleDelete(item)}
                                 className="rounded-xl border border-red-500/20 bg-red-500/10 p-2 text-red-400 transition-all duration-300 hover:bg-red-500/20 hover:border-red-500/40 group/del"
                                 title="حذف المستخدم"
@@ -276,6 +290,18 @@ export default function AdminUsersPage() {
           onClose={() => setShowModal(false)}
           onCreated={() => {
             setShowModal(false);
+            fetchUsers();
+          }}
+        />
+      )}
+
+      {editingUser && (
+        <EditUserModal
+          api={api}
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
+          onUpdated={() => {
+            setEditingUser(null);
             fetchUsers();
           }}
         />
@@ -333,7 +359,7 @@ function CreateUserModal({ api, onClose, onCreated }) {
           <h2 className="text-xl font-bold text-cream">إضافة مدير جديد</h2>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors text-sand"><X /></button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
           <div className="space-y-2">
             <label className="text-sm font-bold text-sand block pr-1">الاسم بالكامل</label>
@@ -396,6 +422,112 @@ function CreateUserModal({ api, onClose, onCreated }) {
           >
             {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
             حفظ المستخدم
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditUserModal({ api, user, onClose, onUpdated }) {
+  const toast = useToast();
+  const [formData, setFormData] = useState({
+    name: user.name || '',
+    email: user.email || '',
+    password: '',
+    role: user.role || 'user',
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await api.put(`/admin/users/${user.id}`, formData);
+      toast.success('تم تحديث المستخدم بنجاح');
+      onUpdated();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'فشل تحديث المستخدم');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-in fade-in zoom-in-95 duration-200">
+      <div className="absolute inset-0 bg-shadow/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-lg bg-shadow border border-olive/30 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="p-6 border-b border-olive/20 flex items-center justify-between bg-olive-deep/20">
+          <h2 className="text-xl font-bold text-cream flex items-center gap-2">
+            <UserCog className="w-5 h-5" />
+            تعديل بيانات المستخدم
+          </h2>
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors text-sand"><X /></button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5 custom-scrollbar">
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-sand block pr-1">الاسم بالكامل</label>
+            <input
+              required
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="admin-input w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-sand block pr-1">البريد الإلكتروني</label>
+            <input
+              required
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="admin-input w-full text-left font-mono"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-sand block pr-1">تغيير كلمة المرور <span className="text-[0.6rem] text-sunset">(اتركه فارغاً إذا لا تريد تغييره)</span></label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="admin-input w-full text-left"
+              placeholder="••••••••"
+              minLength={6}
+            />
+            {formData.password && formData.password.length > 0 && formData.password.length < 6 && (
+              <p className="text-xs text-sunset mt-1">يجب أن تكون كلمة المرور 6 أحرف على الأقل</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-bold text-sand block pr-1">الصلاحية</label>
+            <select
+              value={formData.role}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              className="admin-input w-full"
+            >
+              <option value="user" className="bg-shadow">عميل</option>
+              <option value="admin" className="bg-shadow">مدير</option>
+            </select>
+          </div>
+        </form>
+
+        <div className="p-6 border-t border-olive/20 bg-olive-deep/10 flex justify-end gap-3 sticky bottom-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-6 py-2.5 rounded-xl border border-olive/20 text-sand hover:bg-white/5 transition-all font-bold"
+          >
+            إلغاء
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || (formData.password && formData.password.length > 0 && formData.password.length < 6)}
+            className="px-8 py-2.5 rounded-xl bg-sky-600/80 border border-sky-500/50 text-white font-bold hover:bg-sky-500 transition-all shadow-lg shadow-sky-900/20 disabled:opacity-50 flex items-center gap-2"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            حفظ التعديلات
           </button>
         </div>
       </div>
