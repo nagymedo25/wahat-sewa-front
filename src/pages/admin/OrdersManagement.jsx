@@ -485,7 +485,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
                             className="flex items-center gap-1 text-xs bg-olive-glow/20 text-olive-glow border border-olive-glow/30 px-3 py-1 rounded hover:bg-olive-glow/30 transition-colors"
                           >
                             <Download className="w-3 h-3" />
-                            طباعة البوليصة
+                            فتح في ShipBlu
                           </a>
                         )}
                       </div>
