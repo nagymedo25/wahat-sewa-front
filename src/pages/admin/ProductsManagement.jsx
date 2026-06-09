@@ -9,6 +9,7 @@ function buildProductPayload(formData) {
     name: String(formData.name || '').trim(),
     image_url: String(formData.image_url || '').trim(),
     price: Number.parseFloat(formData.price || 0),
+    wholesale_price: Number.parseFloat(formData.wholesale_price || 0),
     description: String(formData.description || '').trim(),
     category_id: formData.category_id || null,
     badge: formData.badge || 'none',
@@ -209,6 +210,7 @@ export default function ProductsManagement() {
                     <p className="text-xs text-sand mt-1">{product.category_name || 'بدون قسم'}</p>
                     <div className="mt-2 flex items-center gap-2">
                       <span className="text-olive-glow font-bold">{product.price} <span className="text-xs">ج.م</span></span>
+                      <span className="text-sand text-[0.65rem] border border-olive/20 px-2 py-0.5 rounded-md">جملة: {product.wholesale_price || 0} ج.م</span>
                       <span className={`px-2 py-0.5 rounded-md text-[0.65rem] font-bold border ${product.stock < 10 ? 'bg-sunset/20 text-sunset border-sunset/30' : 'bg-olive/20 text-cream border-olive/30'}`}>
                         مخزون: {product.stock}
                       </span>
@@ -258,7 +260,7 @@ export default function ProductsManagement() {
               <thead className="bg-olive-deep/40 border-b border-olive/20">
                 <tr>
                   <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap">المنتج</th>
-                  <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap">السعر</th>
+                  <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap">السعر (والجملة)</th>
                   <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap">المخزون</th>
                   <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap text-center">الترتيب</th>
                   <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap">التصنيف</th>
@@ -299,7 +301,10 @@ export default function ProductsManagement() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-bold text-olive-glow whitespace-nowrap">{product.price} <span className="text-xs text-sand">ج.م</span></td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-bold text-olive-glow">{product.price} <span className="text-xs text-sand">ج.م</span></div>
+                        <div className="text-[0.7rem] text-sand opacity-70 mt-0.5">جملة: {product.wholesale_price || 0} <span className="text-[0.6rem]">ج.م</span></div>
+                      </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center justify-center px-3 py-1 rounded-lg text-sm font-bold border ${product.stock < 10 ? 'bg-sunset/20 text-sunset border-sunset/30' : 'bg-olive/20 text-cream border-olive/30'}`}>
                           {product.stock}
@@ -374,6 +379,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
     name: '',
     image_url: '',
     price: '',
+    wholesale_price: '',
     description: '',
     category_id: '',
     badge: 'none',
@@ -387,6 +393,7 @@ function ProductModal({ product, categories, onSave, onClose }) {
       name: '',
       image_url: '',
       price: '',
+      wholesale_price: '',
       description: '',
       category_id: '',
       badge: 'none',
@@ -465,9 +472,9 @@ function ProductModal({ product, categories, onSave, onClose }) {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-cream mb-2">السعر (ج.م)</label>
+                    <label className="block text-sm font-bold text-cream mb-2">سعر البيع (ج.م)</label>
                     <input
                       type="number"
                       required
@@ -476,6 +483,18 @@ function ProductModal({ product, categories, onSave, onClose }) {
                       placeholder="0.00"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-cream mb-2">سعر الجملة (للحسابات)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.wholesale_price}
+                      onChange={(e) => setFormData({ ...formData, wholesale_price: e.target.value })}
                       className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all"
                     />
                   </div>
