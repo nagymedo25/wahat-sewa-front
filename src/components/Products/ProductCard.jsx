@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Star } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductCard({ product }) {
+  const { t } = useTranslation();
   const cardRef = useRef(null);
   const innerRef = useRef(null);
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -44,7 +46,7 @@ export default function ProductCard({ product }) {
   const numericPrice = typeof product.price === 'string' ? Number(product.price) : product.price;
   const priceDisplay =
     !isNaN(numericPrice)
-      ? `${numericPrice} ${product.currency || 'ج.م'}`
+      ? `${numericPrice} ${product.currency || t('products.currency', 'ج.م')}`
       : product.price;
 
   return (

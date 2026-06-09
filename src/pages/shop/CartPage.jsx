@@ -3,6 +3,7 @@ import { ArrowLeft, Minus, Plus, Trash2, ShoppingBasket, PackageOpen, Receipt, T
 import GlassShell from '@/components/Layout/GlassShell.jsx';
 import { useCart } from '@/store/cart.jsx';
 import { useToast } from '@/store/toast.jsx';
+import { useTranslation } from 'react-i18next';
 
 function money(value, currency) {
   return `${value} ${currency}`;
@@ -12,19 +13,20 @@ export default function CartPage() {
   const navigate = useNavigate();
   const { items, totals, setQty, removeItem, clear } = useCart();
   const toast = useToast();
+  const { t } = useTranslation();
 
   const handleRemove = (it) => {
     removeItem(it.id);
-    toast.info(`تمت إزالة ${it.name} من السلة`);
+    toast.info(t('cart.removed_from_cart', 'تمت إزالة {{name}} من السلة', { name: it.name }));
   };
 
   const handleClear = () => {
     clear();
-    toast.warning('تم تفريغ السلة');
+    toast.warning(t('cart.cart_cleared', 'تم تفريغ السلة'));
   };
 
   return (
-    <GlassShell title="سلة المشتريات" subtitle="رتّب عناصر السلة قبل الدفع.">
+    <GlassShell title={t('cart.title', 'سلة المشتريات')} subtitle={t('cart.subtitle', 'رتّب عناصر السلة قبل الدفع.')}>
       <div className="grid lg:grid-cols-[1.3fr_0.7fr] gap-7">
         <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-6">
           {items.length === 0 ? (
@@ -32,15 +34,15 @@ export default function CartPage() {
               <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.08)] border border-[rgba(164,184,107,0.15)] mb-5">
                 <PackageOpen className="w-8 h-8 text-olive-glow opacity-60" strokeWidth={1.5} />
               </div>
-              <div className="text-cream font-ar font-semibold text-[1.2rem]">السلة فارغة</div>
-              <div className="mt-2 text-sand opacity-70 font-ar">ابدأ بإضافة منتجات من المتجر.</div>
+              <div className="text-cream font-ar font-semibold text-[1.2rem]">{t('cart.empty_title', 'السلة فارغة')}</div>
+              <div className="mt-2 text-sand opacity-70 font-ar">{t('cart.empty_desc', 'ابدأ بإضافة منتجات من المتجر.')}</div>
               <div className="mt-6">
                 <Link
                   to="/shop"
                   className="no-underline text-olive-glow hover:text-cream transition-colors inline-flex items-center gap-2 font-ar"
                 >
                   <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-                  رجوع للمتجر
+                  {t('cart.back_to_store', 'رجوع للمتجر')}
                 </Link>
               </div>
             </div>
@@ -54,7 +56,7 @@ export default function CartPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <div className="font-ar text-cream font-semibold">{it.name}</div>
-                      <div className="mt-1 text-sand opacity-80 font-number text-[0.9rem]">{money(it.price, it.currency)} / قطعة</div>
+                      <div className="mt-1 text-sand opacity-80 font-number text-[0.9rem]">{money(it.price, it.currency)} {t('cart.per_piece', '/ قطعة')}</div>
                     </div>
 
                     <button
@@ -94,7 +96,7 @@ export default function CartPage() {
               <div className="flex items-center justify-between gap-4 mt-2">
                 <Link to="/shop" className="no-underline text-olive-glow hover:text-cream transition-colors inline-flex items-center gap-2 font-ar text-[0.9rem]">
                   <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-                  متابعة التسوق
+                  {t('cart.continue_shopping', 'متابعة التسوق')}
                 </Link>
                 <button
                   type="button"
@@ -102,7 +104,7 @@ export default function CartPage() {
                   className="inline-flex items-center gap-1.5 rounded-2xl px-4 py-2 border border-[rgba(232,168,124,0.18)] bg-[rgba(232,168,124,0.05)] text-sand-light hover:text-cream transition-colors font-ar text-[0.85rem] active:scale-95"
                 >
                   <RotateCcw className="w-3.5 h-3.5" strokeWidth={2} />
-                  تفريغ السلة
+                  {t('cart.clear_cart', 'تفريغ السلة')}
                 </button>
               </div>
             </div>
@@ -112,27 +114,27 @@ export default function CartPage() {
         <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-6 h-fit">
           <div className="flex items-center gap-2 font-ar text-cream font-semibold text-[1.1rem]">
             <Receipt className="w-4 h-4 text-olive-glow" strokeWidth={1.5} />
-            ملخص
+            {t('cart.summary', 'ملخص')}
           </div>
           <div className="mt-4 flex flex-col gap-3">
             <div className="flex items-center justify-between text-sand opacity-85">
               <span className="inline-flex items-center gap-2">
                 <ShoppingBasket className="w-3.5 h-3.5 text-olive-glow opacity-60" strokeWidth={2} />
-                المجموع
+                {t('cart.subtotal', 'المجموع')}
               </span>
-              <span className="font-number text-cream">{money(totals.subtotal, 'ج.م')}</span>
+              <span className="font-number text-cream">{money(totals.subtotal, t('cart.currency', 'ج.م'))}</span>
             </div>
             <div className="flex items-center justify-between text-sand opacity-85">
               <span className="inline-flex items-center gap-2">
                 <Truck className="w-3.5 h-3.5 text-olive-glow opacity-60" strokeWidth={2} />
-                الشحن
+                {t('cart.shipping', 'الشحن')}
               </span>
-              <span className="font-number text-cream">{money(totals.shipping, 'ج.م')}</span>
+              <span className="font-number text-cream">{money(totals.shipping, t('cart.currency', 'ج.م'))}</span>
             </div>
             <div className="h-px bg-[rgba(212,197,169,0.10)]" />
             <div className="flex items-center justify-between">
-              <span className="text-sand-light">الإجمالي</span>
-              <span className="font-number text-bronze-light text-[1.15rem] font-bold">{money(totals.total, 'ج.م')}</span>
+              <span className="text-sand-light">{t('cart.total', 'الإجمالي')}</span>
+              <span className="font-number text-bronze-light text-[1.15rem] font-bold">{money(totals.total, t('cart.currency', 'ج.م'))}</span>
             </div>
           </div>
 
@@ -144,11 +146,11 @@ export default function CartPage() {
           >
             <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
             <Sparkles className="w-4 h-4" strokeWidth={2} />
-            إتمام الشراء
+            {t('cart.checkout', 'إتمام الشراء')}
           </button>
 
           <div className="mt-4 text-[0.8rem] text-sand opacity-60 leading-[1.8] text-center">
-            الدفع عند الاستلام. بإتمام الطلب توافق على الشروط.
+            {t('cart.payment_note', 'الدفع عند الاستلام. بإتمام الطلب توافق على الشروط.')}
           </div>
         </div>
       </div>

@@ -1,11 +1,14 @@
 import { useEffect, useRef, useLayoutEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useTranslation } from 'react-i18next';
 import heroBg1 from '../images/hero-bg1.png';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroSection({ isLoaded, isLiteMode = false }) {
+  const { t } = useTranslation();
   const sectionRef = useRef(null);
   const [isMobileBgReady, setIsMobileBgReady] = useState(false);
   const word1Ref = useRef(null);
@@ -260,19 +263,19 @@ export default function HeroSection({ isLoaded, isLiteMode = false }) {
             ref={word1Ref}
             className="inline-block font-['Aref_Ruqaa','Tajawal',serif] text-[clamp(3.5rem,12vw,11rem)] font-bold leading-[1.15] text-transparent text-stroke-cream [text-shadow:0_0_20px_rgba(212,197,169,0.25),0_0_60px_rgba(212,197,169,0.12),0_4px_30px_rgba(0,0,0,0.6)] tracking-[0.04em]"
           >
-            من
+            {t('hero.word1', 'من')}
           </span>
           <span
             ref={word2Ref}
             className="inline-block font-['Aref_Ruqaa','Tajawal',serif] text-[clamp(3.5rem,12vw,11rem)] font-bold leading-[1.15] text-transparent text-stroke-cream [text-shadow:0_0_20px_rgba(212,197,169,0.25),0_0_60px_rgba(212,197,169,0.12),0_4px_30px_rgba(0,0,0,0.6)] tracking-[0.04em]"
           >
-            قلب
+            {t('hero.word2', 'قلب')}
           </span>
           <span
             ref={word3Ref}
             className="inline-block font-['Aref_Ruqaa','Tajawal',serif] text-[clamp(3.5rem,12vw,11rem)] font-bold leading-[1.15] text-transparent text-stroke-cream [text-shadow:0_0_20px_rgba(212,197,169,0.25),0_0_60px_rgba(212,197,169,0.12),0_4px_30px_rgba(0,0,0,0.6)] tracking-[0.04em]"
           >
-            سيوة
+            {t('hero.word3', 'سيوة')}
           </span>
         </h1>
         <div
@@ -281,28 +284,28 @@ export default function HeroSection({ isLoaded, isLiteMode = false }) {
           data-parallax="0.7"
         >
           <p className="font-ar text-[clamp(2rem,5vw,3.8rem)] font-bold leading-[1.2] tracking-[0.04em] text-transparent bg-clip-text bg-[linear-gradient(135deg,#d4c5a9_0%,#a4b86b_35%,#f5efe3_60%,#c8a96e_100%)] [text-shadow:none] drop-shadow-[0_0_30px_rgba(164,184,107,0.35)] mt-2">
-            لقلب بيتك
+            {t('hero.subtitle_main', 'لقلب بيتك')}
           </p>
           <p className="font-ar text-[clamp(1rem,2.5vw,1.4rem)] font-light text-sand leading-[1.8] mt-2">
-            منتجات أصلية من واحة سيوة
+            {t('hero.subtitle_desc', 'منتجات أصلية من واحة سيوة')}
           </p>
         </div>
         <div ref={btnRef} data-parallax="0.9">
-          <a
-            href="#journey"
+          <Link
+            to="/shop"
             className="group inline-flex items-center gap-4 py-4 px-10 border border-[rgba(212,197,169,0.45)] rounded-[100px] no-underline font-ar text-[0.95rem] font-medium text-cream transition-all duration-500 [transition-timing-function:var(--ease-cinematic)] relative overflow-hidden bg-[rgba(26,24,20,0.45)] [backdrop-filter:blur(10px)] shadow-[0_0_20px_rgba(164,184,107,0.08),inset_0_1px_0_rgba(255,255,255,0.06)] hover:border-[rgba(164,184,107,0.7)] hover:text-cream hover:-translate-y-[3px] hover:shadow-[0_0_40px_rgba(164,184,107,0.2),0_10px_40px_rgba(74,90,42,0.3)] before:content-[''] before:absolute before:inset-0 before:bg-[linear-gradient(135deg,rgba(74,90,42,0.3),rgba(164,184,107,0.2))] before:opacity-40 before:transition-opacity before:duration-500 hover:before:opacity-100"
           >
             <span className="absolute inset-0 bg-[linear-gradient(105deg,transparent_40%,rgba(164,184,107,0.25)_50%,transparent_60%)] translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
             <span className="absolute inset-0 rounded-[100px] opacity-60 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(ellipse_at_center,rgba(164,184,107,0.15)_0%,transparent_70%)]" />
-            <span className="relative z-[1]">استكشف الواحة</span>
+            <span className="relative z-[1]">{t('hero.cta', 'استكشف الواحة')}</span>
             <span className="cta-arrow relative z-[1] w-[24px] h-px bg-cream transition-[width,background-color] duration-300 group-hover:w-[32px] group-hover:bg-olive-glow after:content-[''] after:absolute after:left-0 after:top-1/2 after:w-[6px] after:h-[6px] after:border-l after:border-b after:border-cream after:-translate-y-1/2 after:rotate-45 after:transition-[border-color] duration-300 group-hover:after:border-olive-glow" />
-          </a>
+          </Link>
         </div>
       </div>
 
       <div ref={scrollRef} className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
         <div className="w-px h-[50px] bg-[linear-gradient(to_bottom,var(--olive-glow),transparent)] animate-scrollPulse" />
-        <span className="font-ar text-[0.65rem] font-light text-olive-glow tracking-[0.2em]">اسحب للأسفل</span>
+        <span className="font-ar text-[0.65rem] font-light text-olive-glow tracking-[0.2em]">{t('hero.scroll', 'اسحب للأسفل')}</span>
       </div>
     </section>
   );

@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { publicApi as api, setApiAuthToken } from '@/services/api.js';
+import i18n from '@/i18n.js';
 
 const AuthContext = createContext(null);
 
@@ -73,9 +74,9 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
-  const login = useCallback(async (email, password) => {
+  const login = useCallback(async (whatsapp, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', { whatsapp, password });
       const { user, accessToken, refreshToken } = response.data;
       
       setUser(user);
@@ -86,16 +87,72 @@ export function AuthProvider({ children }) {
 
       return { success: true, user };
     } catch (error) {
+      const responseData = error.response?.data;
+      let errorMsg = 'Login failed';
+      let errorCode = 'unknown';
+
+      if (responseData) {
+        if (responseData.error) {
+          errorCode = responseData.error;
+          errorMsg = responseData.message || responseData.error;
+        } else if (responseData.errors && Array.isArray(responseData.errors) && responseData.errors.length > 0) {
+          errorCode = 'validation_error';
+          errorMsg = responseData.errors[0].msg;
+        }
+      } else if (error.request) {
+        errorCode = 'network_error';
+        errorMsg = 'network_error';
+      }
+
       return { 
         success: false, 
-        error: error.response?.data?.error || 'Login failed' 
+        error: errorMsg,
+        errorCode
       };
     }
   }, []);
 
-  const register = useCallback(async (name, email, password) => {
+  const adminLogin = useCallback(async (email, password) => {
     try {
-      const response = await api.post('/auth/register', { name, email, password });
+      const response = await api.post('/auth/admin-login', { email, password });
+      const { user, accessToken, refreshToken } = response.data;
+      
+      setUser(user);
+      setAccessToken(accessToken);
+      persistSession({ user, accessToken, refreshToken });
+
+      setApiAuthToken(accessToken);
+
+      return { success: true, user };
+    } catch (error) {
+      const responseData = error.response?.data;
+      let errorMsg = 'Admin login failed';
+      let errorCode = 'unknown';
+
+      if (responseData) {
+        if (responseData.error) {
+          errorCode = responseData.error;
+          errorMsg = responseData.message || responseData.error;
+        } else if (responseData.errors && Array.isArray(responseData.errors) && responseData.errors.length > 0) {
+          errorCode = 'validation_error';
+          errorMsg = responseData.errors[0].msg;
+        }
+      } else if (error.request) {
+        errorCode = 'network_error';
+        errorMsg = 'network_error';
+      }
+
+      return { 
+        success: false, 
+        error: errorMsg,
+        errorCode
+      };
+    }
+  }, []);
+
+  const register = useCallback(async (name, whatsapp, password) => {
+    try {
+      const response = await api.post('/auth/register', { name, whatsapp, password });
       const { user, accessToken, refreshToken } = response.data;
       
       setUser(user);
@@ -186,9 +243,9 @@ export function AuthProvider({ children }) {
   }, [refreshAccessToken]);
 
 
-  const updateProfile = useCallback(async ({ name, email }) => {
+  const updateProfile = useCallback(async ({ name, email, whatsapp }) => {
     try {
-      const response = await api.put('/auth/me', { name, email });
+      const response = await api.put('/auth/me', { name, email, whatsapp });
       const nextUser = response.data.user;
 
       setUser(nextUser);
@@ -205,7 +262,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'تعذر تحديث الحساب',
+        error: error.response?.data?.error || i18n.t('account.update_failed', 'تعذر تحديث الحساب'),
       };
     }
   }, [accessToken]);
@@ -217,7 +274,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       return {
         success: false,
-        error: error.response?.data?.error || 'تعذر تحديث كلمة المرور',
+        error: error.response?.data?.error || i18n.t('account.password_update_failed', 'تعذر تحديث كلمة المرور'),
       };
     }
   }, []);
@@ -229,13 +286,14 @@ export function AuthProvider({ children }) {
       loading,
       accessToken,
       login,
+      adminLogin,
       register,
       updateProfile,
       changePassword,
       logout,
       api,
     }),
-    [login, register, updateProfile, changePassword, logout, user, loading, accessToken]
+    [login, adminLogin, register, updateProfile, changePassword, logout, user, loading, accessToken]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

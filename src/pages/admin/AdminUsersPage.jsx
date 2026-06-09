@@ -141,7 +141,8 @@ export default function AdminUsersPage() {
                     </div>
                     <div>
                       <div className="font-bold text-cream text-sm">{item.name}</div>
-                      <p className="text-xs text-sand truncate max-w-[150px]">{item.email}</p>
+                      <p className="text-xs text-sand truncate max-w-[150px]" dir="ltr">{item.phone || item.email}</p>
+                      {item.whatsapp && <p className="text-[0.65rem] text-olive-glow truncate max-w-[150px]" dir="ltr">واتساب: {item.whatsapp}</p>}
                     </div>
                   </div>
                   <span className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-[0.65rem] font-bold border ${item.role === 'admin' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-gray-500/10 border-gray-500/20 text-sand'}`}>
@@ -197,7 +198,7 @@ export default function AdminUsersPage() {
               <thead className="bg-olive-deep/40 border-b border-olive/20">
                 <tr>
                   <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap">المستخدم</th>
-                  <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap">البريد الإلكتروني</th>
+                  <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap">معلومات التواصل</th>
                   <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap text-center">الرتبة</th>
                   <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap text-center">التاريخ</th>
                   <th className="px-6 py-4 text-sm font-bold text-cream whitespace-nowrap text-center">الإجراءات</th>
@@ -237,7 +238,10 @@ export default function AdminUsersPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-sand">{item.email}</td>
+                      <td className="px-6 py-4 text-sm text-sand">
+                        <div dir="ltr" className="text-right">{item.phone || item.email}</div>
+                        {item.whatsapp && <div className="text-[0.7rem] text-olive-glow mt-1" dir="ltr">واتساب: {item.whatsapp}</div>}
+                      </td>
                       <td className="px-6 py-4 text-center">
                         <span className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold border ${item.role === 'admin' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-gray-500/10 border-gray-500/20 text-sand'}`}>
                           {item.role === 'admin' ? <ShieldCheck className="w-3.5 h-3.5" /> : <UserCog className="w-3.5 h-3.5" />}

@@ -15,6 +15,7 @@ import AdminDashboard from '@/pages/admin/AdminDashboard.jsx';
 import ProductsManagement from '@/pages/admin/ProductsManagement.jsx';
 import CategoriesManagement from '@/pages/admin/CategoriesManagement.jsx';
 import OrdersManagement from '@/pages/admin/OrdersManagement.jsx';
+import RegionsManagement from '@/pages/admin/RegionsManagement.jsx';
 import ProfitAnalytics from '@/pages/admin/ProfitAnalytics.jsx';
 import AdminUsersPage from '@/pages/admin/AdminUsersPage.jsx';
 import AdminSettings from '@/pages/admin/AdminSettings.jsx';
@@ -71,6 +72,7 @@ export default function App() {
           <Route path="products" element={<ProductsManagement />} />
           <Route path="categories" element={<CategoriesManagement />} />
           <Route path="orders" element={<OrdersManagement />} />
+          <Route path="regions" element={<RegionsManagement />} />
           <Route path="analytics" element={<ProfitAnalytics />} />
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="settings" element={<AdminSettings />} />

@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, UserCircle, LockKeyhole, Eye, EyeOff, UserPlus, Sparkles, ArrowLeft } from 'lucide-react';
+import { UserCircle, LockKeyhole, Eye, EyeOff, UserPlus, Sparkles, ArrowLeft, MessageCircle } from 'lucide-react';
 import AuthShell from '@/components/Layout/AuthShell.jsx';
 import { useAuth } from '@/store/auth.jsx';
 import { useToast } from '@/store/toast.jsx';
+import { useTranslation } from 'react-i18next';
+
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
   const toast = useToast();
+  const { t } = useTranslation();
 
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
@@ -22,18 +25,18 @@ export default function RegisterPage() {
     setError('');
 
     if (!name.trim()) {
-      setError('من فضلك أدخل اسمك.');
-      toast.error('الاسم مطلوب');
+      setError(t('auth.name_required', 'من فضلك أدخل اسمك.'));
+      toast.error(t('auth.name_required_toast', 'الاسم مطلوب'));
       return;
     }
-    if (!email.trim()) {
-      setError('من فضلك أدخل البريد الإلكتروني.');
-      toast.error('البريد الإلكتروني مطلوب');
+    if (!whatsapp.trim()) {
+      setError(t('auth.whatsapp_required', 'من فضلك أدخل رقم الواتساب.'));
+      toast.error(t('auth.whatsapp_required_toast', 'رقم الواتساب مطلوب'));
       return;
     }
     if (!password.trim()) {
-      setError('من فضلك أدخل كلمة المرور.');
-      toast.error('كلمة المرور مطلوبة');
+      setError(t('auth.password_required', 'من فضلك أدخل كلمة المرور.'));
+      toast.error(t('auth.password_required_toast', 'كلمة المرور مطلوبة'));
       return;
     }
     if (password.length < 8) {
@@ -58,7 +61,7 @@ export default function RegisterPage() {
     }
 
     setIsSubmitting(true);
-    const result = await register(name.trim(), email.trim(), password);
+    const result = await register(name.trim(), whatsapp.trim(), password);
     if (result.success) {
       toast.success(`أهلاً ${name.trim()}، تم إنشاء حسابك`);
       navigate(result.user?.role === 'admin' ? '/admin/dashboard' : '/shop', { replace: true });
@@ -70,10 +73,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthShell title="إنشاء حساب" subtitle="حسابك يفتح لك تجربة شراء أسرع وواجهة حساب مرتبة.">
+    <AuthShell title={t('auth.register_title', 'إنشاء حساب')} subtitle={t('auth.register_subtitle', 'حسابك يفتح لك تجربة شراء أسرع وواجهة حساب مرتبة.')}>
       <form onSubmit={onSubmit} className="flex flex-col gap-5">
         <div>
-          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">الاسم</label>
+          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('auth.name', 'الاسم بالكامل')}</label>
           <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
             <UserCircle className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
             <input
@@ -88,22 +91,22 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">البريد الإلكتروني</label>
+          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('auth.whatsapp', 'رقم الواتساب')}</label>
           <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
-            <Mail className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
+            <MessageCircle className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
             <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
+              value={whatsapp}
+              onChange={(e) => setWhatsapp(e.target.value)}
+              type="tel"
               className="w-full bg-transparent outline-none text-cream placeholder:text-[rgba(245,239,227,0.30)] font-ar text-[0.95rem]"
-              placeholder="name@email.com"
-              autoComplete="email"
+              placeholder="01XXXXXXXXX"
+              autoComplete="tel"
             />
           </div>
         </div>
 
         <div>
-          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">كلمة المرور</label>
+          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('auth.password', 'كلمة المرور')}</label>
           <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
             <LockKeyhole className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
             <input
@@ -139,13 +142,13 @@ export default function RegisterPage() {
         >
           <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
           <UserPlus className="w-[18px] h-[18px]" strokeWidth={2} />
-          {isSubmitting ? 'جاري الإنشاء…' : 'إنشاء حساب'}
+          {isSubmitting ? t('auth.registering', 'جاري إنشاء الحساب…') : t('auth.register', 'تسجيل')}
         </button>
 
         <div className="text-[0.85rem] text-sand opacity-70 font-ar text-center">
-          لديك حساب؟{' '}
+          {t('auth.already_have_account', 'لديك حساب بالفعل؟')}{' '}
           <Link to="/auth/login" className="no-underline text-olive-glow hover:text-cream transition-colors inline-flex items-center gap-1">
-            تسجيل الدخول
+            {t('auth.sign_in', 'تسجيل الدخول')}
             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
           </Link>
         </div>

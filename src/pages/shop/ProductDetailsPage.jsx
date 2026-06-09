@@ -5,6 +5,7 @@ import GlassShell from '@/components/Layout/GlassShell.jsx';
 import { useCart } from '@/store/cart.jsx';
 import { useToast } from '@/store/toast.jsx';
 import { loadCatalog } from '@/services/catalog.js';
+import { useTranslation } from 'react-i18next';
 
 function money(value, currency) {
   return `${value} ${currency}`;
@@ -14,6 +15,7 @@ export default function ProductDetailsPage() {
   const { productId } = useParams();
   const { items, addItem } = useCart();
   const toast = useToast();
+  const { t } = useTranslation();
   const [catalogProducts, setCatalogProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
@@ -53,10 +55,10 @@ export default function ProductDetailsPage() {
 
   if (loading) {
     return (
-      <GlassShell title="جاري تحميل المنتج" subtitle="نجهز لك التفاصيل الآن.">
+      <GlassShell title={t('product_details.loading_title', 'جاري تحميل المنتج')} subtitle={t('product_details.loading_subtitle', 'نجهز لك التفاصيل الآن.')}>
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <Loader2 className="w-8 h-8 text-olive-glow animate-spin" strokeWidth={1.5} />
-          <p className="text-sand opacity-60 font-ar">جاري تحميل تفاصيل المنتج…</p>
+          <p className="text-sand opacity-60 font-ar">{t('product_details.loading_desc', 'جاري تحميل تفاصيل المنتج…')}</p>
         </div>
       </GlassShell>
     );
@@ -64,10 +66,10 @@ export default function ProductDetailsPage() {
 
   if (!product) {
     return (
-      <GlassShell title="المنتج غير موجود" subtitle="ربما تم تغيير الرابط أو حذف المنتج.">
+      <GlassShell title={t('product_details.not_found_title', 'المنتج غير موجود')} subtitle={t('product_details.not_found_subtitle', 'ربما تم تغيير الرابط أو حذف المنتج.')}>
         <Link to="/shop" className="no-underline text-olive-glow hover:text-cream transition-colors font-ar inline-flex items-center gap-2">
           <ChevronLeft className="w-4 h-4" strokeWidth={2} />
-          رجوع للمتجر
+          {t('product_details.back_to_store', 'رجوع للمتجر')}
         </Link>
       </GlassShell>
     );
@@ -76,7 +78,7 @@ export default function ProductDetailsPage() {
   const handleAdd = () => {
     addItem(product, qty);
     setAdded(true);
-    toast.success(`تمت إضافة ${product.name} للسلة`);
+    toast.success(t('shop.added_to_cart', 'تمت إضافة {{name}} للسلة', { name: product.name }));
     setTimeout(() => setAdded(false), 2200);
   };
 
@@ -88,7 +90,7 @@ export default function ProductDetailsPage() {
         <Link
           to="/shop/cart"
           className="relative inline-flex items-center gap-2 rounded-full px-4 py-2 bg-[rgba(26,24,20,0.35)] border border-[rgba(212,197,169,0.10)] text-sand-light no-underline transition-all duration-300 hover:border-[rgba(164,184,107,0.40)] hover:bg-[rgba(74,90,42,0.18)] hover:shadow-[0_0_20px_rgba(164,184,107,0.06)]"
-          aria-label="السلة"
+          aria-label={t('product_details.cart_label', 'السلة')}
         >
           <ShoppingBasket className="w-[18px] h-[18px]" strokeWidth={1.5} />
           <span className="font-number text-[0.85rem]">{items.length}</span>
@@ -99,7 +101,7 @@ export default function ProductDetailsPage() {
       <div className="mb-6">
         <Link to="/shop" className="no-underline text-sand opacity-60 hover:text-cream transition-colors text-sm font-ar inline-flex items-center gap-2">
           <ArrowLeft className="w-3.5 h-3.5" />
-          المتجر / {product.categoryLabel}
+          {t('product_details.store_breadcrumb', 'المتجر')} / {product.categoryLabel}
         </Link>
       </div>
 
@@ -124,7 +126,7 @@ export default function ProductDetailsPage() {
               )}
               {product.oldPrice && (
                 <div className="absolute top-5 left-5 rounded-2xl px-5 py-2 text-[0.8rem] font-number font-bold bg-sunset text-white border border-sunset-deep/20 shadow-xl backdrop-blur-md z-10">
-                  توفير {product.oldPrice - product.price} ج.م
+                  {t('product_details.saving', 'توفير {{amount}} ج.م', { amount: product.oldPrice - product.price })}
                 </div>
               )}
             </div>
@@ -134,15 +136,15 @@ export default function ProductDetailsPage() {
           <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-[rgba(212,197,169,0.10)] bg-[rgba(26,24,20,0.35)] p-4 text-center transition-all duration-300 hover:border-[rgba(164,184,107,0.20)]">
               <Truck className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
-              <span className="text-[0.75rem] text-sand-light font-ar">شحن سريع</span>
+              <span className="text-[0.75rem] text-sand-light font-ar">{t('product_details.fast_shipping', 'شحن سريع')}</span>
             </div>
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-[rgba(212,197,169,0.10)] bg-[rgba(26,24,20,0.35)] p-4 text-center transition-all duration-300 hover:border-[rgba(164,184,107,0.20)]">
               <Package className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
-              <span className="text-[0.75rem] text-sand-light font-ar">تغليف هدايا</span>
+              <span className="text-[0.75rem] text-sand-light font-ar">{t('product_details.gift_wrap', 'تغليف هدايا')}</span>
             </div>
             <div className="flex flex-col items-center gap-2 rounded-2xl border border-[rgba(212,197,169,0.10)] bg-[rgba(26,24,20,0.35)] p-4 text-center transition-all duration-300 hover:border-[rgba(164,184,107,0.20)]">
               <ShieldCheck className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
-              <span className="text-[0.75rem] text-sand-light font-ar">جودة مضمونة</span>
+              <span className="text-[0.75rem] text-sand-light font-ar">{t('product_details.quality_guarantee', 'جودة مضمونة')}</span>
             </div>
           </div>
         </div>
@@ -169,7 +171,7 @@ export default function ProductDetailsPage() {
                 ))}
               </div>
               <span className="font-number text-[0.85rem] text-sand font-medium">{product.rating}</span>
-              <span className="text-[0.8rem] text-sand opacity-50">({product.reviews} تقييم)</span>
+              <span className="text-[0.8rem] text-sand opacity-50">({t('product_details.reviews', '{{count}} تقييم', { count: product.reviews })})</span>
             </div>
 
             {/* Tags */}
@@ -194,7 +196,7 @@ export default function ProductDetailsPage() {
                 </span>
               )}
             </div>
-            <div className="mt-1 text-[0.85rem] text-sand opacity-70">{product.weight} · شامل الضريبة</div>
+            <div className="mt-1 text-[0.85rem] text-sand opacity-70">{product.weight} · {t('product_details.includes_tax', 'شامل الضريبة')}</div>
 
             {/* Description */}
             <p className="mt-5 text-sand opacity-90 leading-[1.9] text-[0.95rem]">{product.desc}</p>
@@ -237,12 +239,12 @@ export default function ProductDetailsPage() {
               {added ? (
                 <>
                   <Check className="w-5 h-5" strokeWidth={2.5} />
-                  <span>تمت الإضافة للسلة</span>
+                  <span>{t('product_details.added_to_cart', 'تمت الإضافة للسلة')}</span>
                 </>
               ) : (
                 <>
                   <ShoppingBasket className="w-5 h-5" strokeWidth={1.5} />
-                  إضافة للسلة — {money(product.price * qty, product.currency)}
+                  {t('product_details.add_to_cart', 'إضافة للسلة — {{price}}', { price: money(product.price * qty, product.currency) })}
                 </>
               )}
             </button>
@@ -254,24 +256,24 @@ export default function ProductDetailsPage() {
                 className={`inline-flex items-center gap-1.5 text-[0.8rem] font-ar transition-all duration-300 active:scale-95 ${liked ? 'text-sunset' : 'text-sand opacity-60 hover:opacity-100 hover:text-cream'}`}
               >
                 <Heart className={`w-4 h-4 transition-all ${liked ? 'fill-sunset scale-110' : ''}`} strokeWidth={1.5} />
-                {liked ? 'في المفضلة' : 'أضف للمفضلة'}
+                {liked ? t('product_details.in_favorites', 'في المفضلة') : t('product_details.add_to_favorites', 'أضف للمفضلة')}
               </button>
               <span className="w-px h-4 bg-[rgba(212,197,169,0.15)]" />
               <button
                 type="button"
                 onClick={() => {
                   navigator.clipboard?.writeText(window.location.href);
-                  toast.success('تم نسخ رابط المنتج');
+                  toast.success(t('product_details.link_copied', 'تم نسخ رابط المنتج'));
                 }}
                 className="inline-flex items-center gap-1.5 text-[0.8rem] font-ar text-sand opacity-60 hover:opacity-100 hover:text-cream transition-all active:scale-95"
               >
                 <Share2 className="w-4 h-4" strokeWidth={1.5} />
-                مشاركة
+                {t('product_details.share', 'مشاركة')}
               </button>
             </div>
 
             <div className="mt-4 text-[0.8rem] text-sand opacity-50 text-center">
-              الشحن يُحسب تلقائياً في صفحة الدفع.
+              {t('product_details.shipping_note', 'الشحن يُحسب تلقائياً في صفحة الدفع.')}
             </div>
           </div>
         </div>
@@ -282,7 +284,7 @@ export default function ProductDetailsPage() {
         <div className="mt-16">
           <div className="flex items-center gap-4 mb-8">
             <div className="h-px flex-1 bg-[linear-gradient(90deg,transparent,rgba(212,197,169,0.15),transparent)]" />
-            <span className="font-ar text-[1.1rem] text-sand-light">منتجات من نفس القسم</span>
+            <span className="font-ar text-[1.1rem] text-sand-light">{t('product_details.related', 'منتجات من نفس القسم')}</span>
             <div className="h-px flex-1 bg-[linear-gradient(90deg,transparent,rgba(212,197,169,0.15),transparent)]" />
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

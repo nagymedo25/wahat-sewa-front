@@ -88,9 +88,35 @@ export default function PageTransition() {
       navigate(href);
     };
 
+    const handleCustomEvent = async (e) => {
+      const { action } = e.detail || {};
+      if (isAnimating.current) return;
+
+      isAnimating.current = true;
+      if (containerRef.current) containerRef.current.style.pointerEvents = 'all';
+
+      await coverScreen();
+      
+      if (action) {
+        await action();
+        // Give React a frame to re-render
+        await new Promise(r => requestAnimationFrame(r));
+      }
+
+      await revealScreen();
+      
+      if (containerRef.current) containerRef.current.style.pointerEvents = 'none';
+      isAnimating.current = false;
+    };
+
     document.addEventListener('click', handleClick, true); // capture phase
-    return () => document.removeEventListener('click', handleClick, true);
-  }, [navigate, coverScreen]);
+    document.addEventListener('trigger-page-transition', handleCustomEvent);
+    
+    return () => {
+      document.removeEventListener('click', handleClick, true);
+      document.removeEventListener('trigger-page-transition', handleCustomEvent);
+    };
+  }, [navigate, coverScreen, revealScreen]);
 
   /* ── After route change → play REVEAL ── */
   useEffect(() => {

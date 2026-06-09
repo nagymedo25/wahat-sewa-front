@@ -6,20 +6,24 @@ import { AuthProvider } from './store/auth.jsx';
 import { CartProvider } from './store/cart.jsx';
 import { ToastProvider } from './store/toast.jsx';
 import { NotificationProvider } from './context/NotificationContext.jsx';
+import './i18n';
+import { LanguageProvider } from './context/LanguageContext.jsx';
 import './styles/globals.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <CartProvider>
-          <ToastProvider>
-            <NotificationProvider>
-              <App />
-            </NotificationProvider>
-          </ToastProvider>
-        </CartProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <CartProvider>
+            <ToastProvider>
+              <NotificationProvider>
+                <App />
+              </NotificationProvider>
+            </ToastProvider>
+          </CartProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

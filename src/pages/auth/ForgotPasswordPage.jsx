@@ -3,28 +3,30 @@ import { Link } from 'react-router-dom';
 import { Mail, Send, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
 import AuthShell from '@/components/Layout/AuthShell.jsx';
 import { useToast } from '@/store/toast.jsx';
+import { useTranslation } from 'react-i18next';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [done, setDone] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const onSubmit = (e) => {
     e.preventDefault();
     if (!email.trim()) {
-      toast.error('أدخل البريد الإلكتروني أولاً');
+      toast.error(t('auth.email_required_toast_forgot', 'أدخل البريد الإلكتروني أولاً'));
       return;
     }
     setDone(true);
-    toast.success('تم إرسال رابط الاستعادة (تجريبي)');
+    toast.success(t('auth.link_sent_toast', 'تم إرسال رابط الاستعادة (تجريبي)'));
   };
 
   return (
-    <AuthShell title="استعادة كلمة المرور" subtitle="أدخل بريدك وسنرسل لك رابط الاستعادة.">
+    <AuthShell title={t('auth.forgot_title', 'استعادة كلمة المرور')} subtitle={t('auth.forgot_subtitle', 'أدخل بريدك وسنرسل لك رابط الاستعادة.')}>
       {!done ? (
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
           <div>
-            <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">البريد الإلكتروني</label>
+            <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('auth.email', 'البريد الإلكتروني')}</label>
             <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
               <Mail className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
               <input
@@ -44,13 +46,13 @@ export default function ForgotPasswordPage() {
           >
             <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
             <Send className="w-[18px] h-[18px]" strokeWidth={2} />
-            إرسال الرابط
+            {t('auth.send_reset', 'إرسال الرابط')}
           </button>
 
           <div className="text-[0.85rem] text-sand opacity-70 font-ar text-center">
-            رجوع إلى{' '}
+            {t('auth.back_to', 'رجوع إلى')}{' '}
             <Link to="/auth/login" className="no-underline text-olive-glow hover:text-cream transition-colors inline-flex items-center gap-1">
-              تسجيل الدخول
+              {t('auth.back_to_login', 'تسجيل الدخول')}
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
             </Link>
           </div>
@@ -61,10 +63,10 @@ export default function ForgotPasswordPage() {
             <CheckCircle2 className="w-7 h-7 text-olive-glow" strokeWidth={1.5} />
           </div>
           <div>
-            <div className="font-ar text-cream font-semibold text-[1.1rem]">تم الإرسال</div>
+            <div className="font-ar text-cream font-semibold text-[1.1rem]">{t('auth.sent_title', 'تم الإرسال')}</div>
             <div className="mt-2 rounded-2xl border border-[rgba(164,184,107,0.20)] bg-[rgba(164,184,107,0.06)] px-4 py-3 text-sand-light text-[0.9rem] font-ar flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-olive-glow shrink-0" strokeWidth={2} />
-              تم إرسال رابط الاستعادة إلى: <span className="text-cream font-en">{email}</span>
+              {t('auth.sent_desc', 'تم إرسال رابط الاستعادة إلى: ')} <span className="text-cream font-en">{email}</span>
             </div>
           </div>
           <Link
@@ -72,7 +74,7 @@ export default function ForgotPasswordPage() {
             className="mt-2 inline-flex items-center gap-1 no-underline text-olive-glow hover:text-cream transition-colors font-ar text-[0.9rem]"
           >
             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
-            تسجيل الدخول
+            {t('auth.back_to_login', 'تسجيل الدخول')}
           </Link>
         </div>
       )}

@@ -1,6 +1,8 @@
 import logoImg from '@/images/Logo1.png';
+import { useTranslation } from 'react-i18next';
 
 export default function SiteFooter() {
+  const { t } = useTranslation();
   return (
     <footer className="relative bg-[#151310]" id="footer">
       <div className="absolute top-0 left-0 right-0 h-[120px] overflow-hidden" aria-hidden="true">
@@ -19,7 +21,7 @@ export default function SiteFooter() {
                 alt="واحة سيوة"
                 className="relative z-[1] h-[110px] w-auto object-contain [filter:brightness(1.15)_drop-shadow(0_4px_20px_rgba(0,0,0,0.4))] max-md:h-[90px]"
               />
-              <p className="relative z-[1] font-ar text-[0.9rem] font-light text-sand opacity-80 leading-relaxed">من قلب الصحراء... إلى قلبك</p>
+              <p className="relative z-[1] font-ar text-[0.9rem] font-light text-sand opacity-80 leading-relaxed">{t('footer.slogan', 'من قلب الصحراء... إلى قلبك')}</p>
             </div>
           </div>
 
@@ -27,33 +29,33 @@ export default function SiteFooter() {
 
           <div className="footer-links flex gap-20 justify-end max-md:justify-center max-[480px]:flex-col max-[480px]:gap-6 max-[480px]:justify-center">
             <div className="footer-col flex flex-col gap-3 max-[480px]:items-center max-[480px]:gap-2">
-              <h4 className="font-ar text-[0.95rem] font-semibold text-cream mb-2">استكشف</h4>
+              <h4 className="font-ar text-[0.95rem] font-semibold text-cream mb-2">{t('footer.explore', 'استكشف')}</h4>
               <a href="#journey" className="footer-link no-underline font-ar text-[0.85rem] font-light text-sand-light opacity-80 transition-all duration-300 hover:text-cream hover:opacity-100">
-                رحلة التراث
+                {t('footer.journey', 'رحلة التراث')}
               </a>
               <a href="#products" className="footer-link no-underline font-ar text-[0.85rem] font-light text-sand-light opacity-80 transition-all duration-300 hover:text-cream hover:opacity-100">
-                منتجاتنا
+                {t('footer.products', 'منتجاتنا')}
               </a>
               <a href="#philosophy" className="footer-link no-underline font-ar text-[0.85rem] font-light text-sand-light opacity-80 transition-all duration-300 hover:text-cream hover:opacity-100">
-                فلسفتنا
+                {t('footer.philosophy', 'فلسفتنا')}
               </a>
             </div>
 
             <div className="footer-col flex flex-col gap-3 max-[480px]:items-center max-[480px]:gap-2">
-              <h4 className="font-ar text-[0.95rem] font-semibold text-cream mb-2">تواصل</h4>
+              <h4 className="font-ar text-[0.95rem] font-semibold text-cream mb-2">{t('footer.contact', 'تواصل')}</h4>
               <a href="#" className="footer-link no-underline font-ar text-[0.85rem] font-light text-sand-light opacity-80 transition-all duration-300 hover:text-cream hover:opacity-100">
-                طلبات الجملة
+                {t('footer.wholesale', 'طلبات الجملة')}
               </a>
               <a href="#" className="footer-link no-underline font-ar text-[0.85rem] font-light text-sand-light opacity-80 transition-all duration-300 hover:text-cream hover:opacity-100">
-                الشحن والتوصيل
+                {t('footer.shipping', 'الشحن والتوصيل')}
               </a>
               <a href="#" className="footer-link no-underline font-ar text-[0.85rem] font-light text-sand-light opacity-80 transition-all duration-300 hover:text-cream hover:opacity-100">
-                قصتنا
+                {t('footer.story', 'قصتنا')}
               </a>
             </div>
 
             <div className="footer-col flex flex-col gap-3 max-[480px]:items-center max-[480px]:gap-2">
-              <h4 className="font-ar text-[0.95rem] font-semibold text-cream mb-2">تابعنا</h4>
+              <h4 className="font-ar text-[0.95rem] font-semibold text-cream mb-2">{t('footer.follow', 'تابعنا')}</h4>
               <div className="footer-social flex items-center gap-3 max-[480px]:justify-center">
                 <a
                   href="#"
@@ -91,11 +93,11 @@ export default function SiteFooter() {
 
         <div className="footer-bottom mt-16 pt-10 border-t border-[rgba(212,197,169,0.06)]">
           <p className="footer-quote text-center font-['Aref_Ruqaa',var(--font-ar),serif] text-[1.1rem] font-normal text-sand opacity-70 mb-10 max-[480px]:text-[0.95rem] max-[480px]:mb-7 leading-[1.8]">
-            "كل شيء ينمو من الأرض، يحمل روحها في طياته"
+            {t('footer.quote', '"كل شيء ينمو من الأرض، يحمل روحها في طياته"')}
           </p>
           <div className="footer-bar flex items-center justify-between text-[0.8rem] font-light text-sand opacity-60 max-[480px]:flex-col max-[480px]:gap-2 max-[480px]:text-center">
-            <span className="footer-copy">واحة سيوة © 2025</span>
-            <span className="footer-craft">صُنع بأيدٍ سيوية</span>
+            <span className="footer-copy">{t('footer.copyright', 'واحة سيوة © 2025')}</span>
+            <span className="footer-craft">{t('footer.made_by', 'صُنع بأيدٍ سيوية')}</span>
           </div>
         </div>
       </div>

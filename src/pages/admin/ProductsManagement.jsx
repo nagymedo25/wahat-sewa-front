@@ -1,7 +1,8 @@
 import { useAuth } from '../../store/auth';
 import { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Search, Eye, EyeOff, X, Image as ImageIcon, Check } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Eye, EyeOff, X, Check, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/store/toast.jsx';
+import CloudinaryUploader from '@/components/admin/CloudinaryUploader.jsx';
 
 function buildProductPayload(formData) {
   return {
@@ -426,32 +427,26 @@ function ProductModal({ product, categories, onSave, onClose }) {
         <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
           <form id="product-form" onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col md:flex-row gap-6">
-              {/* Image Preview */}
+              {/* Image Upload */}
               <div className="w-full md:w-1/3 flex flex-col gap-3">
-                <div className="w-full aspect-square rounded-2xl bg-olive-deep/20 border-2 border-dashed border-olive/30 flex flex-col items-center justify-center overflow-hidden relative group">
-                  {formData.image_url ? (
-                    <img 
-                      src={formData.image_url} 
-                      alt="Preview" 
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
-                    />
-                  ) : null}
-                  <div className={`absolute inset-0 flex flex-col items-center justify-center text-sand ${formData.image_url ? 'opacity-0 group-hover:opacity-100 bg-shadow/60 backdrop-blur-sm' : ''} transition-all`}>
-                    <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
-                    <span className="text-sm font-medium">معاينة الصورة</span>
-                  </div>
-                </div>
-                
+                <label className="block text-sm font-bold text-cream">صورة المنتج</label>
+                <CloudinaryUploader
+                  currentUrl={formData.image_url}
+                  onUpload={(url) => setFormData((prev) => ({ ...prev, image_url: url }))}
+                  onClear={() => setFormData((prev) => ({ ...prev, image_url: '' }))}
+                />
+                {/* Fallback: manual URL input */}
                 <div>
-                  <label className="block text-sm font-bold text-cream mb-2">رابط الصورة (URL)</label>
+                  <label className="flex items-center gap-1.5 text-xs font-bold text-sand opacity-60 mb-1.5">
+                    <LinkIcon className="w-3.5 h-3.5" />
+                    أو أدخل رابط URL يدوياً
+                  </label>
                   <input
                     type="url"
-                    required
                     placeholder="https://example.com/image.jpg"
                     value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all"
+                    onChange={(e) => setFormData((prev) => ({ ...prev, image_url: e.target.value }))}
+                    className="w-full px-3 py-2.5 bg-olive-deep/10 border border-olive/15 rounded-xl text-cream text-sm placeholder-sand/30 focus:outline-none focus:border-olive-glow/60 focus:ring-1 focus:ring-olive-glow/40 transition-all"
                   />
                 </div>
               </div>

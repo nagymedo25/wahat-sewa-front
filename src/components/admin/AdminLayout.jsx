@@ -11,7 +11,8 @@ import {
   X,
   Home,
   Settings,
-  Sparkles
+  Sparkles,
+  MapPin
 } from 'lucide-react';
 import { useAuth } from '../../store/auth';
 import { useEffect, useRef, useState } from 'react';
@@ -59,6 +60,7 @@ export default function AdminLayout() {
     { path: '/admin/products', icon: Package, label: 'المنتجات' },
     { path: '/admin/categories', icon: ShoppingBag, label: 'الأقسام' },
     { path: '/admin/orders', icon: ShoppingBag, label: 'الطلبات' },
+    { path: '/admin/regions', icon: MapPin, label: 'أسعار الشحن' },
     { path: '/admin/users', icon: Users, label: 'المستخدمون' },
     { path: '/admin/analytics', icon: TrendingUp, label: 'التحليلات' },
     { path: '/admin/featured', icon: Sparkles, label: 'معروضات الرئيسية' },

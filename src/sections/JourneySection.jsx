@@ -1,6 +1,8 @@
 import useScrollReveal from '../hooks/useScrollReveal';
+import { useTranslation } from 'react-i18next';
 
 export default function JourneySection() {
+  const { t } = useTranslation();
   const sectionRef = useScrollReveal({ selector: '.journey-header, .timeline-item', stagger: 0.2, y: 50 });
 
   return (
@@ -13,29 +15,29 @@ export default function JourneySection() {
       <div className="section-inner w-full max-w-[1400px] mx-auto px-12 relative z-[5] max-md:px-6">
         <div className="journey-header text-center mb-20 pt-32">
           <span className="inline-flex items-center gap-3 font-ar text-[0.75rem] font-medium text-olive-glow tracking-[0.15em] uppercase mb-6 before:content-[''] before:block before:w-[30px] before:h-px before:bg-olive-glow before:opacity-50">
-            الرحلة
+            {t('journey.label', 'الرحلة')}
           </span>
           <h2 className="font-ar text-[clamp(2.5rem,6vw,5rem)] font-extralight text-cream leading-[1.15] tracking-[-0.02em]">
-            حكايات من
+            {t('journey.title_part1', 'حكايات من')}
             <br />
-            قلب الواحة
+            {t('journey.title_part2', 'قلب الواحة')}
           </h2>
         </div>
 
         <div className="journey-timeline relative max-w-[800px] mx-auto py-8">
           <div className="timeline-line absolute right-1/2 top-0 bottom-0 w-px bg-[linear-gradient(to_bottom,transparent_0%,var(--olive-glow)_20%,var(--olive-glow)_80%,transparent_100%)] opacity-30 max-md:hidden" />
 
-          <TimelineItem index={0} number="01" title="نخيل سيوة">
-            أشجار النخيل العريقة التي تحمل في طياتها آلاف السنين من العطاء، تنمو في تربة الواحة الخصبة وتعطي أجود التمور في العالم.
+          <TimelineItem index={0} number="01" title={t('journey.item1_title', 'نخيل سيوة')}>
+            {t('journey.item1_desc', 'أشجار النخيل العريقة التي تحمل في طياتها آلاف السنين من العطاء، تنمو في تربة الواحة الخصبة وتعطي أجود التمور في العالم.')}
           </TimelineItem>
-          <TimelineItem index={1} number="02" title="الزيتون البري">
-            أشجار الزيتون التي تعمر لأكثر من ألف عام، تنتج زيتاً نقياً كالذهب السائل، مليئاً بنكهة التاريخ وعبق الأرض.
+          <TimelineItem index={1} number="02" title={t('journey.item2_title', 'الزيتون البري')}>
+            {t('journey.item2_desc', 'أشجار الزيتون التي تعمر لأكثر من ألف عام، تنتج زيتاً نقياً كالذهب السائل، مليئاً بنكهة التاريخ وعبق الأرض.')}
           </TimelineItem>
-          <TimelineItem index={2} number="03" title="العطارة السيوية">
-            أعشاب طبيعية نادرة تنمو في بساتين الواحة، تجمع بأيدي حرفيات يحملن سر الطبيعة من جيل إلى جيل.
+          <TimelineItem index={2} number="03" title={t('journey.item3_title', 'العطارة السيوية')}>
+            {t('journey.item3_desc', 'أعشاب طبيعية نادرة تنمو في بساتين الواحة، تجمع بأيدي حرفيات يحملن سر الطبيعة من جيل إلى جيل.')}
           </TimelineItem>
-          <TimelineItem index={3} number="04" title="النقاء الأبدي">
-            من مياه الينابيع العذبة إلى تربة الصحراء النقية، كل منتج يحمل روح سيوة الأصيلة ونقاء طبيعتها الفريد.
+          <TimelineItem index={3} number="04" title={t('journey.item4_title', 'النقاء الأبدي')}>
+            {t('journey.item4_desc', 'من مياه الينابيع العذبة إلى تربة الصحراء النقية، كل منتج يحمل روح سيوة الأصيلة ونقاء طبيعتها الفريد.')}
           </TimelineItem>
         </div>
       </div>

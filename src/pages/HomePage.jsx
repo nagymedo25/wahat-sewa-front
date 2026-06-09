@@ -10,6 +10,7 @@ import PhilosophySection from '@/sections/PhilosophySection.jsx';
 import ContactSection from '@/sections/ContactSection.jsx';
 import SiteFooter from '@/components/Footer/SiteFooter.jsx';
 import { loadCatalog } from '@/services/catalog.js';
+import { useTranslation } from 'react-i18next';
 
 export default function HomePage() {
   const rootRef = useRef(null);
@@ -21,71 +22,72 @@ export default function HomePage() {
   const [isLiteMode, setIsLiteMode] = useState(false);
   const [dynamicProducts, setDynamicProducts] = useState([]);
   const lastScrollY = useRef(0);
+  const { t } = useTranslation();
 
   const fallbackProducts = useMemo(
     () => [
       {
         id: 'c49bac0c-764f-4d2d-b716-bf025922c2de',
-        category: 'التمور السيوية',
-        name: 'تمور لّاب (كيلو)',
-        desc: 'تمور لّاب مختارة بعناية وزن 1 كيلو، حلاوة طبيعية وفوائد غذائية عالية.',
-        weight: '1 كجم',
-        price: 'ج.م 245',
+        category: t('fallback_products.cat_dates', 'التمور السيوية'),
+        name: t('fallback_products.p1_name', 'تمور لّاب (كيلو)'),
+        desc: t('fallback_products.p1_desc', 'تمور لّاب مختارة بعناية وزن 1 كيلو، حلاوة طبيعية وفوائد غذائية عالية.'),
+        weight: t('fallback_products.p1_weight', '1 كجم'),
+        price: '245',
         image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438227/4_mgejnp.png',
         Icon: DatesIcon,
       },
       {
         id: 'a7dc95fd-7c63-4989-abb4-caa8bf59af7c',
-        category: 'التمور السيوية',
-        name: 'علبة تمور لوز / كاجو',
-        desc: 'تمور فاخرة محشوة باللوز والكاجو الطازج.',
-        weight: 'علبة فاخرة',
-        price: 'ج.م 150',
+        category: t('fallback_products.cat_dates', 'التمور السيوية'),
+        name: t('fallback_products.p2_name', 'علبة تمور لوز / كاجو'),
+        desc: t('fallback_products.p2_desc', 'تمور فاخرة محشوة باللوز والكاجو الطازج.'),
+        weight: t('fallback_products.p2_weight', 'علبة فاخرة'),
+        price: '150',
         image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438321/20_tfoow0.png',
         Icon: DatesIcon,
       },
       {
         id: 'b9829fc5-45f8-4f89-9a15-fcb47e3e463a',
-        category: 'التمور السيوية',
-        name: 'معمول سيوة',
-        desc: 'معمول سيوة اللذيذ المصنوع بالتمر السيوى الطبيعى.',
-        weight: 'علبة معمول',
-        price: 'ج.م 115',
+        category: t('fallback_products.cat_dates', 'التمور السيوية'),
+        name: t('fallback_products.p3_name', 'معمول سيوة'),
+        desc: t('fallback_products.p3_desc', 'معمول سيوة اللذيذ المصنوع بالتمر السيوى الطبيعى.'),
+        weight: t('fallback_products.p3_weight', 'علبة معمول'),
+        price: '115',
         image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438238/6_if2nu0.png',
         Icon: DatesIcon,
       },
       {
         id: '0ee70894-8c58-4c26-83ce-6e6d063ddc45',
-        category: 'الزيوت السيوية',
-        name: 'زجاجة زيت زيتون (لتر)',
-        desc: 'زيت زيتون سيوي أصلي سعة 1 لتر، للحفاظ على الصحة والمناعة.',
-        weight: '1 لتر',
-        price: 'ج.م 520',
+        category: t('fallback_products.cat_oils', 'الزيوت السيوية'),
+        name: t('fallback_products.p4_name', 'زجاجة زيت زيتون (لتر)'),
+        desc: t('fallback_products.p4_desc', 'زيت زيتون سيوي أصلي سعة 1 لتر، للحفاظ على الصحة والمناعة.'),
+        weight: t('fallback_products.p4_weight', '1 لتر'),
+        price: '520',
         image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438257/12_kulhxk.png',
         Icon: OliveIcon,
       },
       {
         id: 'ec15e720-d283-4947-a6cc-4f3b17dad70d',
-        category: 'العناية والتجميل',
-        name: 'زيتون تفاحي (برطمان)',
-        desc: 'زيتون تفاحي سيوى مخلل بطرق تقليدية طبيعية.',
-        weight: 'برطمان مخلل',
-        price: 'ج.م 120',
+        category: t('fallback_products.cat_care', 'العناية والتجميل'),
+        name: t('fallback_products.p5_name', 'زيتون تفاحي (برطمان)'),
+        desc: t('fallback_products.p5_desc', 'زيتون تفاحي سيوى مخلل بطرق تقليدية طبيعية.'),
+        weight: t('fallback_products.p5_weight', 'برطمان مخلل'),
+        price: '120',
         image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438253/10_xdjdqg.png',
         Icon: OliveIcon,
       },
       {
         id: '942d5111-279c-4b2c-9968-6ff20d92480d',
-        category: 'الزيوت السيوية',
-        name: 'زجاجة زيت زيتون (1/2 لتر)',
-        desc: 'زجاجة نصف لتر زيت زيتون سيوي عصرة أولى.',
-        weight: '500 مل',
-        price: 'ج.م 290',
+        category: t('fallback_products.cat_oils', 'الزيوت السيوية'),
+        name: t('fallback_products.p6_name', 'زجاجة زيت زيتون (1/2 لتر)'),
+        desc: t('fallback_products.p6_desc', 'زجاجة نصف لتر زيت زيتون سيوي عصرة أولى.'),
+        weight: t('fallback_products.p6_weight', '500 مل'),
+        price: '290',
         image: 'https://res.cloudinary.com/ddapmhhic/image/upload/v1778438257/12_kulhxk.png',
         Icon: OliveIcon,
       },
     ],
-    []
+    [t]
   );
 
   useEffect(() => {

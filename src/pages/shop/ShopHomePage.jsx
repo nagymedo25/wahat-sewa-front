@@ -5,6 +5,7 @@ import GlassShell from '@/components/Layout/GlassShell.jsx';
 import { useCart } from '@/store/cart.jsx';
 import { useToast } from '@/store/toast.jsx';
 import { loadCatalog } from '@/services/catalog.js';
+import { useTranslation } from 'react-i18next';
 
 function money(value, currency) {
   return `${value} ${currency}`;
@@ -13,6 +14,7 @@ function money(value, currency) {
 export default function ShopHomePage() {
   const { addItem } = useCart();
   const toast = useToast();
+  const { t } = useTranslation();
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -66,13 +68,13 @@ export default function ShopHomePage() {
 
   const handleAdd = useCallback((p) => {
     addItem(p, 1);
-    toast.success(`تمت إضافة ${p.name} للسلة`);
-  }, [addItem, toast]);
+    toast.success(t('shop.added_to_cart', 'تمت إضافة {{name}} للسلة', { name: p.name }));
+  }, [addItem, toast, t]);
 
   return (
     <GlassShell
-      title="متجر واحة سيوة"
-      subtitle={`${stats.total} منتج أصيل من قلب الواحة… اختر ما ينبض بروح الصحراء.`}
+      title={t('shop.title', 'متجر واحة سيوة')}
+      subtitle={t('shop.subtitle', '{{count}} منتج أصيل من قلب الواحة… اختر ما ينبض بروح الصحراء.', { count: stats.total })}
     >
       {/* Search + Categories */}
       <div className="mb-10 space-y-6">
@@ -83,7 +85,7 @@ export default function ShopHomePage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث في المتجر… أعشاب، تمور، زيوت…"
+            placeholder={t('shop.search_placeholder', 'ابحث في المتجر… أعشاب، تمور، زيوت…')}
             className="w-full rounded-2xl border border-[rgba(212,197,169,0.10)] bg-[rgba(26,24,20,0.45)] py-3.5 pr-12 pl-4 text-cream placeholder:text-sand/30 focus:outline-none focus:border-[rgba(164,184,107,0.45)] focus:shadow-[0_0_24px_rgba(164,184,107,0.08)] transition-all font-ar"
           />
         </div>
@@ -114,7 +116,7 @@ export default function ShopHomePage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <Loader2 className="w-8 h-8 text-olive-glow animate-spin" strokeWidth={1.5} />
-          <p className="text-sand opacity-60 font-ar">جاري تحميل خيرات الواحة…</p>
+          <p className="text-sand opacity-60 font-ar">{t('shop.loading', 'جاري تحميل خيرات الواحة…')}</p>
         </div>
       )}
 
@@ -133,8 +135,8 @@ export default function ShopHomePage() {
           <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.06)] border border-[rgba(164,184,107,0.12)] mb-5">
             <PackageSearch className="w-8 h-8 text-olive-glow opacity-50" strokeWidth={1.5} />
           </div>
-          <p className="text-cream font-ar font-semibold text-[1.1rem]">لم نجد ما تبحث عنه</p>
-          <p className="mt-2 text-sand opacity-50 text-sm font-ar">جرب كلمة بحث أخرى أو تصفح الأقسام ✨</p>
+          <p className="text-cream font-ar font-semibold text-[1.1rem]">{t('shop.not_found_title', 'لم نجد ما تبحث عنه')}</p>
+          <p className="mt-2 text-sand opacity-50 text-sm font-ar">{t('shop.not_found_desc', 'جرب كلمة بحث أخرى أو تصفح الأقسام ✨')}</p>
         </div>
       )}
     </GlassShell>
@@ -144,6 +146,7 @@ export default function ShopHomePage() {
 function ProductCard({ product, onAdd }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [adding, setAdding] = useState(false);
+  const { t } = useTranslation();
 
   const handleClick = () => {
     setAdding(true);
@@ -175,7 +178,7 @@ function ProductCard({ product, onAdd }) {
         ) : (
           <div className="flex flex-col items-center justify-center opacity-30 text-sand">
             <PackageSearch className="w-10 h-10 mb-2" />
-            <span className="text-[0.65rem] font-ar">لا توجد صورة</span>
+            <span className="text-[0.65rem] font-ar">{t('shop.no_image', 'لا توجد صورة')}</span>
           </div>
         )}
 
@@ -189,7 +192,7 @@ function ProductCard({ product, onAdd }) {
         {/* Sale Tag — Vibrant Sunset for discounts */}
         {product.oldPrice && (
           <div className="absolute top-3 left-3 rounded-xl px-3 py-1.5 text-[0.7rem] font-number font-bold bg-sunset text-white border border-sunset-deep/20 shadow-lg backdrop-blur-md z-10">
-            خصم
+            {t('shop.discount', 'خصم')}
           </div>
         )}
       </div>
@@ -251,7 +254,7 @@ function ProductCard({ product, onAdd }) {
               to={`/shop/product/${product.id}`}
               className="text-[0.8rem] text-sand opacity-60 hover:text-cream hover:opacity-100 transition-colors font-ar"
             >
-              تفاصيل
+              {t('shop.details', 'تفاصيل')}
             </Link>
             <button
               onClick={handleClick}
@@ -266,7 +269,7 @@ function ProductCard({ product, onAdd }) {
               ) : (
                 <Plus className="w-3.5 h-3.5" strokeWidth={2} />
               )}
-              {adding ? 'تمت' : 'إضافة'}
+              {adding ? t('shop.added', 'تمت') : t('shop.add', 'إضافة')}
             </button>
           </div>
         </div>

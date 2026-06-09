@@ -1,6 +1,8 @@
 import useScrollReveal from '../hooks/useScrollReveal';
+import { useTranslation } from 'react-i18next';
 
 export default function ContactSection() {
+  const { t } = useTranslation();
   const sectionRef = useScrollReveal({ selector: '.contact-brand, .contact-links, .contact-social, .contact-credit', stagger: 0.2, y: 40 });
 
   return (
@@ -17,8 +19,8 @@ export default function ContactSection() {
               <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(164,184,107,0.12)_0%,transparent_70%)]" />
               <span className="text-[2rem] text-olive-glow relative z-[1]">☰</span>
             </div>
-            <h2 className="font-ar text-[clamp(2.2rem,5vw,4.2rem)] font-extralight text-cream leading-[1.15] mb-4">واحة سيوة</h2>
-            <p className="font-ar text-[1rem] font-light text-sand opacity-90">من قلب الصحراء إلى قلبك</p>
+            <h2 className="font-ar text-[clamp(2.2rem,5vw,4.2rem)] font-extralight text-cream leading-[1.15] mb-4">{t('contact.brand', 'واحة سيوة')}</h2>
+            <p className="font-ar text-[1rem] font-light text-sand opacity-90">{t('contact.slogan', 'من قلب الصحراء إلى قلبك')}</p>
           </div>
 
           <div className="contact-links flex flex-col gap-4 items-center mb-16">
@@ -32,7 +34,7 @@ export default function ContactSection() {
                   <line x1="12" y1="22.08" x2="12" y2="12" />
                 </svg>
               </span>
-              <span className="relative z-[1]">طلبات الجملة</span>
+              <span className="relative z-[1]">{t('contact.wholesale', 'طلبات الجملة')}</span>
             </a>
             <a href="#" className="group relative w-[260px] max-w-full inline-flex items-center gap-4 px-6 py-4 rounded-2xl border border-[rgba(212,197,169,0.1)] bg-[rgba(26,24,20,0.4)] backdrop-blur-md text-sand-light font-ar text-[0.95rem] font-medium transition-all duration-500 hover:border-[rgba(164,184,107,0.5)] hover:bg-[rgba(164,184,107,0.08)] hover:text-cream hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(164,184,107,0.2),0_0_0_1px_rgba(164,184,107,0.1)] overflow-hidden max-[480px]:w-full max-[480px]:justify-center">
               <span className="absolute inset-0 bg-[linear-gradient(105deg,transparent_40%,rgba(164,184,107,0.15)_50%,transparent_60%)] translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
@@ -45,7 +47,7 @@ export default function ContactSection() {
                   <circle cx="18.5" cy="18.5" r="2.5" />
                 </svg>
               </span>
-              <span className="relative z-[1]">الشحن والتوصيل</span>
+              <span className="relative z-[1]">{t('contact.shipping', 'الشحن والتوصيل')}</span>
             </a>
             <a href="#" className="group relative w-[260px] max-w-full inline-flex items-center gap-4 px-6 py-4 rounded-2xl border border-[rgba(212,197,169,0.1)] bg-[rgba(26,24,20,0.4)] backdrop-blur-md text-sand-light font-ar text-[0.95rem] font-medium transition-all duration-500 hover:border-[rgba(164,184,107,0.5)] hover:bg-[rgba(164,184,107,0.08)] hover:text-cream hover:-translate-y-[3px] hover:shadow-[0_12px_40px_rgba(164,184,107,0.2),0_0_0_1px_rgba(164,184,107,0.1)] overflow-hidden max-[480px]:w-full max-[480px]:justify-center">
               <span className="absolute inset-0 bg-[linear-gradient(105deg,transparent_40%,rgba(164,184,107,0.15)_50%,transparent_60%)] translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
@@ -56,7 +58,7 @@ export default function ContactSection() {
                   <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                 </svg>
               </span>
-              <span className="relative z-[1]">قصتنا</span>
+              <span className="relative z-[1]">{t('contact.story', 'قصتنا')}</span>
             </a>
           </div>
 
@@ -95,7 +97,7 @@ export default function ContactSection() {
             </a>
           </div>
 
-          <p className="contact-credit font-ar text-[0.8rem] font-light text-sand opacity-60">واحة سيوة © 2025</p>
+          <p className="contact-credit font-ar text-[0.8rem] font-light text-sand opacity-60">{t('contact.copyright', 'واحة سيوة © 2025')}</p>
         </div>
       </div>
     </section>

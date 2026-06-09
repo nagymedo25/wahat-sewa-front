@@ -1,7 +1,9 @@
 import ProductCard from '@/components/Products/ProductCard.jsx';
 import useScrollReveal from '../hooks/useScrollReveal';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductsSection({ products }) {
+  const { t } = useTranslation();
   const sectionRef = useScrollReveal({ selector: '.products-header, .product-card', stagger: 0.18, y: 45 });
 
   return (
@@ -16,12 +18,12 @@ export default function ProductsSection({ products }) {
       <div className="section-inner w-full max-w-[1400px] mx-auto px-12 relative z-[5] max-md:px-6">
         <div className="products-header text-center mb-24">
           <span className="inline-flex items-center gap-3 font-ar text-[0.75rem] font-medium text-olive-glow tracking-[0.15em] uppercase mb-6 before:content-[''] before:block before:w-[30px] before:h-px before:bg-olive-glow before:opacity-50">
-            المنتجات
+            {t('products_section.label', 'المنتجات')}
           </span>
           <h2 className="font-ar text-[clamp(2.5rem,6vw,5rem)] font-extralight text-cream leading-[1.15] tracking-[-0.02em]">
-            المنتجات
+            {t('products_section.title_part1', 'المنتجات')}
             <br />
-            الأكثر طلباً
+            {t('products_section.title_part2', 'الأكثر طلباً')}
           </h2>
         </div>
 

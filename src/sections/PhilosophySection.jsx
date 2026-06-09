@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import heroBg2 from '../images/hero-bg2.png';
 import useScrollReveal from '../hooks/useScrollReveal';
+import { useTranslation } from 'react-i18next';
 
 export default function PhilosophySection() {
+  const { t } = useTranslation();
   const sectionRef = useScrollReveal({ selector: '.philosophy-content, .philosophy-image-side', stagger: 0.25, y: 50 });
 
   return (
@@ -18,21 +20,21 @@ export default function PhilosophySection() {
         <div className="philosophy-grid grid grid-cols-2 gap-20 items-center relative z-[2] max-md:grid-cols-1 max-md:gap-12 max-md:text-center">
           <div className="philosophy-content max-w-[560px] max-md:max-w-none max-md:mx-auto">
             <span className="inline-flex items-center gap-3 font-ar text-[0.75rem] font-medium text-olive-glow tracking-[0.15em] uppercase mb-6 before:content-[''] before:block before:w-[30px] before:h-px before:bg-olive-glow before:opacity-50">
-              الفلسفة
+              {t('philosophy.label', 'الفلسفة')}
             </span>
             <h2 className="font-ar text-[clamp(2.5rem,6vw,5rem)] font-extralight text-cream leading-[1.15] tracking-[-0.02em]">
-              نحن لا نبيع
+              {t('philosophy.title_part1', 'نحن لا نبيع')}
               <br />
-              منتجات
+              {t('philosophy.title_part2', 'منتجات')}
             </h2>
             <p className="relative text-[1.05rem] font-light text-sand leading-[2.2] my-8 mb-12 after:content-[''] after:absolute after:bottom-[-1rem] after:right-0 after:w-[60px] after:h-px after:bg-[linear-gradient(90deg,transparent,var(--olive-glow),transparent)] after:opacity-50 max-md:after:right-1/2 max-md:after:translate-x-1/2">
-              نحن نروي قصة أرض عاشت فيها الحضارات، ونحمل إليكم قطعة من سحر الواحة. كل منتج يصنع بأيدي أهل سيوة، بأسلوب تراثي نقي، بعيداً عن المصانع والآلات. نؤمن أن الأصالة لا تُصنع، بل تُورث.
+              {t('philosophy.desc', 'نحن نروي قصة أرض عاشت فيها الحضارات، ونحمل إليكم قطعة من سحر الواحة. كل منتج يصنع بأيدي أهل سيوة، بأسلوب تراثي نقي، بعيداً عن المصانع والآلات. نؤمن أن الأصالة لا تُصنع، بل تُورث.')}
             </p>
 
             <div className="philosophy-stats relative flex gap-10 mt-12 before:content-[''] before:absolute before:top-[-1.5rem] before:right-0 before:left-0 before:h-px before:bg-[linear-gradient(90deg,transparent,rgba(164,184,107,0.15),transparent)] max-md:justify-center">
-              <StatItem count={1200} label="عام من التراث" />
-              <StatItem count={100} label="% طبيعي" />
-              <StatItem count={50} label="عائلة منتجة" />
+              <StatItem count={1200} label={t('philosophy.stat1', 'عام من التراث')} />
+              <StatItem count={100} label={t('philosophy.stat2', '% طبيعي')} />
+              <StatItem count={50} label={t('philosophy.stat3', 'عائلة منتجة')} />
             </div>
           </div>
 
@@ -49,7 +51,7 @@ export default function PhilosophySection() {
               <div className="absolute inset-2 pointer-events-none z-[2] border border-[rgba(164,184,107,0.12)] rounded-[12px]" />
             </div>
             <p className="font-['Aref_Ruqaa',var(--font-ar),serif] text-[0.85rem] font-normal text-olive-glow opacity-60 mt-4 text-center tracking-[0.1em] italic">
-              من قلب الصحراء... ولدت الحياة
+              {t('philosophy.caption', 'من قلب الصحراء... ولدت الحياة')}
             </p>
           </div>
         </div>

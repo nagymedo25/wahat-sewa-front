@@ -12,15 +12,10 @@ function safeParse(json) {
   }
 }
 
-function calcTotals(items) {
-  const subtotal = items.reduce((sum, it) => sum + it.price * it.qty, 0);
-  const shipping = subtotal === 0 ? 0 : 45;
-  const total = subtotal + shipping;
-  return { subtotal, shipping, total };
-}
-
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
+  const [shippingCost, setShippingCost] = useState(65);
+
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -65,18 +60,25 @@ export function CartProvider({ children }) {
 
   const clear = useCallback(() => setItems([]), []);
 
-  const totals = useMemo(() => calcTotals(items), [items]);
+  const totals = useMemo(() => {
+    const subtotal = items.reduce((sum, it) => sum + it.price * it.qty, 0);
+    const shipping = subtotal === 0 ? 0 : shippingCost;
+    const total = subtotal + shipping;
+    return { subtotal, shipping, total };
+  }, [items, shippingCost]);
 
   const value = useMemo(
     () => ({
       items,
       totals,
+      shippingCost,
+      setShippingCost,
       addItem,
       setQty,
       removeItem,
       clear,
     }),
-    [addItem, clear, items, removeItem, setQty, totals]
+    [addItem, clear, items, removeItem, setQty, totals, shippingCost]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

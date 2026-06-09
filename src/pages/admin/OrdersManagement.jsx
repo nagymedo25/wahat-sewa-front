@@ -1,6 +1,6 @@
 import { useAuth } from '../../store/auth';
 import { useEffect, useState } from 'react';
-import { Search, Filter, Eye, Truck, CheckCircle, XCircle, RotateCcw, X, ShoppingBag } from 'lucide-react';
+import { Search, Filter, Eye, Truck, CheckCircle, XCircle, RotateCcw, X, ShoppingBag, Download } from 'lucide-react';
 import { useToast } from '@/store/toast.jsx';
 
 export default function OrdersManagement() {
@@ -284,8 +284,6 @@ export default function OrdersManagement() {
 
 function OrderDetailModal({ order, onClose, onStatusUpdate }) {
   const [notes, setNotes] = useState('');
-  const [trackingNumber, setTrackingNumber] = useState(order.tracking_number || '');
-  const [estimatedDelivery, setEstimatedDelivery] = useState(order.estimated_delivery ? String(order.estimated_delivery).slice(0, 10) : '');
   const [loading, setLoading] = useState(false);
 
   const handleStatusChange = async (newStatus) => {
@@ -293,9 +291,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
     
     setLoading(true);
     await onStatusUpdate(order.id, newStatus, {
-      notes,
-      tracking_number: trackingNumber || null,
-      estimated_delivery: estimatedDelivery || null
+      notes
     });
     setLoading(false);
   };
@@ -388,6 +384,10 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
                   <span className="text-cream font-bold" dir="ltr">{shippingAddress?.phone || '-'}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-sand text-sm">رقم الواتساب:</span>
+                  <span className="text-cream font-bold" dir="ltr">{shippingAddress?.whatsapp || '-'}</span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-sand text-sm">المدينة:</span>
                   <span className="text-cream font-bold">{shippingAddress?.city || '-'}</span>
                 </div>
@@ -462,109 +462,132 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
 
           {/* Status Update */}
           <div className="border-t border-olive/20 pt-8">
-            <h3 className="font-bold text-cream mb-4">تحديث حالة الطلب</h3>
+            <h3 className="font-bold text-cream mb-4">إجراءات الطلب (نظام ShipBlu الآلي)</h3>
             <div className="bg-shadow-soft border border-olive/20 rounded-2xl p-6 space-y-6">
-              <div>
-                <label className="block text-sm font-bold text-cream mb-2">ملاحظات للتحديث (اختياري)</label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
-                  className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all resize-none"
-                  placeholder="أضف ملاحظات حول هذا التحديث لتظهر في السجل..."
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-cream mb-2">رقم التتبع (اختياري)</label>
-                  <input
-                    type="text"
-                    value={trackingNumber}
-                    onChange={(e) => setTrackingNumber(e.target.value)}
-                    className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all"
-                    placeholder="رقم تتبع شركة الشحن"
-                    dir="ltr"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-cream mb-2">موعد التسليم المتوقع</label>
-                  <input
-                    type="date"
-                    value={estimatedDelivery}
-                    onChange={(e) => setEstimatedDelivery(e.target.value)}
-                    className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all"
-                  />
-                </div>
-              </div>
-
-              {(order.tracking_number || order.estimated_delivery || order.actual_delivery) && (
-                <div className="rounded-xl bg-olive-deep/30 border border-olive/20 p-4 space-y-2 text-sm">
-                  <div className="flex gap-2">
-                    <span className="text-sand font-bold">رقم التتبع الحالي:</span>
-                    <span className="text-cream font-mono">{order.tracking_number || 'غير مضاف'}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="text-sand font-bold">التسليم المتوقع:</span>
-                    <span className="text-cream">{order.estimated_delivery ? new Date(order.estimated_delivery).toLocaleDateString('ar-EG') : 'غير محدد'}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="text-sand font-bold">التسليم الفعلي:</span>
-                    <span className="text-cream">{order.actual_delivery ? new Date(order.actual_delivery).toLocaleDateString('ar-EG') : 'لم يتم بعد'}</span>
-                  </div>
+              
+              {(order.tracking_number || order.estimated_delivery || order.actual_delivery || order.shipblu_shipment_id) && (
+                <div className="rounded-xl bg-olive-deep/30 border border-olive/20 p-4 space-y-2 text-sm mb-6">
+                  {order.shipblu_shipment_id && (
+                    <div className="flex flex-col gap-2 mb-3 pb-3 border-b border-olive/10">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-bold flex items-center gap-1">
+                            <Truck className="w-3 h-3" /> ShipBlu
+                          </span>
+                          <span className="text-sand font-bold">معرف الشحنة:</span>
+                          <span className="text-cream font-mono">{order.shipblu_shipment_id}</span>
+                        </div>
+                        {order.shipblu_awb_url && (
+                          <a 
+                            href={order.shipblu_awb_url} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="flex items-center gap-1 text-xs bg-olive-glow/20 text-olive-glow border border-olive-glow/30 px-3 py-1 rounded hover:bg-olive-glow/30 transition-colors"
+                          >
+                            <Download className="w-3 h-3" />
+                            طباعة البوليصة
+                          </a>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sand font-bold">رقم التتبع (ShipBlu):</span>
+                        <span className="text-cream font-mono">{order.shipblu_tracking_number || 'جاري الإصدار...'}</span>
+                      </div>
+                    </div>
+                  )}
+                  {order.tracking_number && !order.shipblu_tracking_number && (
+                    <div className="flex gap-2">
+                      <span className="text-sand font-bold">رقم التتبع:</span>
+                      <span className="text-cream font-mono">{order.tracking_number}</span>
+                    </div>
+                  )}
+                  {order.estimated_delivery && (
+                    <div className="flex gap-2">
+                      <span className="text-sand font-bold">التسليم المتوقع:</span>
+                      <span className="text-cream">{new Date(order.estimated_delivery).toLocaleDateString('ar-EG')}</span>
+                    </div>
+                  )}
+                  {order.actual_delivery && (
+                    <div className="flex gap-2">
+                      <span className="text-sand font-bold">التسليم الفعلي:</span>
+                      <span className="text-cream">{new Date(order.actual_delivery).toLocaleDateString('ar-EG')}</span>
+                    </div>
+                  )}
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-3 pt-2 border-t border-olive/20">
-                <button
-                  onClick={() => handleStatusChange('confirmed')}
-                  disabled={loading || order.status === 'cancelled' || order.status === 'delivered' || order.status === 'confirmed'}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-xl hover:bg-blue-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  <span>تأكيد الطلب</span>
-                </button>
-                <button
-                  onClick={() => handleStatusChange('processing')}
-                  disabled={loading || order.status === 'cancelled' || order.status === 'delivered' || order.status === 'processing'}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-xl hover:bg-purple-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold"
-                >
-                  <Filter className="w-4 h-4" />
-                  <span>جاري المعالجة</span>
-                </button>
-                <button
-                  onClick={() => handleStatusChange('shipped')}
-                  disabled={loading || order.status === 'cancelled' || order.status === 'delivered' || order.status === 'shipped'}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 rounded-xl hover:bg-indigo-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold"
-                >
-                  <Truck className="w-4 h-4" />
-                  <span>تم الشحن</span>
-                </button>
-                <button
-                  onClick={() => handleStatusChange('delivered')}
-                  disabled={loading || order.status === 'cancelled' || order.status === 'delivered'}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-olive-500/20 text-olive-glow border border-olive-500/30 rounded-xl hover:bg-olive-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  <span>تم التسليم</span>
-                </button>
-                <button
-                  onClick={() => handleStatusChange('cancelled')}
-                  disabled={loading || order.status === 'delivered' || order.status === 'cancelled'}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-red-500/20 text-red-300 border border-red-500/30 rounded-xl hover:bg-red-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold"
-                >
-                  <XCircle className="w-4 h-4" />
-                  <span>إلغاء الطلب</span>
-                </button>
-                <button
-                  onClick={() => handleStatusChange('returned')}
-                  disabled={loading || order.status !== 'delivered' || order.status === 'returned'}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-gray-500/20 text-gray-300 border border-gray-500/30 rounded-xl hover:bg-gray-500/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all font-bold"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>استرجاع</span>
-                </button>
-              </div>
+              {order.status === 'pending' ? (
+                <div className="flex flex-col items-center justify-center p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl space-y-4 text-center">
+                  <div className="w-14 h-14 rounded-full bg-blue-500/20 flex items-center justify-center mb-2">
+                    <Truck className="w-7 h-7 text-blue-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-blue-300">إرسال إلى شركة الشحن</h4>
+                    <p className="text-sm text-sand mt-2 max-w-md mx-auto leading-relaxed">
+                      بمجرد تأكيد الطلب، سيتم إصدار بوليصة شحن فورية عبر ShipBlu وسيتم التكفل بتحديث حالة الطلب أوتوماتيكياً مستقبلاً (تم الشحن، تم التسليم، إلخ).
+                    </p>
+                  </div>
+                  
+                  <div className="w-full max-w-md mt-4 mb-4">
+                    <label className="block text-sm font-bold text-blue-300/80 mb-2 text-right">ملاحظات للمندوب أو للإدارة (اختياري)</label>
+                    <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      rows={2}
+                      className="w-full px-4 py-3 bg-blue-950/30 border border-blue-500/30 rounded-xl text-cream placeholder-blue-300/30 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all resize-none text-right"
+                      placeholder="أضف ملاحظاتك هنا..."
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-3 mt-4 w-full max-w-md justify-center">
+                    <button
+                      onClick={() => handleStatusChange('processing')}
+                      disabled={loading}
+                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl disabled:opacity-50 transition-all font-bold shadow-lg shadow-blue-500/20"
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                      <span>تأكيد وإنشاء الشحنة</span>
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange('cancelled')}
+                      disabled={loading}
+                      className="flex items-center justify-center gap-2 px-6 py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl disabled:opacity-50 transition-all font-bold border border-red-500/20"
+                    >
+                      <XCircle className="w-5 h-5" />
+                      <span>إلغاء</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center p-8 bg-olive-deep/30 border border-olive/20 rounded-2xl space-y-4 text-center">
+                  <div className="relative">
+                    <div className="w-16 h-16 rounded-full bg-olive-glow/10 flex items-center justify-center">
+                      <Truck className="w-8 h-8 text-olive-glow" />
+                    </div>
+                    {order.status !== 'cancelled' && order.status !== 'returned' && order.status !== 'delivered' && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full animate-ping"></div>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-olive-glow mb-2">الطلب قيد التتبع الآلي</h4>
+                    <p className="text-sm text-sand max-w-md mx-auto leading-relaxed">
+                      هذا الطلب مربوط ومتابع حالياً بواسطة نظام ShipBlu. 
+                      لا حاجة للتدخل اليدوي، سيتم تحديث حالة الطلب أوتوماتيكياً عندما يقوم المندوب بالتوصيل أو الاسترجاع.
+                    </p>
+                  </div>
+                  
+                  {order.status !== 'cancelled' && order.status !== 'returned' && order.status !== 'delivered' && (
+                    <button
+                      onClick={() => handleStatusChange('cancelled')}
+                      disabled={loading}
+                      className="mt-6 flex items-center gap-2 px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm transition-all font-bold"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>إلغاء الطلب (طوارئ)</span>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
