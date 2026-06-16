@@ -60,7 +60,6 @@ export default function HomepageProducts() {
         description: product.description || '',
         category_id: product.category_id || null,
         badge: newBadge,
-        stock: parseInt(product.stock || 0),
         sort_order: parseInt(product.sort_order || 0),
         is_active: product.is_active ?? true,
       };

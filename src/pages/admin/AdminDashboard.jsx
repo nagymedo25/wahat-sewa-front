@@ -170,7 +170,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* Recent Orders */}
-        <div className="xl:col-span-2 bg-shadow-soft backdrop-blur-xl rounded-2xl border border-olive/20 overflow-hidden flex flex-col h-[400px]">
+        <div className="xl:col-span-3 bg-shadow-soft backdrop-blur-xl rounded-2xl border border-olive/20 overflow-hidden flex flex-col h-[400px]">
           <div className="p-6 border-b border-olive/20 flex items-center justify-between bg-olive-deep/10">
             <h2 className="text-xl font-bold text-cream flex items-center gap-2">
               <ShoppingBag className="w-5 h-5 text-olive-glow" />
@@ -205,48 +205,6 @@ export default function AdminDashboard() {
                       <span className={`text-xs px-3 py-1 rounded-full border ${statusColors[order.status]}`}>
                         {statusLabels[order.status]}
                       </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Low Stock Alert */}
-        <div className="bg-shadow-soft backdrop-blur-xl rounded-2xl border border-olive/20 overflow-hidden flex flex-col h-[400px]">
-          <div className="p-6 border-b border-olive/20 flex items-center justify-between bg-sunset/5">
-            <h2 className="text-xl font-bold text-cream flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-sunset" />
-              تنبيه المخزون
-            </h2>
-          </div>
-          <div className="flex-1 overflow-auto custom-scrollbar p-6">
-            {stats?.lowStockProducts?.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-sand">
-                <div className="w-16 h-16 rounded-full bg-olive/10 flex items-center justify-center mb-3">
-                  <Package className="w-8 h-8 text-olive-glow" />
-                </div>
-                <p>المخزون في حالة جيدة</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {stats?.lowStockProducts?.map((product) => (
-                  <div key={product.id} className="flex items-center gap-4 p-3 bg-sunset/5 rounded-xl border border-sunset/10 hover:bg-sunset/10 transition-colors">
-                    <div className="w-14 h-14 rounded-lg bg-shadow overflow-hidden border border-sunset/20 flex-shrink-0">
-                      <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-cream truncate">{product.name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="w-2 h-2 rounded-full bg-sunset animate-pulse" />
-                        <p className="text-sm text-sunset font-medium">متبقي: {product.stock}</p>
-                      </div>
                     </div>
                   </div>
                 ))}
@@ -299,10 +257,6 @@ export default function AdminDashboard() {
                   <p className="text-sm text-sand flex items-center gap-1">
                     <ShoppingBag className="w-3 h-3 text-olive-glow" />
                     {product.total_sold} مباع
-                  </p>
-                  <p className="text-sm text-sand flex items-center gap-1">
-                    <Package className="w-3 h-3 text-olive-glow" />
-                    {product.stock} مخزون
                   </p>
                 </div>
                 <div className="mt-2 text-sm font-bold text-olive-glow">{product.price} ج.م</div>
