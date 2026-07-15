@@ -72,8 +72,8 @@ function buildCategories(categories) {
 export async function loadCatalog() {
   try {
     const [productsResponse, categoriesResponse] = await Promise.all([
-      publicApi.get('/products'),
-      publicApi.get('/categories'),
+      publicApi.get('/api/products'),
+      publicApi.get('/api/categories'),
     ]);
 
     const apiProducts = Array.isArray(productsResponse.data?.products) ? productsResponse.data.products : [];

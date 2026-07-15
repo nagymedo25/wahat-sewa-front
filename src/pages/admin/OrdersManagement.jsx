@@ -1,6 +1,6 @@
 import { useAuth } from '../../store/auth';
 import { useEffect, useState } from 'react';
-import { Search, Filter, Eye, Truck, CheckCircle, XCircle, RotateCcw, X, ShoppingBag, Download } from 'lucide-react';
+import { Search, Filter, Eye, Truck, CheckCircle, XCircle, RotateCcw, X, ShoppingBag, AlertCircle } from 'lucide-react';
 import { useToast } from '@/store/toast.jsx';
 
 export default function OrdersManagement() {
@@ -11,6 +11,24 @@ export default function OrdersManagement() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [syncingId, setSyncingId] = useState(null);
+
+  const handleEplanSync = async (orderId) => {
+    setSyncingId(orderId);
+    try {
+      const { data } = await api.post(`/sync/eplan/${orderId}`);
+      await fetchOrders();
+      if (selectedOrder?.id === orderId) {
+        await fetchOrderDetails(orderId);
+      }
+      toast.success(data.changed ? 'تم تحديث حالة الطلب من E-Plan' : 'لا توجد تغييرات جديدة من E-Plan');
+    } catch (error) {
+      console.error('E-Plan sync failed:', error);
+      toast.error(error.response?.data?.error || 'فشل التحديث من E-Plan');
+    } finally {
+      setSyncingId(null);
+    }
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -276,25 +294,18 @@ export default function OrdersManagement() {
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
           onStatusUpdate={handleStatusUpdate}
+          onEplanSync={handleEplanSync}
+          syncingId={syncingId}
         />
       )}
     </div>
   );
 }
 
-function OrderDetailModal({ order, onClose, onStatusUpdate }) {
+function OrderDetailModal({ order, onClose, onStatusUpdate, onEplanSync, syncingId }) {
   const [notes, setNotes] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleStatusChange = async (newStatus) => {
-    if (!window.confirm(`هل أنت متأكد من تغيير حالة الطلب إلى "${statusLabels[newStatus]}"؟`)) return;
-    
-    setLoading(true);
-    await onStatusUpdate(order.id, newStatus, {
-      notes
-    });
-    setLoading(false);
-  };
+  const [actionLoading, setActionLoading] = useState(false);
+  const [confirmState, setConfirmState] = useState({ open: false, nextStatus: null });
 
   const statusColors = {
     pending: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
@@ -316,9 +327,30 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
     returned: 'مسترجع'
   };
 
-  const shippingAddress = typeof order.shipping_address === 'string' 
-    ? JSON.parse(order.shipping_address) 
+  const shippingAddress = typeof order.shipping_address === 'string'
+    ? JSON.parse(order.shipping_address)
     : order.shipping_address;
+
+  const requestStatusChange = (nextStatus) => {
+    if (actionLoading) return;
+    setConfirmState({ open: true, nextStatus });
+  };
+
+  const handleConfirmChange = async () => {
+    if (!confirmState.nextStatus) return;
+
+    setActionLoading(true);
+    try {
+      await onStatusUpdate(order.id, confirmState.nextStatus, { notes });
+    } finally {
+      setActionLoading(false);
+      setConfirmState({ open: false, nextStatus: null });
+    }
+  };
+
+  const isSubmittingProcessing = actionLoading && confirmState.nextStatus === 'processing';
+  const isSubmittingCancelled = actionLoading && confirmState.nextStatus === 'cancelled';
+  const isConfirmOpen = confirmState.open;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
@@ -462,40 +494,108 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
 
           {/* Status Update */}
           <div className="border-t border-olive/20 pt-8">
-            <h3 className="font-bold text-cream mb-4">إجراءات الطلب (نظام ShipBlu الآلي)</h3>
+            <h3 className="font-bold text-cream mb-4">إجراءات الطلب (نظام E-Plan الآلي)</h3>
             <div className="bg-shadow-soft border border-olive/20 rounded-2xl p-6 space-y-6">
-              
-              {(order.tracking_number || order.estimated_delivery || order.actual_delivery || order.shipblu_shipment_id) && (
+
+              {isConfirmOpen && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                  <div className="absolute inset-0 bg-shadow/70 backdrop-blur-sm" />
+                  <div className="relative w-full max-w-md bg-shadow border border-olive/20 rounded-2xl shadow-2xl p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertCircle className="w-5 h-5 text-sunset" />
+                          <h3 className="text-cream font-bold text-lg">تأكيد العملية</h3>
+                        </div>
+                        <p className="text-sand text-sm leading-relaxed">
+                          هل أنت متأكد من تغيير حالة الطلب إلى{" "}
+                          <span className="text-cream font-bold">{statusLabels[confirmState.nextStatus]}</span>؟
+                        </p>
+                        {confirmState.nextStatus === 'processing' && (
+                          <p className="text-sand text-xs mt-3 opacity-80 leading-relaxed">
+                            سيتم إنشاء الشحنة عبر E-Plan وربط الحالة تلقائياً.
+                          </p>
+                        )}
+                        {confirmState.nextStatus === 'cancelled' && (
+                          <p className="text-sand text-xs mt-3 opacity-80 leading-relaxed">
+                            سيتم محاولة إلغاء الطلب في E-Plan إن كان مرتبطاً.
+                          </p>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          if (actionLoading) return;
+                          setConfirmState({ open: false, nextStatus: null });
+                        }}
+                        className="p-2 text-sand hover:text-sunset hover:bg-sunset/10 rounded-xl transition-colors disabled:opacity-50"
+                        disabled={actionLoading}
+                        aria-label="إغلاق"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    <div className="flex gap-3 mt-5">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmState({ open: false, nextStatus: null })}
+                        disabled={actionLoading}
+                        className="flex-1 px-4 py-2.5 bg-olive-deep/20 border border-olive/20 text-sand rounded-xl font-bold hover:bg-olive-deep/30 disabled:opacity-50 transition-all"
+                      >
+                        إلغاء
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleConfirmChange}
+                        disabled={actionLoading}
+                        className={`flex-1 px-4 py-2.5 rounded-xl font-bold transition-all flex items-center justify-center gap-2
+                          ${confirmState.nextStatus === 'cancelled'
+                            ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20'
+                            : 'bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20'}`}
+                      >
+                        <RotateCcw className={`w-4 h-4 ${actionLoading ? 'animate-spin' : ''}`} />
+                        {actionLoading ? 'جاري التنفيذ...' : 'تأكيد'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {(order.tracking_number || order.estimated_delivery || order.actual_delivery || order.eplan_order_id) && (
                 <div className="rounded-xl bg-olive-deep/30 border border-olive/20 p-4 space-y-2 text-sm mb-6">
-                  {order.shipblu_shipment_id && (
+                  {order.eplan_order_id && (
                     <div className="flex flex-col gap-2 mb-3 pb-3 border-b border-olive/10">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-bold flex items-center gap-1">
-                            <Truck className="w-3 h-3" /> ShipBlu
+                            <Truck className="w-3 h-3" /> E-Plan
                           </span>
                           <span className="text-sand font-bold">معرف الشحنة:</span>
-                          <span className="text-cream font-mono">{order.shipblu_shipment_id}</span>
+                          <span className="text-cream font-mono">{order.eplan_order_id}</span>
                         </div>
-                        {order.shipblu_awb_url && (
-                          <a 
-                            href={order.shipblu_awb_url} 
-                            target="_blank" 
-                            rel="noreferrer"
-                            className="flex items-center gap-1 text-xs bg-olive-glow/20 text-olive-glow border border-olive-glow/30 px-3 py-1 rounded hover:bg-olive-glow/30 transition-colors"
-                          >
-                            <Download className="w-3 h-3" />
-                            فتح في ShipBlu
-                          </a>
-                        )}
+                        <button
+                          onClick={() => handleEplanSync(order.id)}
+                          disabled={syncingId === order.id}
+                          className="flex items-center gap-1 text-xs bg-olive-glow/20 text-olive-glow border border-olive-glow/30 px-3 py-1 rounded hover:bg-olive-glow/30 transition-colors disabled:opacity-50"
+                        >
+                          <RotateCcw className={`w-3 h-3 ${syncingId === order.id ? 'animate-spin' : ''}`} />
+                          {syncingId === order.id ? 'جاري التحديث...' : 'تحديث من E-Plan'}
+                        </button>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sand font-bold">رقم التتبع (ShipBlu):</span>
-                        <span className="text-cream font-mono">{order.shipblu_tracking_number || 'جاري الإصدار...'}</span>
+                        <span className="text-sand font-bold">رقم التتبع (E-Plan):</span>
+                        <span className="text-cream font-mono">{order.eplan_tracking_number || 'جاري الإصدار...'}</span>
                       </div>
+                      {order.eplan_delivery_cost != null && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sand font-bold">تكلفة الشحن (E-Plan):</span>
+                          <span className="text-cream font-mono">{order.eplan_delivery_cost} ج.م</span>
+                        </div>
+                      )}
                     </div>
                   )}
-                  {order.tracking_number && !order.shipblu_tracking_number && (
+                  {order.tracking_number && !order.eplan_tracking_number && (
                     <div className="flex gap-2">
                       <span className="text-sand font-bold">رقم التتبع:</span>
                       <span className="text-cream font-mono">{order.tracking_number}</span>
@@ -524,10 +624,10 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
                   <div>
                     <h4 className="text-lg font-bold text-blue-300">إرسال إلى شركة الشحن</h4>
                     <p className="text-sm text-sand mt-2 max-w-md mx-auto leading-relaxed">
-                      بمجرد تأكيد الطلب، سيتم إصدار بوليصة شحن فورية عبر ShipBlu وسيتم التكفل بتحديث حالة الطلب أوتوماتيكياً مستقبلاً (تم الشحن، تم التسليم، إلخ).
+                      بمجرد تأكيد الطلب، سيتم إصدار بوليصة شحن فورية عبر E-Plan وسيتم تحديث حالة الطلب أوتوماتيكياً مستقبلاً (تم الشحن، تم التسليم، إلخ).
                     </p>
                   </div>
-                  
+
                   <div className="w-full max-w-md mt-4 mb-4">
                     <label className="block text-sm font-bold text-blue-300/80 mb-2 text-right">ملاحظات للمندوب أو للإدارة (اختياري)</label>
                     <textarea
@@ -536,25 +636,34 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
                       rows={2}
                       className="w-full px-4 py-3 bg-blue-950/30 border border-blue-500/30 rounded-xl text-cream placeholder-blue-300/30 focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all resize-none text-right"
                       placeholder="أضف ملاحظاتك هنا..."
+                      disabled={actionLoading}
                     />
                   </div>
 
                   <div className="flex flex-wrap gap-3 mt-4 w-full max-w-md justify-center">
                     <button
-                      onClick={() => handleStatusChange('processing')}
-                      disabled={loading}
+                      onClick={() => requestStatusChange('processing')}
+                      disabled={actionLoading || isConfirmOpen}
                       className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl disabled:opacity-50 transition-all font-bold shadow-lg shadow-blue-500/20"
                     >
-                      <CheckCircle className="w-5 h-5" />
-                      <span>تأكيد وإنشاء الشحنة</span>
+                      {isSubmittingProcessing ? (
+                        <RotateCcw className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <CheckCircle className="w-5 h-5" />
+                      )}
+                      <span>{isSubmittingProcessing ? 'جاري إنشاء الشحنة...' : 'تأكيد وإنشاء الشحنة'}</span>
                     </button>
                     <button
-                      onClick={() => handleStatusChange('cancelled')}
-                      disabled={loading}
+                      onClick={() => requestStatusChange('cancelled')}
+                      disabled={actionLoading || isConfirmOpen}
                       className="flex items-center justify-center gap-2 px-6 py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl disabled:opacity-50 transition-all font-bold border border-red-500/20"
                     >
-                      <XCircle className="w-5 h-5" />
-                      <span>إلغاء</span>
+                      {isSubmittingCancelled ? (
+                        <RotateCcw className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <XCircle className="w-5 h-5" />
+                      )}
+                      <span>{isSubmittingCancelled ? 'جاري الإلغاء...' : 'إلغاء'}</span>
                     </button>
                   </div>
                 </div>
@@ -571,19 +680,23 @@ function OrderDetailModal({ order, onClose, onStatusUpdate }) {
                   <div>
                     <h4 className="text-xl font-bold text-olive-glow mb-2">الطلب قيد التتبع الآلي</h4>
                     <p className="text-sm text-sand max-w-md mx-auto leading-relaxed">
-                      هذا الطلب مربوط ومتابع حالياً بواسطة نظام ShipBlu. 
-                      لا حاجة للتدخل اليدوي، سيتم تحديث حالة الطلب أوتوماتيكياً عندما يقوم المندوب بالتوصيل أو الاسترجاع.
+                      هذا الطلب مربوط ومتابع حالياً بواسطة نظام E-Plan.
+                      سيتم تحديث حالة الطلب أوتوماتيكياً كل بضع دقائق، ويمكنك أيضاً الضغط على "تحديث من E-Plan" لجلب أحدث حالة فوراً.
                     </p>
                   </div>
                   
                   {order.status !== 'cancelled' && order.status !== 'returned' && order.status !== 'delivered' && (
                     <button
-                      onClick={() => handleStatusChange('cancelled')}
-                      disabled={loading}
-                      className="mt-6 flex items-center gap-2 px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm transition-all font-bold"
+                      onClick={() => requestStatusChange('cancelled')}
+                      disabled={actionLoading || isConfirmOpen}
+                      className="mt-6 flex items-center gap-2 px-5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-xl text-sm transition-all font-bold disabled:opacity-50"
                     >
-                      <XCircle className="w-4 h-4" />
-                      <span>إلغاء الطلب (طوارئ)</span>
+                      {isSubmittingCancelled ? (
+                        <RotateCcw className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <XCircle className="w-4 h-4" />
+                      )}
+                      <span>{isSubmittingCancelled ? 'جاري الإلغاء...' : 'إلغاء الطلب (طوارئ)'}</span>
                     </button>
                   )}
                 </div>
