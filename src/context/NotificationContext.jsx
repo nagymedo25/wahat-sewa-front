@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import { useAuth } from '@/store/auth.jsx';
 import { useToast } from '@/store/toast.jsx';
 import axios from 'axios';
+import { API_URL } from '@/services/api.js';
 
 const NotificationContext = createContext();
 
@@ -14,7 +15,7 @@ export const NotificationProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+    baseURL: API_URL,
     headers: {
       Authorization: `Bearer ${JSON.parse(localStorage.getItem('wahat_auth'))?.accessToken}`
     }
@@ -26,7 +27,14 @@ export const NotificationProvider = ({ children }) => {
       fetchNotifications();
 
       // Initialize socket
-      const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', {
+      const socketUrlEnv = import.meta.env.VITE_SOCKET_URL;
+      const apiOrigin = String(API_URL || '')
+        .replace(/\/api\/?$/, '') // remove trailing /api if present
+        .replace(/\/+$/, '');
+
+      const socketUrl = socketUrlEnv || apiOrigin || 'http://localhost:5000';
+
+      const newSocket = io(socketUrl, {
         withCredentials: true
       });
 
