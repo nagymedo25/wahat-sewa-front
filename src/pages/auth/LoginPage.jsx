@@ -174,10 +174,9 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="group relative overflow-hidden rounded-2xl px-5 py-3.5 bg-[linear-gradient(135deg,rgba(74,90,42,0.60),rgba(164,184,107,0.25))] border border-[rgba(164,184,107,0.40)] text-cream font-ar font-semibold transition-all duration-300 hover:shadow-[0_18px_50px_rgba(164,184,107,0.14)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full rounded-2xl px-5 py-4 bg-siwa-gold hover:bg-siwa-warm text-[#181009] font-ar font-bold text-base transition-all duration-300 shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
-          <LogIn className="w-[18px] h-[18px]" strokeWidth={2} />
+          <Sparkles className="w-4 h-4" strokeWidth={2} />
           {isSubmitting ? t('auth.signing_in', 'جاري الدخول…') : t('auth.sign_in', 'دخول')}
         </button>
 

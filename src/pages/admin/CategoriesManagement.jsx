@@ -1,6 +1,6 @@
 import { useAuth } from '../../store/auth';
 import { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, X, FolderTree } from 'lucide-react';
+import { Plus, Edit, Trash2, X, FolderTree, Tag, Sparkles } from 'lucide-react';
 import { useToast } from '@/store/toast.jsx';
 
 export default function CategoriesManagement() {
@@ -18,7 +18,7 @@ export default function CategoriesManagement() {
   const fetchCategories = async () => {
     try {
       const response = await api.get('/categories');
-      setCategories(response.data.categories);
+      setCategories(response.data.categories || []);
     } catch (error) {
       console.error('Failed to fetch categories:', error);
     } finally {
@@ -28,10 +28,19 @@ export default function CategoriesManagement() {
 
   const handleSave = async (formData) => {
     try {
+      const payload = {
+        name: formData.name.trim(),
+        slug: formData.slug.trim(),
+        description: formData.description?.trim() || '',
+        sort_order: Number(formData.sort_order || 0),
+        icon: formData.icon?.trim() || null,
+        parent_id: formData.parent_id || null,
+      };
+
       if (editingCategory) {
-        await api.put(`/categories/${editingCategory.id}`, formData);
+        await api.put(`/categories/${editingCategory.id}`, payload);
       } else {
-        await api.post('/categories', formData);
+        await api.post('/categories', payload);
       }
       fetchCategories();
       setShowModal(false);
@@ -44,7 +53,7 @@ export default function CategoriesManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا القسم؟ سيتم حذف جميع المنتجات المرتبطة به.')) return;
+    if (!window.confirm('هل أنت متأكد من حذف هذا القسم؟')) return;
     
     try {
       await api.delete(`/categories/${id}`);
@@ -64,19 +73,24 @@ export default function CategoriesManagement() {
     );
   }
 
+  const getParentName = (parentId) => {
+    const parent = categories.find(c => c.id === parentId);
+    return parent ? parent.name : null;
+  };
+
   return (
-    <div className="space-y-6 pb-10">
+    <div className="space-y-6 pb-10 font-ar">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-shadow-soft p-6 rounded-2xl border border-olive/20 backdrop-blur-xl">
         <div>
-          <h1 className="text-2xl font-bold text-cream">إدارة الأقسام</h1>
-          <p className="text-sm text-sand mt-1">أضف وعدل تصنيفات المنتجات الخاصة بك</p>
+          <h1 className="text-2xl font-bold text-cream">إدارة الأقسام والفروع</h1>
+          <p className="text-sm text-sand mt-1">أضف وعدل الأقسام الرئيسية والأقسام الفرعية لمتجر سيوة</p>
         </div>
         <button
           onClick={() => {
             setEditingCategory(null);
             setShowModal(true);
           }}
-          className="flex items-center justify-center gap-2 px-6 py-3 bg-olive hover:bg-olive-light text-cream rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(74,90,42,0.3)] hover:shadow-[0_0_30px_rgba(74,90,42,0.5)] font-bold group"
+          className="flex items-center justify-center gap-2 px-6 py-3 bg-olive hover:bg-olive-light text-cream rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(74,90,42,0.3)] font-bold group"
         >
           <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
           <span>إضافة قسم جديد</span>
@@ -92,57 +106,76 @@ export default function CategoriesManagement() {
             <p className="text-sm mt-2 opacity-70">أضف قسمك الأول للبدء في تنظيم منتجاتك</p>
           </div>
         ) : (
-          categories.map((category, index) => (
-            <div 
-              key={category.id} 
-              className="bg-shadow-soft backdrop-blur-xl rounded-2xl border border-olive/20 p-6 hover:border-olive-glow/50 transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl relative overflow-hidden animate-in fade-in zoom-in-95"
-              style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
-            >
-              <div className="absolute top-0 right-0 w-24 h-24 bg-olive-glow opacity-5 rounded-bl-full -mr-4 -mt-4 transition-transform duration-500 group-hover:scale-110" />
-              
-              <div className="flex items-start justify-between relative z-10">
-                <div className="flex-1 min-w-0 pl-4">
-                  <h3 className="text-xl font-bold text-cream truncate group-hover:text-olive-glow transition-colors">{category.name}</h3>
-                  <p className="text-xs text-sand font-mono mt-1 opacity-70 truncate">{category.slug}</p>
-                  
-                  <div className="mt-4 flex items-center gap-2">
-                    <span className="text-xs font-bold px-2 py-1 bg-olive-deep/50 border border-olive/20 rounded-lg text-olive-glow">
-                      الترتيب: {category.sort_order ?? 0}
-                    </span>
+          categories.map((category, index) => {
+            const parentName = getParentName(category.parent_id);
+            return (
+              <div 
+                key={category.id} 
+                className="bg-shadow-soft backdrop-blur-xl rounded-2xl border border-olive/20 p-6 hover:border-olive-glow/50 transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl relative overflow-hidden animate-in fade-in zoom-in-95 flex flex-col justify-between"
+                style={{ animationDelay: `${index * 40}ms`, animationFillMode: 'both' }}
+              >
+                <div>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-cream truncate group-hover:text-olive-glow transition-colors">
+                          {category.name}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-sand font-mono mt-1 opacity-70 truncate">{category.slug}</p>
+                    </div>
+
+                    <div className="flex gap-1.5 shrink-0">
+                      <button
+                        onClick={() => {
+                          setEditingCategory(category);
+                          setShowModal(true);
+                        }}
+                        className="p-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 rounded-xl transition-all"
+                        title="تعديل"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(category.id)}
+                        className="p-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl transition-all"
+                        title="حذف"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  
+
+                  {parentName ? (
+                    <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-siwa-gold/15 text-siwa-gold border border-siwa-gold/30">
+                      <Tag className="w-3 h-3" />
+                      <span>فرع من: {parentName}</span>
+                    </div>
+                  ) : (
+                    <div className="mt-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs bg-olive/20 text-olive-glow border border-olive/30">
+                      <span>قسم رئيسي</span>
+                    </div>
+                  )}
+
                   {category.description && (
-                    <p className="text-sm text-sand mt-4 line-clamp-2 leading-relaxed">{category.description}</p>
+                    <p className="text-xs text-sand/80 mt-3 line-clamp-2 leading-relaxed">{category.description}</p>
                   )}
                 </div>
-                <div className="flex flex-col gap-2 shrink-0">
-                  <button
-                    onClick={() => {
-                      setEditingCategory(category);
-                      setShowModal(true);
-                    }}
-                    className="p-2.5 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-blue-400 rounded-xl transition-all duration-300 group/btn"
-                    title="تعديل"
-                  >
-                    <Edit className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(category.id)}
-                    className="p-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl transition-all duration-300 group/btn"
-                    title="حذف"
-                  >
-                    <Trash2 className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
-                  </button>
+
+                <div className="mt-4 pt-3 border-t border-olive/10 flex items-center justify-between text-xs text-sand/60">
+                  <span>الترتيب: {category.sort_order ?? 0}</span>
+                  {category.icon && <span className="font-mono">أيقونة: {category.icon}</span>}
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
       {showModal && (
         <CategoryModal
           category={editingCategory}
+          allCategories={categories}
           onSave={handleSave}
           onClose={() => {
             setShowModal(false);
@@ -154,12 +187,14 @@ export default function CategoriesManagement() {
   );
 }
 
-function CategoryModal({ category, onSave, onClose }) {
+function CategoryModal({ category, allCategories = [], onSave, onClose }) {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
     description: '',
-    sort_order: 0
+    sort_order: 0,
+    icon: '',
+    parent_id: ''
   });
 
   useEffect(() => {
@@ -169,6 +204,8 @@ function CategoryModal({ category, onSave, onClose }) {
         slug: category.slug || '',
         description: category.description || '',
         sort_order: category.sort_order ?? 0,
+        icon: category.icon || '',
+        parent_id: category.parent_id || ''
       });
     }
   }, [category]);
@@ -187,13 +224,15 @@ function CategoryModal({ category, onSave, onClose }) {
       .trim();
   };
 
+  const availableParents = allCategories.filter(c => !c.parent_id && c.id !== category?.id);
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-shadow/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
-      ></div>
+      />
       
       <div className="relative w-full max-w-md bg-shadow border border-olive/20 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-300 my-4">
         <div className="p-6 border-b border-olive/20 flex items-center justify-between bg-olive-deep/30">
@@ -209,7 +248,7 @@ function CategoryModal({ category, onSave, onClose }) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto custom-scrollbar flex-1">
           <div>
             <label className="block text-sm font-bold text-cream mb-2">اسم القسم</label>
             <input
@@ -239,7 +278,36 @@ function CategoryModal({ category, onSave, onClose }) {
               className="w-full px-4 py-3 bg-olive-deep/10 border border-olive/10 rounded-xl text-sand placeholder-sand/30 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all font-mono"
               dir="ltr"
             />
-            <p className="text-xs text-sand/70 mt-2">يستخدم في رابط الصفحة، يتم توليده تلقائياً ويمكن تعديله.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-cream mb-2">القسم الرئيسي (إذا كان قسماً فرعياً)</label>
+            <div className="relative">
+              <select
+                value={formData.parent_id}
+                onChange={(e) => setFormData({ ...formData, parent_id: e.target.value })}
+                className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream appearance-none focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all cursor-pointer"
+              >
+                <option value="" className="bg-shadow">قسم رئيسي (بدون قسم أب)</option>
+                {availableParents.map((parent) => (
+                  <option key={parent.id} value={parent.id} className="bg-shadow">{parent.name}</option>
+                ))}
+              </select>
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-sand">▼</div>
+            </div>
+            <p className="text-xs text-sand/60 mt-1.5">اختر قسماً إذا أردت جعله فرعاً (مثل الصابون تحت العناية والتجميل).</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-cream mb-2">رمز الأيقونة (اختياري)</label>
+            <input
+              type="text"
+              placeholder="مثال: Palmtree, Droplets, Sparkles, Lamp, Package, Flame"
+              value={formData.icon}
+              onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+              className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all font-mono text-sm"
+              dir="ltr"
+            />
           </div>
 
           <div>
@@ -248,7 +316,7 @@ function CategoryModal({ category, onSave, onClose }) {
               value={formData.description}
               placeholder="وصف قصير للقسم..."
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
+              rows={2}
               className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all resize-none"
             />
           </div>
@@ -263,13 +331,12 @@ function CategoryModal({ category, onSave, onClose }) {
               onChange={(e) => setFormData({ ...formData, sort_order: Number(e.target.value) })}
               className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all"
             />
-            <p className="text-xs text-sand/70 mt-2">الرقم الأقل يظهر أولاً.</p>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-3">
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-olive text-cream font-bold rounded-xl hover:bg-olive-light hover:shadow-[0_0_20px_rgba(74,90,42,0.4)] transition-all duration-300"
+              className="flex-1 px-4 py-3 bg-olive text-cream font-bold rounded-xl hover:bg-olive-light transition-all duration-300 shadow-md"
             >
               {category ? 'حفظ التعديلات' : 'إضافة القسم'}
             </button>

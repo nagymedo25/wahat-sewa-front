@@ -4,6 +4,26 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Official Siwa Brand Identity
+        'siwa-primary': 'var(--siwa-primary)',
+        'siwa-surface': 'var(--siwa-surface)',
+        'siwa-earth': 'var(--siwa-earth)',
+        'siwa-cream': 'var(--siwa-cream)',
+        'siwa-cream-light': 'var(--siwa-cream-light)',
+        'siwa-deep-earth': 'var(--siwa-deep-earth)',
+        'siwa-gold': 'var(--siwa-gold)',
+        'siwa-earth-gold': 'var(--siwa-earth-gold)',
+        'siwa-warm': 'var(--siwa-warm)',
+        'siwa-accent': 'var(--siwa-accent)',
+        'siwa-light-earth': 'var(--siwa-light-earth)',
+
+        // Surface hierarchy
+        'bg-deep': 'var(--bg-deep)',
+        'bg-surface': 'var(--bg-surface)',
+        'bg-elevated': 'var(--bg-elevated)',
+        'bg-earth': 'var(--bg-earth)',
+
+        // Mapped legacy tokens to brand palette
         'olive-deep': 'var(--olive-deep)',
         olive: 'var(--olive)',
         'olive-light': 'var(--olive-light)',
@@ -22,6 +42,10 @@ export default {
         'glow-olive': 'var(--glow-olive)',
         'glow-sand': 'var(--glow-sand)',
         'glow-sunset': 'var(--glow-sunset)',
+        'accent-gold': 'var(--accent-gold)',
+        'accent-gold-hover': 'var(--accent-gold-hover)',
+        'accent-gold-light': 'var(--accent-gold-light)',
+        'accent-gold-glow': 'var(--accent-gold-glow)',
       },
       fontFamily: {
         ar: 'var(--font-ar)',

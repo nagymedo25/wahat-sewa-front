@@ -316,24 +316,23 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className="group relative overflow-hidden rounded-2xl px-5 py-3.5 bg-[linear-gradient(135deg,rgba(74,90,42,0.55),rgba(164,184,107,0.22))] border border-[rgba(164,184,107,0.35)] text-cream font-ar font-semibold transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-[0_18px_50px_rgba(164,184,107,0.14)] active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full relative overflow-hidden rounded-2xl px-5 py-4 bg-siwa-gold hover:bg-siwa-warm text-[#181009] font-ar font-bold text-[1rem] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
-              <ClipboardCheck className="w-[18px] h-[18px]" strokeWidth={2} />
-              {isSubmitting ? t('checkout.confirming', 'جاري التأكيد…') : t('checkout.confirm_order', 'تأكيد الطلب')}
+              <ClipboardCheck className="w-5 h-5" strokeWidth={2} />
+              <span>{isSubmitting ? t('checkout.confirming', 'جاري التأكيد…') : t('checkout.confirm_order', 'تأكيد الطلب')}</span>
             </button>
 
-            <Link to="/shop/cart" className="no-underline text-sand-light hover:text-cream transition-colors inline-flex items-center gap-2 font-ar text-[0.9rem]">
+            <Link to="/shop/cart" className="no-underline text-siwa-cream/70 hover:text-siwa-cream-light transition-colors inline-flex items-center gap-2 font-ar text-[0.9rem]">
               <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-              {t('checkout.back_to_cart', 'رجوع للسلة')}
+              <span>{t('checkout.back_to_cart', 'رجوع للسلة')}</span>
             </Link>
           </form>
         </div>
 
-        <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-7 h-fit">
-          <div className="flex items-center gap-2 font-ar text-cream font-semibold text-[1.1rem]">
-            <Receipt className="w-4 h-4 text-olive-glow" strokeWidth={1.5} />
-            {t('checkout.order_summary', 'ملخص الطلب')}
+        <div className="rounded-3xl border border-[rgba(211,200,178,0.12)] bg-[rgba(33,21,13,0.75)] [backdrop-filter:blur(18px)] p-7 h-fit shadow-xl">
+          <div className="flex items-center gap-2 font-ar text-siwa-cream-light font-bold text-[1.1rem]">
+            <Receipt className="w-4 h-4 text-siwa-gold" strokeWidth={1.5} />
+            <span>{t('checkout.order_summary', 'ملخص الطلب')}</span>
           </div>
           <div className="mt-4 flex flex-col gap-3">
             {items.length === 0 && (

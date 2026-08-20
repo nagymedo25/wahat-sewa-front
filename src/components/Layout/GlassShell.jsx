@@ -4,49 +4,53 @@ import { useCart } from '@/store/cart.jsx';
 
 export default function GlassShell({ title, subtitle, children, topRight }) {
   const { items } = useCart();
+  const cartItemCount = items.reduce((sum, it) => sum + (it.qty || 1), 0);
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#0A0907]">
+    <div className="min-h-screen relative overflow-hidden bg-siwa-primary text-siwa-cream-light selection:bg-siwa-gold/30 selection:text-siwa-cream-light font-ar">
+      {/* Background ambient lighting — warm desert night feel */}
+      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(146,108,72,0.07)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute top-1/3 left-10 w-[600px] h-[600px] bg-[radial-gradient(circle,rgba(45,29,16,0.25)_0%,transparent_70%)] pointer-events-none" />
 
-      <header className="relative z-[2]">
-        <div className="mx-auto max-w-[1200px] px-6 pt-7">
+      <header className="relative z-[2] border-b border-[rgba(211,200,178,0.06)] bg-[rgba(24,16,9,0.70)] [backdrop-filter:blur(16px)]">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <Link
                 to="/"
-                className="group inline-flex items-center gap-2 rounded-full px-4 py-2 bg-[rgba(26,24,20,0.55)] border border-[rgba(212,197,169,0.14)] text-sand-light no-underline transition-all duration-300 hover:border-[rgba(164,184,107,0.45)] hover:bg-[rgba(74,90,42,0.22)] hover:shadow-[0_0_20px_rgba(164,184,107,0.08)]"
+                className="group inline-flex items-center gap-2 rounded-full px-4 py-2 bg-[rgba(33,21,13,0.75)] border border-[rgba(211,200,178,0.12)] text-siwa-cream-light no-underline transition-all duration-300 hover:border-siwa-gold/50 hover:bg-[rgba(56,38,23,0.50)] hover:shadow-[0_0_20px_rgba(146,108,72,0.15)]"
               >
-                <Sparkles className="w-4 h-4 text-olive-glow transition-transform duration-300 group-hover:rotate-12" strokeWidth={1.5} />
-                <span className="font-ar text-[0.95rem] font-medium">واحة سيوة</span>
+                <Sparkles className="w-4 h-4 text-siwa-gold transition-transform duration-300 group-hover:rotate-12" strokeWidth={1.5} />
+                <span className="font-ar text-[0.92rem] font-bold">واحة سيوة</span>
               </Link>
 
               <Link
                 to="/shop"
-                className="hidden sm:inline-flex items-center gap-2 rounded-full px-4 py-2 bg-[rgba(26,24,20,0.35)] border border-[rgba(212,197,169,0.10)] text-sand-light no-underline transition-all duration-300 hover:border-[rgba(164,184,107,0.40)] hover:bg-[rgba(74,90,42,0.18)] hover:shadow-[0_0_20px_rgba(164,184,107,0.06)]"
+                className="hidden sm:inline-flex items-center gap-2 rounded-full px-4 py-2 bg-[rgba(33,21,13,0.50)] border border-[rgba(211,200,178,0.08)] text-siwa-cream no-underline transition-all duration-300 hover:border-siwa-gold/40 hover:text-siwa-cream-light hover:bg-[rgba(56,38,23,0.35)]"
                 aria-label="المتجر"
               >
-                <Compass className="w-4 h-4" strokeWidth={1.5} />
-                <span className="font-ar text-[0.9rem]">المتجر</span>
+                <Compass className="w-4 h-4 text-siwa-gold/70" strokeWidth={1.5} />
+                <span className="font-ar text-[0.88rem]">المتجر</span>
               </Link>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               {topRight}
               <Link
                 to="/shop/cart"
-                className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(26,24,20,0.35)] border border-[rgba(212,197,169,0.10)] text-sand-light transition-all duration-300 hover:border-[rgba(164,184,107,0.40)] hover:bg-[rgba(74,90,42,0.18)] hover:shadow-[0_0_20px_rgba(164,184,107,0.08)] active:scale-95"
+                className="relative inline-flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(33,21,13,0.70)] border border-[rgba(211,200,178,0.12)] text-siwa-cream transition-all duration-300 hover:border-siwa-gold hover:text-siwa-cream-light hover:shadow-[0_0_20px_rgba(146,108,72,0.2)] active:scale-95"
                 aria-label="السلة"
               >
                 <ShoppingBasket className="w-[18px] h-[18px]" strokeWidth={1.5} />
-                {items.length > 0 && (
-                  <span className="absolute -top-1 -left-1 min-w-[18px] h-[18px] rounded-full bg-sunset text-[0.65rem] font-number text-cream flex items-center justify-center px-1 shadow-lg animate-[cartBadgeBounce_0.5s_ease-out]">
-                    {items.length}
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -left-1 min-w-[19px] h-[19px] rounded-full bg-siwa-gold text-[0.65rem] font-number text-[#181009] font-bold flex items-center justify-center px-1 shadow-lg animate-[cartBadgeBounce_0.5s_ease-out]">
+                    {cartItemCount}
                   </span>
                 )}
               </Link>
               <Link
                 to="/shop/account"
-                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(26,24,20,0.35)] border border-[rgba(212,197,169,0.10)] text-sand-light transition-all duration-300 hover:border-[rgba(164,184,107,0.40)] hover:bg-[rgba(74,90,42,0.18)] hover:shadow-[0_0_20px_rgba(164,184,107,0.08)] active:scale-95"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[rgba(33,21,13,0.70)] border border-[rgba(211,200,178,0.12)] text-siwa-cream transition-all duration-300 hover:border-siwa-gold hover:text-siwa-cream-light active:scale-95"
                 aria-label="الحساب"
               >
                 <UserCircle className="w-[18px] h-[18px]" strokeWidth={1.5} />
@@ -54,25 +58,23 @@ export default function GlassShell({ title, subtitle, children, topRight }) {
             </div>
           </div>
 
-          <div className="mt-10">
+          <div className="mt-8 mb-3">
             <div className="flex flex-col items-start">
-              <span className="inline-flex items-center gap-3 font-en text-[0.7rem] tracking-[0.45em] text-olive-glow opacity-60 uppercase">
-                Wahat Sewa
+              <span className="inline-flex items-center gap-2 font-en text-[0.68rem] tracking-[0.4em] text-siwa-gold opacity-80 uppercase font-semibold">
+                Wahat Siwa · Premium Oasis Goods
               </span>
-              <h1 className="mt-3 font-ar text-[clamp(2rem,4.5vw,3.2rem)] font-semibold text-cream leading-[1.15]">
+              <h1 className="mt-2 font-ar text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-siwa-cream-light leading-[1.2]">
                 {title}
               </h1>
-              {subtitle ? <p className="mt-4 max-w-[62ch] text-sand opacity-80">{subtitle}</p> : null}
+              {subtitle ? <p className="mt-2 max-w-[65ch] text-siwa-cream/80 text-[0.95rem]">{subtitle}</p> : null}
             </div>
           </div>
         </div>
       </header>
 
       <main className="relative z-[2]">
-        <div className="mx-auto max-w-[1200px] px-6 py-10">{children}</div>
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-8">{children}</div>
       </main>
-
-
 
       <style>{`
         @keyframes cartBadgeBounce {

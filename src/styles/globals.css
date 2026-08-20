@@ -4,29 +4,58 @@
 
 @layer base {
   :root {
-    --olive-deep: #2d3418;
-    --olive: #4a5a2a;
-    --olive-light: #7a8a4a;
-    --olive-glow: #a4b86b;
-    --sand: #d4c5a9;
-    --sand-light: #e8dcc4;
-    --sand-warm: #c9b896;
-    --cream: #f5efe3;
-    --warm-white: #faf7f0;
-    --bronze: #b8956b;
-    --bronze-light: #d4b896;
-    --sunset: #e8a87c;
-    --sunset-deep: #c97b4f;
-    --shadow: #1a1814;
-    --shadow-soft: rgba(26, 24, 20, 0.08);
-    --glow-olive: rgba(74, 90, 42, 0.15);
-    --glow-sand: rgba(212, 197, 169, 0.3);
-    --glow-sunset: rgba(232, 168, 124, 0.2);
+    /* ─── Official Siwa Brand Color Palette ─── */
+    --siwa-primary: #181009;            /* Deep Brand Brown */
+    --siwa-surface: #21150D;            /* Dark Brown Surface */
+    --siwa-earth: #2D1D10;              /* Earth Brown */
+    --siwa-cream: #D3C8B2;              /* Warm Cream / Ivory */
+    --siwa-cream-light: #F5EFE3;        /* Bright Ivory Text */
+    --siwa-deep-earth: #382617;         /* Deep Earth Secondary Surface */
+    --siwa-gold: #926C48;               /* Muted Gold / Warm Brown */
+    --siwa-earth-gold: #7A5535;         /* Earth Gold Accent */
+    --siwa-warm: #A68462;               /* Warm Earth Accent */
+    --siwa-accent: #5D3D22;             /* Deep Accent Brown */
+    --siwa-light-earth: #B99E83;        /* Light Warm Earth */
 
+    /* ─── Functional & Layout Tokens ─── */
+    --bg-deep: #181009;
+    --bg-surface: #21150D;
+    --bg-elevated: #2D1D10;
+    --bg-earth: #382617;
+
+    --cream: #D3C8B2;
+    --warm-white: #F5EFE3;
+    --sand: #B99E83;
+    --sand-light: #D3C8B2;
+    --sand-warm: #A68462;
+    --bronze: #926C48;
+    --bronze-light: #A68462;
+    --sunset: #C97B4F;
+    --sunset-deep: #926C48;
+    --shadow: #181009;
+    --shadow-soft: rgba(24, 16, 9, 0.4);
+
+    /* Gold / Warm Highlights */
+    --accent-gold: #926C48;
+    --accent-gold-hover: #A68462;
+    --accent-gold-light: #B99E83;
+    --accent-gold-glow: rgba(146, 108, 72, 0.25);
+
+    /* Mapped legacy aliases to earth/gold palette (removing green) */
+    --olive-deep: #21150D;
+    --olive: #7A5535;
+    --olive-light: #926C48;
+    --olive-glow: #A68462;
+    --glow-olive: rgba(146, 108, 72, 0.15);
+    --glow-sand: rgba(211, 200, 178, 0.25);
+    --glow-sunset: rgba(201, 123, 79, 0.2);
+
+    /* Typography */
     --font-ar: 'Tajawal', sans-serif;
     --font-en: 'Cormorant Garamond', serif;
     --font-number: 'Cairo', 'Tajawal', sans-serif;
 
+    /* Motion */
     --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
@@ -40,8 +69,8 @@
 
   body {
     font-family: var(--font-ar);
-    background: var(--shadow);
-    color: var(--cream);
+    background: var(--siwa-primary);
+    color: var(--siwa-cream-light);
     overflow-x: hidden;
     line-height: 1.8;
     direction: rtl;
@@ -75,29 +104,29 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--shadow);
+    background: var(--siwa-primary);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--olive);
+    background: var(--siwa-earth-gold);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--olive-light);
+    background: var(--siwa-gold);
   }
 }
 
 @layer utilities {
   .text-stroke-cream {
-    -webkit-text-stroke: 1.5px var(--sand-light);
+    -webkit-text-stroke: 1.5px var(--siwa-cream);
   }
 
-  /* Admin form input — dark glass style */
+  /* Admin form input — dark earthy glass style */
   .admin-input {
-    background-color: rgba(45, 52, 24, 0.25);
-    border: 1px solid rgba(74, 90, 42, 0.3);
-    color: var(--cream);
+    background-color: rgba(33, 21, 13, 0.6);
+    border: 1px solid rgba(146, 108, 72, 0.3);
+    color: var(--siwa-cream-light);
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     width: 100%;
@@ -106,10 +135,10 @@
     color-scheme: dark;
   }
   .admin-input:focus {
-    border-color: var(--olive-glow);
-    box-shadow: 0 0 0 1px var(--olive-glow);
+    border-color: var(--siwa-gold);
+    box-shadow: 0 0 0 1px var(--siwa-gold);
   }
   .admin-input::placeholder {
-    color: rgba(212, 197, 169, 0.4);
+    color: rgba(211, 200, 178, 0.4);
   }
 }

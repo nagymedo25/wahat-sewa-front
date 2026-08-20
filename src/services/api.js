@@ -31,5 +31,5 @@ export function setApiAuthToken(token) {
 
 export function buildAvatarUrl(name) {
   const normalized = encodeURIComponent(name || 'Wahat Sewa');
-  return `https://ui-avatars.com/api/?name=${normalized}&background=4A5A2A&color=F5EFE3&bold=true&size=128`;
+  return `https://ui-avatars.com/api/?name=${normalized}&background=21150D&color=D3C8B2&bold=true&size=128`;
 }

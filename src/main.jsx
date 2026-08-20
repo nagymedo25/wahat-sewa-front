@@ -8,6 +8,7 @@ import { ToastProvider } from './store/toast.jsx';
 import { NotificationProvider } from './context/NotificationContext.jsx';
 import './i18n';
 import { LanguageProvider } from './context/LanguageContext.jsx';
+import CartBar from './components/Products/CartBar.jsx';
 import './styles/globals.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -19,6 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <ToastProvider>
               <NotificationProvider>
                 <App />
+                <CartBar />
               </NotificationProvider>
             </ToastProvider>
           </CartProvider>

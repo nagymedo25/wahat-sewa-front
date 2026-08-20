@@ -138,16 +138,15 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="group relative overflow-hidden rounded-2xl px-5 py-3.5 bg-[linear-gradient(135deg,rgba(74,90,42,0.60),rgba(164,184,107,0.25))] border border-[rgba(164,184,107,0.40)] text-cream font-ar font-semibold transition-all duration-300 hover:shadow-[0_18px_50px_rgba(164,184,107,0.14)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full rounded-2xl px-5 py-4 bg-siwa-gold hover:bg-siwa-warm text-[#181009] font-ar font-bold text-base transition-all duration-300 shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          <span className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
-          <UserPlus className="w-[18px] h-[18px]" strokeWidth={2} />
-          {isSubmitting ? t('auth.registering', 'جاري إنشاء الحساب…') : t('auth.register', 'تسجيل')}
+          <UserPlus className="w-5 h-5" strokeWidth={2} />
+          <span>{isSubmitting ? t('auth.registering', 'جاري إنشاء الحساب…') : t('auth.register', 'تسجيل')}</span>
         </button>
 
-        <div className="text-[0.85rem] text-sand opacity-70 font-ar text-center">
+        <div className="text-[0.85rem] text-siwa-cream/70 font-ar text-center">
           {t('auth.already_have_account', 'لديك حساب بالفعل؟')}{' '}
-          <Link to="/auth/login" className="no-underline text-olive-glow hover:text-cream transition-colors inline-flex items-center gap-1">
+          <Link to="/auth/login" className="no-underline text-siwa-gold hover:text-siwa-warm transition-colors inline-flex items-center gap-1 font-bold">
             {t('auth.sign_in', 'تسجيل الدخول')}
             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
           </Link>

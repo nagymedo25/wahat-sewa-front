@@ -9,9 +9,13 @@ function buildProductPayload(formData) {
     name: String(formData.name || '').trim(),
     image_url: String(formData.image_url || '').trim(),
     price: Number.parseFloat(formData.price || 0),
+    original_price: formData.original_price !== '' && formData.original_price != null
+      ? Number.parseFloat(formData.original_price)
+      : null,
     wholesale_price: Number.parseFloat(formData.wholesale_price || 0),
     description: String(formData.description || '').trim(),
     category_id: formData.category_id || null,
+    subcategory_id: formData.subcategory_id || null,
     badge: formData.badge || 'none',
     stock: Number.parseInt(formData.stock || 0, 10),
     sort_order: Number.parseInt(formData.sort_order || 0, 10),
@@ -207,13 +211,16 @@ export default function ProductsManagement() {
                         {badgeLabels[product.badge]}
                       </span>
                     </div>
-                    <p className="text-xs text-sand mt-1">{product.category_name || 'بدون قسم'}</p>
+                    <p className="text-xs text-sand mt-1">
+                      {product.category_name || 'بدون قسم'}
+                      {product.subcategory_name && <span className="text-siwa-gold mr-1">/ {product.subcategory_name}</span>}
+                    </p>
                     <div className="mt-2 flex items-center gap-2">
                       <span className="text-olive-glow font-bold">{product.price} <span className="text-xs">ج.م</span></span>
+                      {product.original_price && (
+                        <span className="text-xs text-sand/50 line-through">{product.original_price} ج.م</span>
+                      )}
                       <span className="text-sand text-[0.65rem] border border-olive/20 px-2 py-0.5 rounded-md">جملة: {product.wholesale_price || 0} ج.م</span>
-                      <span className={`px-2 py-0.5 rounded-md text-[0.65rem] font-bold border ${product.stock < 10 ? 'bg-sunset/20 text-sunset border-sunset/30' : 'bg-olive/20 text-cream border-olive/30'}`}>
-                        مخزون: {product.stock}
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -297,12 +304,20 @@ export default function ProductsManagement() {
                           </div>
                           <div>
                             <p className="font-bold text-cream group-hover:text-olive-glow transition-colors">{product.name}</p>
-                            <p className="text-xs text-sand mt-1">{product.category_name || 'بدون قسم'}</p>
+                            <p className="text-xs text-sand mt-1">
+                              {product.category_name || 'بدون قسم'}
+                              {product.subcategory_name && <span className="text-siwa-gold mr-1">/ {product.subcategory_name}</span>}
+                            </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-bold text-olive-glow">{product.price} <span className="text-xs text-sand">ج.م</span></div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-bold text-olive-glow">{product.price} <span className="text-xs text-sand">ج.م</span></span>
+                          {product.original_price && (
+                            <span className="text-xs text-sand/50 line-through">{product.original_price} ج.م</span>
+                          )}
+                        </div>
                         <div className="text-[0.7rem] text-sand opacity-70 mt-0.5">جملة: {product.wholesale_price || 0} <span className="text-[0.6rem]">ج.م</span></div>
                       </td>
                       <td className="px-6 py-4">
@@ -379,9 +394,11 @@ function ProductModal({ product, categories, onSave, onClose }) {
     name: '',
     image_url: '',
     price: '',
+    original_price: '',
     wholesale_price: '',
     description: '',
     category_id: '',
+    subcategory_id: '',
     badge: 'none',
     stock: 0,
     sort_order: 0,
@@ -393,9 +410,11 @@ function ProductModal({ product, categories, onSave, onClose }) {
       name: '',
       image_url: '',
       price: '',
+      original_price: '',
       wholesale_price: '',
       description: '',
       category_id: '',
+      subcategory_id: '',
       badge: 'none',
       stock: 0,
       sort_order: 0,
@@ -403,6 +422,9 @@ function ProductModal({ product, categories, onSave, onClose }) {
       ...product,
     });
   }, [product]);
+
+  const parentCategories = categories.filter(c => !c.parent_id);
+  const availableSubcategories = categories.filter(c => c.parent_id === formData.category_id);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -487,6 +509,21 @@ function ProductModal({ product, categories, onSave, onClose }) {
                     />
                   </div>
                   <div>
+                    <label className="block text-sm font-bold text-cream mb-2">
+                      السعر الأصلي (للخصم) <span className="text-sand/50 font-normal text-xs">— اختياري</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="يُشطب ويُعرض بجانب السعر"
+                      value={formData.original_price}
+                      onChange={(e) => setFormData({ ...formData, original_price: e.target.value })}
+                      className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all"
+                    />
+                    <p className="mt-1 text-[0.7rem] text-sand/40 font-ar">اتركه فارغاً إذا لا يوجد خصم</p>
+                  </div>
+                  <div>
                     <label className="block text-sm font-bold text-cream mb-2">سعر الجملة (للحسابات)</label>
                     <input
                       type="number"
@@ -512,25 +549,46 @@ function ProductModal({ product, categories, onSave, onClose }) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-bold text-cream mb-2">القسم</label>
+                    <label className="block text-sm font-bold text-cream mb-2">القسم الرئيسي</label>
                     <div className="relative">
                       <select
                         value={formData.category_id}
-                        onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                        onChange={(e) => setFormData({ ...formData, category_id: e.target.value, subcategory_id: '' })}
                         className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream appearance-none focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all cursor-pointer"
                       >
                         <option value="" className="bg-shadow">بدون قسم</option>
-                        {categories.map((cat) => (
+                        {parentCategories.map((cat) => (
                           <option key={cat.id} value={cat.id} className="bg-shadow">{cat.name}</option>
                         ))}
                       </select>
                       <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-sand">▼</div>
                     </div>
                   </div>
+
                   <div>
-                    <label className="block text-sm font-bold text-cream mb-2">التصنيف</label>
+                    <label className="block text-sm font-bold text-cream mb-2">القسم الفرعي (اختياري)</label>
+                    <div className="relative">
+                      <select
+                        value={formData.subcategory_id}
+                        disabled={availableSubcategories.length === 0}
+                        onChange={(e) => setFormData({ ...formData, subcategory_id: e.target.value })}
+                        className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream appearance-none focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all cursor-pointer disabled:opacity-40"
+                      >
+                        <option value="" className="bg-shadow">
+                          {availableSubcategories.length === 0 ? 'لا توجد فروع لهذا القسم' : 'اختر فرعاً'}
+                        </option>
+                        {availableSubcategories.map((sub) => (
+                          <option key={sub.id} value={sub.id} className="bg-shadow">{sub.name}</option>
+                        ))}
+                      </select>
+                      <div className="absolute left-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-sand">▼</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-cream mb-2">التصنيف المميز</label>
                     <div className="relative">
                       <select
                         value={formData.badge}
