@@ -1,120 +1,142 @@
-import { useEffect, useRef, useState } from 'react';
-import { Star } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ShoppingBag, Star, Check, Sparkles } from 'lucide-react';
+import { useCart } from '@/store/cart.jsx';
+import { useToast } from '@/store/toast.jsx';
 import { useTranslation } from 'react-i18next';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, index = 0 }) {
   const { t } = useTranslation();
-  const cardRef = useRef(null);
-  const innerRef = useRef(null);
+  const { addItem } = useCart();
+  const toast = useToast();
+  const [isAdded, setIsAdded] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  useEffect(() => {
-    const card = cardRef.current;
-    const inner = innerRef.current;
-    if (!card || !inner) return;
-
-    const onMove = (e) => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = ((y - centerY) / centerY) * -4;
-      const rotateY = ((x - centerX) / centerX) * 4;
-      inner.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
-    };
-
-    const onLeave = () => {
-      inner.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
-    };
-
-    card.addEventListener('mousemove', onMove);
-    card.addEventListener('mouseleave', onLeave);
-
-    return () => {
-      card.removeEventListener('mousemove', onMove);
-      card.removeEventListener('mouseleave', onLeave);
-    };
-  }, []);
-
   const imgUrl = product.image || product.image_url;
-  const hasImage = !!imgUrl;
-  const hasRating = typeof product.rating === 'number';
-  const Icon = product.Icon || null;
-
-  // Price formatting: add fallback currency for DB products
   const numericPrice = typeof product.price === 'string' ? Number(product.price) : product.price;
-  const priceDisplay =
-    !isNaN(numericPrice)
-      ? `${numericPrice} ${product.currency || t('products.currency', 'ج.م')}`
-      : product.price;
+  const oldPrice = product.oldPrice || product.original_price ? Number(product.oldPrice || product.original_price) : null;
+  const hasDiscount = oldPrice && oldPrice > numericPrice;
+  const discountPercent = hasDiscount ? Math.round(((oldPrice - numericPrice) / oldPrice) * 100) : null;
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem(product, 1);
+    setIsAdded(true);
+    toast?.success?.(`تمت إضافة "${product.name}" إلى السلة بنجاح`);
+    setTimeout(() => setIsAdded(false), 1500);
+  };
 
   return (
-    <div ref={cardRef} className="product-card group [perspective:1000px]" data-product={product.id}>
-      <div
-        ref={innerRef}
-        className="product-card-inner relative bg-[rgba(26,24,20,0.5)] border border-[rgba(212,197,169,0.06)] rounded-2xl [backdrop-filter:blur(20px)] transition-all duration-[600ms] [transition-timing-function:var(--ease-cinematic)] overflow-hidden group-hover:-translate-y-2 group-hover:border-[rgba(164,184,107,0.12)] group-hover:shadow-[0_30px_60px_rgba(0,0,0,0.3),0_0_40px_rgba(164,184,107,0.05)]"
+    <div
+      className="group relative flex flex-col rounded-2xl bg-[var(--bg-card)] border border-[var(--border-default)] overflow-hidden transition-all duration-500 hover:border-[var(--border-accent)] hover:shadow-[0_16px_35px_rgba(0,0,0,0.12)] hover:-translate-y-1.5 animate-fadeInUp will-change-transform"
+      style={{ animationDelay: `${(index % 12) * 55}ms` }}
+      data-product={product.id}
+    >
+      {/* ── Image Container ── */}
+      <Link
+        to={`/shop/product/${product.id}`}
+        className="relative block w-full aspect-[4/3] overflow-hidden bg-[var(--bg-secondary)] p-4 cursor-pointer"
       >
-        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-[linear-gradient(135deg,rgba(164,184,107,0.03)_0%,transparent_50%,rgba(184,149,107,0.03)_100%)] opacity-0 transition-opacity duration-[600ms] group-hover:opacity-100" />
-
-        {/* Media area: image OR icon */}
-        {hasImage ? (
-          <div className="relative h-52 overflow-hidden bg-gray-100 flex items-center justify-center">
-            {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-gray-200/50" />}
-            <img
-              src={imgUrl}
-              alt={product.name}
-              loading="lazy"
-              decoding="async"
-              onLoad={() => setImgLoaded(true)}
-              className={`w-full h-full object-contain p-2 transition-transform duration-700 group-hover:scale-105 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-            />
-            {product.badge && (
-              <div className="absolute top-3 right-3 rounded-xl px-3 py-1.5 text-[0.7rem] font-ar font-bold bg-olive text-white border border-olive-light/20 shadow-lg backdrop-blur-md z-10">
-                {product.badge}
-              </div>
-            )}
+        {!imgLoaded && (
+          <div className="absolute inset-0 animate-pulse bg-[var(--border-subtle)]" />
+        )}
+        
+        {imgUrl ? (
+          <img
+            src={imgUrl}
+            alt={product.name}
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setImgLoaded(true)}
+            className={`w-full h-full object-contain transition-transform duration-700 ease-cinematic group-hover:scale-108 ${
+              imgLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
+            <span className="font-ar text-xs">لا توجد صورة</span>
           </div>
-        ) : Icon ? (
-          <div className="relative h-44 overflow-hidden bg-[rgba(10,9,7,0.40)] flex items-center justify-center">
-            <div className="product-orb absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(164,184,107,0.1)_0%,transparent_70%)] animate-orbPulse scale-75" />
-            <div className="relative z-[1] w-[100px] h-[100px] text-olive-glow opacity-80 transition-all duration-500 group-hover:opacity-100 group-hover:scale-[1.05] group-hover:text-cream">
-              <Icon />
-            </div>
-            <div className="product-shine absolute top-[-50%] left-[-50%] w-[200%] h-[200%] bg-[linear-gradient(45deg,transparent_30%,rgba(255,255,255,0.02)_50%,transparent_70%)] animate-shineSweep" />
-          </div>
-        ) : null}
+        )}
 
-        <div className="relative z-[1] p-6">
-          <div className="text-center">
-            <span className="block font-ar text-[0.65rem] font-medium text-olive-glow tracking-[0.2em] mb-1 uppercase">
-              {product.categoryLabel || product.category_name || product.category}
+        {/* ── Badges ── */}
+        <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
+          {hasDiscount && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[0.7rem] font-bold font-number bg-[var(--discount-badge)] text-white shadow-sm">
+              {discountPercent}%-
             </span>
-            <h3 className="font-ar text-[1.2rem] font-semibold text-cream mb-2 leading-[1.4]">{product.name}</h3>
-            <p className="text-[0.8rem] font-light text-sand leading-[1.7] mb-4 line-clamp-2">
-              {product.shortDesc || product.desc || product.description}
-            </p>
+          )}
+          {product.badge && product.badge !== 'none' && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[0.65rem] font-medium font-ar bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-sm backdrop-blur-md">
+              {product.badge}
+            </span>
+          )}
+        </div>
+      </Link>
 
-            {/* Rating (only for new shop products) */}
-            {hasRating && (
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <div className="flex items-center gap-0.5">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`w-3 h-3 ${star <= Math.round(product.rating) ? 'text-sunset fill-sunset' : 'text-sand/20'}`}
-                    />
-                  ))}
-                </div>
-                <span className="font-number text-[0.7rem] text-sand opacity-70">{product.rating}</span>
-              </div>
+      {/* ── Card Content ── */}
+      <div className="flex flex-col flex-1 p-4 sm:p-5 gap-3 justify-between text-right">
+        <div>
+          {/* Category Tag */}
+          <span className="block font-ar text-[0.7rem] font-bold text-[var(--siwa-earth)] tracking-wider uppercase mb-1">
+            {product.categoryLabel || product.category_name || product.category || 'سحر سيوة'}
+          </span>
+
+          {/* Product Title */}
+          <Link
+            to={`/shop/product/${product.id}`}
+            className="block no-underline font-ar text-[0.98rem] sm:text-[1.05rem] font-bold text-[var(--text-primary)] hover:text-[var(--action-primary)] transition-colors line-clamp-1 leading-snug"
+          >
+            {product.name}
+          </Link>
+
+          {/* Short Description */}
+          <p className="mt-1 font-ar text-[0.78rem] sm:text-[0.8rem] font-normal text-[var(--text-tertiary)] line-clamp-2 leading-relaxed">
+            {product.shortDesc || product.desc || product.description || 'منتج طبيعي نقي من واحة سيوة المصرية.'}
+          </p>
+        </div>
+
+        {/* ── Price and Action Area ── */}
+        <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
+          <div className="flex flex-col">
+            {hasDiscount && (
+              <span className="text-[0.72rem] font-number text-[var(--text-muted)] line-through leading-tight">
+                {oldPrice} {product.currency || 'ج.م'}
+              </span>
             )}
-
-            <div className="flex justify-center items-center gap-4 pt-3 border-t border-[rgba(212,197,169,0.08)]">
-              <span className="text-[0.75rem] font-light text-sand-warm">{product.weight}</span>
-              <span className="font-number text-[1.1rem] font-bold text-bronze-light">{priceDisplay}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-number text-[1.12rem] sm:text-[1.2rem] font-black text-[var(--text-primary)] leading-none">
+                {numericPrice}
+              </span>
+              <span className="font-ar text-[0.72rem] font-bold text-[var(--text-secondary)]">
+                {product.currency || 'ج.م'}
+              </span>
             </div>
           </div>
+
+          {/* Add to Cart Button */}
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            aria-label="إضافة للسلة"
+            className={`relative inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl font-ar text-[0.78rem] sm:text-[0.82rem] font-bold transition-all duration-300 shadow-sm cursor-pointer active:scale-95 ${
+              isAdded
+                ? 'bg-[var(--palm-shade-dark)] text-white scale-95'
+                : 'bg-[var(--action-primary)] text-white hover:bg-[var(--action-primary-hover)] hover:shadow-[var(--shadow-glow)]'
+            }`}
+          >
+            {isAdded ? (
+              <>
+                <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                <span>تمت</span>
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-3.5 h-3.5" strokeWidth={2} />
+                <span>إضافة</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
     </div>

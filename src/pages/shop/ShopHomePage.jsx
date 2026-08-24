@@ -1,20 +1,20 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Plus, Sparkles, PackageSearch, Loader2, Search, SlidersHorizontal,
-  X, Check, ChevronLeft, ArrowUpDown
+  Search, SlidersHorizontal, X, PackageSearch, Loader2, Sparkles,
+  LayoutGrid, Rows3, ChevronRight, ChevronLeft, ChevronDown
 } from 'lucide-react';
 import GlassShell from '@/components/Layout/GlassShell.jsx';
 import ShopSidebar, { SORT_OPTIONS } from '@/components/Products/ShopSidebar.jsx';
+import ProductCard from '@/components/Products/ProductCard.jsx';
+import PromoBanner from '@/components/Products/PromoBanner.jsx';
 import { useCart } from '@/store/cart.jsx';
 import { useToast } from '@/store/toast.jsx';
 import { publicApi } from '@/services/api.js';
 import { normalizeProduct, buildCategoriesTree } from '@/services/catalog.js';
 import { useTranslation } from 'react-i18next';
 
-function money(value, currency = 'ج.م') {
-  return `${Number(value).toLocaleString('ar-EG')} ${currency}`;
-}
+const ITEMS_PER_PAGE_OPTIONS = [12, 24, 36];
 
 export default function ShopHomePage() {
   const { addItem } = useCart();
@@ -28,15 +28,24 @@ export default function ShopHomePage() {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   
+  // Mobile / Desktop View Mode: 'grid' (compact 2-col on mobile) vs 'list' (1-col on mobile)
+  const [viewMode, setViewMode] = useState('grid');
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [categoriesTree, setCategoriesTree] = useState([]);
   const [flatCategories, setFlatCategories] = useState([]);
+  const [banners, setBanners] = useState([]);
 
   const searchTimer = useRef(null);
+  const productsTopRef = useRef(null);
 
-  // ─── Fetch from API (combined backend filters) ───────────────────────────
+  // ─── Fetch from API ───
   const fetchProducts = useCallback(async ({ category, subcategory, search, sortBy, min, max } = {}) => {
     setLoading(true);
     try {
@@ -59,24 +68,33 @@ export default function ShopHomePage() {
     }
   }, []);
 
-  // ─── Initial boot: load categories & initial products ─────────────────────
+  // ─── Initial boot ───
   useEffect(() => {
     let isMounted = true;
     async function boot() {
       try {
-        const [prodRes, catRes] = await Promise.all([
+        const [prodRes, catRes, bannersRes] = await Promise.allSettled([
           publicApi.get('/products'),
           publicApi.get('/categories'),
+          publicApi.get('/banners'),
         ]);
         if (!isMounted) return;
 
-        const rawProds = Array.isArray(prodRes.data?.products) ? prodRes.data.products : [];
-        const rawCats = Array.isArray(catRes.data?.categories) ? catRes.data.categories : [];
-        const rawTree = Array.isArray(catRes.data?.tree) ? catRes.data.tree : [];
+        if (prodRes.status === 'fulfilled') {
+          const rawProds = Array.isArray(prodRes.value.data?.products) ? prodRes.value.data.products : [];
+          setProducts(rawProds.map((p, i) => normalizeProduct(p, i)));
+        }
 
-        setProducts(rawProds.map((p, i) => normalizeProduct(p, i)));
-        setFlatCategories(rawCats);
-        setCategoriesTree(buildCategoriesTree(rawTree, rawCats));
+        if (catRes.status === 'fulfilled') {
+          const rawCats = Array.isArray(catRes.value.data?.categories) ? catRes.value.data.categories : [];
+          const rawTree = Array.isArray(catRes.value.data?.tree) ? catRes.value.data.tree : [];
+          setFlatCategories(rawCats);
+          setCategoriesTree(buildCategoriesTree(rawTree, rawCats));
+        }
+
+        if (bannersRes.status === 'fulfilled' && Array.isArray(bannersRes.value?.data?.banners)) {
+          setBanners(bannersRes.value.data.banners);
+        }
       } catch (e) {
         console.error('Error booting shop catalog:', e);
       } finally {
@@ -87,10 +105,11 @@ export default function ShopHomePage() {
     return () => { isMounted = false; };
   }, []);
 
-  // ─── Re-fetch when filters change (debounced for search) ────────────────────
+  // ─── Re-fetch when filters change ───
   useEffect(() => {
     clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
+      setCurrentPage(1); // Reset to page 1 on filter change
       fetchProducts({
         category: activeCategory,
         subcategory: activeSubcategory,
@@ -126,37 +145,48 @@ export default function ShopHomePage() {
     setSort('catalog');
     setMinPrice('');
     setMaxPrice('');
+    setCurrentPage(1);
   };
 
-  const handleAdd = useCallback((p) => {
-    addItem(p, 1);
-    toast.success(t('shop.added_to_cart', 'تمت إضافة {{name}} للسلة', { name: p.name }));
-  }, [addItem, toast, t]);
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    if (productsTopRef.current) {
+      productsTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const hasActiveFilters = activeCategory !== 'all' || activeSubcategory || searchQuery || sort !== 'catalog' || minPrice !== '' || maxPrice !== '';
 
-  // Get active category / subcategory labels for breadcrumbs/filter tags
   const currentCategoryObj = categoriesTree.find(c => c.slug === activeCategory);
   const currentSubcategoryObj = currentCategoryObj?.subcategories?.find(s => s.slug === activeSubcategory);
   const activeSortObj = SORT_OPTIONS.find(o => o.value === sort);
 
-  // Fix Bug 14: Ensure clean numeric product count display in subtitle
-  const countNumber = products.length;
-  const subtitleText = `${countNumber} منتج أصيل من قلب الواحة… اختر ما ينبض بروح الصحراء.`;
+  const totalProducts = products.length;
+  const totalPages = Math.max(1, Math.ceil(totalProducts / pageSize));
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, totalProducts);
+  const paginatedProducts = products.slice(startIndex, endIndex);
+
+  const shopBanner = banners.find((b) => b.position === 'shop') || null;
 
   return (
     <GlassShell
-      title={t('shop.title', 'متجر واحة سيوة')}
-      subtitle={subtitleText}
+      title={t('shop.title', 'متجر سحر سيوة')}
+      subtitle={`${totalProducts} منتج أصيل من قلب الواحة… اختر ما ينبض بالطبيعة والنقاء.`}
     >
-      {/* ─── Top Control Bar: Search & Mobile Filter Toggle ─── */}
-      <div className="mb-8 space-y-4">
+      {/* ─── Shop Promo Banner ─── */}
+      <div className="mb-10">
+        <PromoBanner banner={shopBanner} position="shop" />
+      </div>
+
+      {/* ─── Top Control Bar: Search, Mobile Filter & View Toggle ─── */}
+      <div className="mb-8 space-y-4" ref={productsTopRef}>
         <div className="flex items-center gap-3">
           {/* Search Bar */}
           <div className="relative flex-1">
             <Search
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-siwa-cream/40 pointer-events-none"
-              strokeWidth={1.5}
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)] pointer-events-none"
+              strokeWidth={1.8}
             />
             <input
               id="shop-search"
@@ -164,13 +194,13 @@ export default function ShopHomePage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ابحث في خيرات سيوة… تمور، زيت زيتون، أعشاب، صابون…"
-              className="w-full rounded-2xl border border-[rgba(211,200,178,0.12)] bg-[rgba(33,21,13,0.75)] py-3.5 pr-11 pl-10 text-siwa-cream-light placeholder:text-siwa-cream/30 focus:outline-none focus:border-siwa-gold focus:shadow-[0_0_20px_rgba(146,108,72,0.12)] transition-all font-ar text-[0.92rem]"
+              className="w-full rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] py-3.5 pr-11 pl-10 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--siwa-earth)] focus:shadow-[var(--shadow-glow)] transition-all font-ar text-[0.92rem]"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center bg-[rgba(24,16,9,0.5)] text-siwa-cream/60 hover:text-siwa-cream-light transition-colors"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full flex items-center justify-center bg-[var(--border-default)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                 aria-label="مسح البحث"
               >
                 <X className="w-3.5 h-3.5" strokeWidth={2} />
@@ -178,65 +208,95 @@ export default function ShopHomePage() {
             )}
           </div>
 
+          {/* View Mode Toggle (Grid vs Single Column on Mobile) */}
+          <div className="flex items-center rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`p-2.5 rounded-xl transition-all cursor-pointer ${
+                viewMode === 'grid'
+                  ? 'bg-[var(--action-primary)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              aria-label="عرض شبكي متعدد"
+              title="عرض شبكي"
+            >
+              <LayoutGrid className="w-4 h-4" strokeWidth={2} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`p-2.5 rounded-xl transition-all cursor-pointer ${
+                viewMode === 'list'
+                  ? 'bg-[var(--action-primary)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              aria-label="عرض منتج مفرد بالصف"
+              title="عرض مفرد"
+            >
+              <Rows3 className="w-4 h-4" strokeWidth={2} />
+            </button>
+          </div>
+
           {/* Mobile Filter Toggle Button */}
           <button
             type="button"
             onClick={() => setIsMobileDrawerOpen(true)}
-            className="lg:hidden inline-flex items-center gap-2 rounded-2xl px-4 py-3.5 border border-[rgba(211,200,178,0.12)] bg-[rgba(33,21,13,0.85)] text-siwa-cream-light text-[0.88rem] font-bold transition-all shadow-md active:scale-95 whitespace-nowrap"
+            className="lg:hidden inline-flex items-center gap-2 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] text-[0.88rem] font-bold transition-all shadow-sm active:scale-95 whitespace-nowrap cursor-pointer"
           >
-            <SlidersHorizontal className="w-4 h-4 text-siwa-gold" strokeWidth={1.5} />
-            <span>الأقسام والفلاتر</span>
+            <SlidersHorizontal className="w-4 h-4 text-[var(--siwa-earth)]" strokeWidth={1.8} />
+            <span>الأقسام</span>
             {hasActiveFilters && (
-              <span className="w-2 h-2 rounded-full bg-siwa-gold animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-[var(--discount-badge)] animate-pulse" />
             )}
           </button>
         </div>
 
         {/* Active Filter Tags (Chips) */}
         {hasActiveFilters && (
-          <div className="flex flex-wrap items-center gap-2 pt-1 animate-in fade-in duration-200">
-            <span className="text-[0.78rem] text-siwa-cream/50 ml-1">الفلاتر النشطة:</span>
+          <div className="flex flex-wrap items-center gap-2 pt-1 animate-fadeIn">
+            <span className="text-[0.78rem] text-[var(--text-tertiary)] ml-1 font-medium">الفلاتر النشطة:</span>
 
             {activeCategory !== 'all' && currentCategoryObj && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[rgba(146,108,72,0.20)] border border-[rgba(146,108,72,0.40)] text-siwa-cream-light">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[var(--siwa-earth)]/15 border border-[var(--border-accent)] text-[var(--text-primary)] font-bold">
                 <span>القسم: {currentCategoryObj.label}</span>
-                <button type="button" onClick={() => handleSelectCategory('all')} className="hover:text-siwa-gold">
+                <button type="button" onClick={() => handleSelectCategory('all')} className="hover:text-[var(--discount-badge)] cursor-pointer">
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
 
             {activeSubcategory && currentSubcategoryObj && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[rgba(146,108,72,0.25)] border border-[rgba(146,108,72,0.50)] text-siwa-cream-light font-bold">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[var(--action-primary)]/15 border border-[var(--action-primary)]/30 text-[var(--text-primary)] font-bold">
                 <span>الفرع: {currentSubcategoryObj.label}</span>
-                <button type="button" onClick={() => setActiveSubcategory(null)} className="hover:text-siwa-gold">
+                <button type="button" onClick={() => setActiveSubcategory(null)} className="hover:text-[var(--discount-badge)] cursor-pointer">
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
 
             {(minPrice || maxPrice) && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[rgba(146,108,72,0.20)] border border-[rgba(146,108,72,0.40)] text-siwa-cream-light">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[var(--siwa-earth)]/15 border border-[var(--border-accent)] text-[var(--text-primary)]">
                 <span>السعر: {minPrice ? `${minPrice} ج.م` : '0'} إلى {maxPrice ? `${maxPrice} ج.م` : 'الكل'}</span>
-                <button type="button" onClick={() => handlePriceChange('', '')} className="hover:text-siwa-gold">
+                <button type="button" onClick={() => handlePriceChange('', '')} className="hover:text-[var(--discount-badge)] cursor-pointer">
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
 
             {searchQuery && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[rgba(146,108,72,0.20)] border border-[rgba(146,108,72,0.40)] text-siwa-cream-light">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[var(--siwa-earth)]/15 border border-[var(--border-accent)] text-[var(--text-primary)]">
                 <span>بحث: "{searchQuery}"</span>
-                <button type="button" onClick={() => setSearchQuery('')} className="hover:text-siwa-gold">
+                <button type="button" onClick={() => setSearchQuery('')} className="hover:text-[var(--discount-badge)] cursor-pointer">
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
 
             {sort !== 'catalog' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[rgba(146,108,72,0.20)] border border-[rgba(146,108,72,0.40)] text-siwa-cream-light">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.78rem] bg-[var(--siwa-earth)]/15 border border-[var(--border-accent)] text-[var(--text-primary)]">
                 <span>{activeSortObj?.label}</span>
-                <button type="button" onClick={() => setSort('catalog')} className="hover:text-siwa-gold">
+                <button type="button" onClick={() => setSort('catalog')} className="hover:text-[var(--discount-badge)] cursor-pointer">
                   <X className="w-3 h-3" />
                 </button>
               </span>
@@ -245,7 +305,7 @@ export default function ShopHomePage() {
             <button
               type="button"
               onClick={handleClearAllFilters}
-              className="text-[0.75rem] text-siwa-warm hover:text-siwa-cream-light transition-colors underline mr-2"
+              className="text-[0.75rem] text-[var(--discount-badge)] hover:underline mr-2 font-bold cursor-pointer"
             >
               مسح الكل
             </button>
@@ -278,58 +338,66 @@ export default function ShopHomePage() {
         {/* ─── Product Grid / Left Content Area ─── */}
         <div className="min-w-0 space-y-6">
           {/* Results Summary Bar */}
-          <div className="flex items-center justify-between px-1 text-sm text-siwa-cream/70 border-b border-[rgba(211,200,178,0.08)] pb-3">
+          <div className="flex items-center justify-between px-1 text-sm text-[var(--text-secondary)] border-b border-[var(--border-default)] pb-3">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-siwa-cream-light font-number text-base">{products.length}</span>
-              <span>منتج معروض</span>
+              <span className="font-bold text-[var(--text-primary)] font-number text-base">
+                {totalProducts > 0 ? `${startIndex + 1} - ${endIndex}` : '0'}
+              </span>
+              <span>من أصل {totalProducts} منتج</span>
               {activeCategory !== 'all' && currentCategoryObj && (
-                <span className="text-siwa-gold font-semibold">في {currentCategoryObj.label}</span>
+                <span className="text-[var(--siwa-earth)] font-bold">في {currentCategoryObj.label}</span>
               )}
               {activeSubcategory && currentSubcategoryObj && (
-                <span className="text-siwa-warm font-medium">/ {currentSubcategoryObj.label}</span>
+                <span className="text-[var(--text-tertiary)] font-medium">/ {currentSubcategoryObj.label}</span>
               )}
             </div>
 
-            <div className="hidden sm:flex items-center gap-2 text-xs text-siwa-cream/50">
-              <Sparkles className="w-3.5 h-3.5 text-siwa-gold" />
-              <span>منتجات طبيعية أصيلة 100% من واحة سيوة</span>
+            <div className="hidden sm:flex items-center gap-2 text-xs text-[var(--text-muted)] font-medium">
+              <Sparkles className="w-3.5 h-3.5 text-[var(--siwa-earth)]" />
+              <span>منتجات طبيعية 100% من واحة سيوة</span>
             </div>
           </div>
 
           {/* Loading State */}
           {loading && (
             <div className="flex flex-col items-center justify-center py-28 gap-4">
-              <Loader2 className="w-10 h-10 text-siwa-gold animate-spin opacity-80" strokeWidth={1.5} />
-              <p className="text-siwa-cream/60 font-ar text-[0.92rem]">
+              <Loader2 className="w-10 h-10 text-[var(--siwa-earth)] animate-spin opacity-80" strokeWidth={1.8} />
+              <p className="text-[var(--text-secondary)] font-ar text-[0.92rem]">
                 جاري تحميل خيرات الواحة…
               </p>
             </div>
           )}
 
-          {/* Products Grid */}
-          {!loading && products.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {products.map((p) => (
-                <ProductCard key={p.id} product={p} onAdd={() => handleAdd(p)} />
+          {/* Products Grid — Responsive viewMode (Compact 2-col on mobile vs 1-col) */}
+          {!loading && paginatedProducts.length > 0 && (
+            <div className={`
+              grid gap-5 sm:gap-6
+              ${viewMode === 'grid'
+                ? 'grid-cols-2 sm:grid-cols-2 xl:grid-cols-3'
+                : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'
+              }
+            `}>
+              {paginatedProducts.map((p, index) => (
+                <ProductCard key={`${p.id}-${currentPage}-${activeCategory}-${sort}`} product={p} index={index} />
               ))}
             </div>
           )}
 
           {/* Empty State */}
           {!loading && products.length === 0 && (
-            <div className="flex flex-col items-center text-center py-28 px-4 rounded-3xl border border-[rgba(211,200,178,0.08)] bg-[rgba(33,21,13,0.50)]">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[rgba(146,108,72,0.10)] border border-[rgba(146,108,72,0.20)] mb-5">
-                <PackageSearch className="w-9 h-9 text-siwa-gold opacity-60" strokeWidth={1.5} />
+            <div className="flex flex-col items-center text-center py-28 px-4 rounded-3xl border border-[var(--border-default)] bg-[var(--bg-card)]">
+              <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[var(--border-subtle)] text-[var(--siwa-earth)] mb-5">
+                <PackageSearch className="w-9 h-9 opacity-70" strokeWidth={1.8} />
               </div>
-              <h3 className="text-siwa-cream-light font-bold text-lg">لم نجد ما تبحث عنه</h3>
-              <p className="mt-2 text-siwa-cream/60 text-sm max-w-[34ch] leading-relaxed">
+              <h3 className="text-[var(--text-primary)] font-bold text-lg">لم نجد ما تبحث عنه</h3>
+              <p className="mt-2 text-[var(--text-secondary)] text-sm max-w-[34ch] leading-relaxed">
                 جرّب البحث بكلمات أخرى أو تصفح الأقسام من القائمة الجانبية.
               </p>
               {hasActiveFilters && (
                 <button
                   type="button"
                   onClick={handleClearAllFilters}
-                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-siwa-gold text-[#181009] font-bold text-sm hover:bg-siwa-warm transition-colors shadow-lg"
+                  className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--action-primary)] text-white font-bold text-sm hover:bg-[var(--action-primary-hover)] transition-colors shadow-md cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                   <span>مسح جميع الفلاتر</span>
@@ -337,6 +405,78 @@ export default function ShopHomePage() {
               )}
             </div>
           )}
+
+          {/* ─── Pagination Bar (أكورديون / عداد الصفحات) ─── */}
+          {!loading && totalPages > 1 && (
+            <div className="pt-8 mt-6 border-t border-[var(--border-default)] flex flex-col sm:flex-row items-center justify-between gap-4">
+              {/* Summary */}
+              <div className="text-xs text-[var(--text-secondary)] font-ar">
+                صفحة <span className="font-number font-bold text-[var(--text-primary)]">{currentPage}</span> من{' '}
+                <span className="font-number font-bold text-[var(--text-primary)]">{totalPages}</span> (إجمالي {totalProducts} منتج)
+              </div>
+
+              {/* Page Buttons */}
+              <div className="flex items-center gap-1.5">
+                {/* Previous Page */}
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] hover:border-[var(--border-accent)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  aria-label="الصفحة السابقة"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                  <span className="hidden sm:inline">السابق</span>
+                </button>
+
+                {/* Page numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+                  // Show current, first, last, and neighboring pages
+                  if (
+                    pageNum === 1 ||
+                    pageNum === totalPages ||
+                    (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                  ) {
+                    return (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`w-9 h-9 rounded-xl text-xs font-number font-bold transition-all cursor-pointer ${
+                          currentPage === pageNum
+                            ? 'bg-[var(--action-primary)] text-white shadow-sm'
+                            : 'border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] hover:border-[var(--border-accent)]'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  }
+                  if (pageNum === currentPage - 2 || pageNum === currentPage + 2) {
+                    return (
+                      <span key={pageNum} className="text-xs text-[var(--text-tertiary)] px-1">
+                        …
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+
+                {/* Next Page */}
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-primary)] hover:border-[var(--border-accent)] disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  aria-label="الصفحة التالية"
+                >
+                  <span className="hidden sm:inline">التالي</span>
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
 
@@ -345,12 +485,12 @@ export default function ShopHomePage() {
         <div className="fixed inset-0 z-[200] lg:hidden">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
             onClick={() => setIsMobileDrawerOpen(false)}
           />
 
           {/* Drawer content (RTL slides from right) */}
-          <div className="absolute inset-y-0 right-0 max-w-xs w-full bg-siwa-primary border-l border-[rgba(211,200,178,0.15)] shadow-2xl p-6 overflow-y-auto custom-scrollbar animate-in slide-in-from-right duration-300">
+          <div className="absolute inset-y-0 right-0 max-w-xs w-full bg-[var(--bg-primary)] border-l border-[var(--border-default)] shadow-2xl p-6 overflow-y-auto custom-scrollbar animate-slideInRight">
             <ShopSidebar
               categories={categoriesTree}
               activeCategory={activeCategory}
@@ -372,130 +512,5 @@ export default function ShopHomePage() {
         </div>
       )}
     </GlassShell>
-  );
-}
-
-// ─── Product Card with Siwa Brand Identity & Real Discount Display ─────────
-function ProductCard({ product, onAdd }) {
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const { t } = useTranslation();
-
-  const handleClick = () => {
-    setAdding(true);
-    onAdd();
-    setTimeout(() => setAdding(false), 900);
-  };
-
-  return (
-    <div className="group relative rounded-2xl border border-[rgba(211,200,178,0.10)] bg-[rgba(33,21,13,0.70)] [backdrop-filter:blur(16px)] overflow-hidden transition-all duration-400 hover:border-siwa-gold/50 hover:shadow-[0_16px_40px_rgba(24,16,9,0.5),0_0_24px_rgba(146,108,72,0.10)] hover:-translate-y-1 flex flex-col justify-between">
-
-      {/* Image Container — Light warm ivory base for clean contrast */}
-      <Link to={`/shop/product/${product.id}`} className="block relative h-52 overflow-hidden bg-[#EFE9DD] flex items-center justify-center">
-        {product.image ? (
-          <>
-            {!imgLoaded && (
-              <div className="absolute inset-0 animate-pulse bg-[#E5DEC7]" />
-            )}
-            <img
-              src={product.image}
-              alt={product.name}
-              loading="lazy"
-              decoding="async"
-              onLoad={() => setImgLoaded(true)}
-              className={`w-full h-full object-contain p-3 transition-transform duration-700 group-hover:scale-105 ${
-                imgLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-            />
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center opacity-30 text-siwa-earth">
-            <PackageSearch className="w-10 h-10 mb-2" />
-            <span className="text-[0.7rem] font-ar">واحة سيوة</span>
-          </div>
-        )}
-
-        {/* Badge (Featured, Best Seller, New) */}
-        {product.badge && (
-          <div className="absolute top-3 right-3 rounded-lg px-2.5 py-1 text-[0.68rem] font-ar font-bold bg-[rgba(45,29,16,0.92)] text-siwa-cream-light border border-siwa-gold/30 shadow-md backdrop-blur-md z-10">
-            {product.badge}
-          </div>
-        )}
-
-        {/* Real Backend Discount Badge */}
-        {product.oldPrice && (
-          <div className="absolute top-3 left-3 rounded-lg px-2.5 py-1 text-[0.68rem] font-number font-bold bg-[#C97B4F] text-white shadow-md z-10">
-            {product.discountPercent ? `-${product.discountPercent}%` : `خصم ${product.discountAmount} ج.م`}
-          </div>
-        )}
-      </Link>
-
-      {/* Product Information */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
-        <div>
-          {/* Category & Subcategory Tag */}
-          <div className="text-[0.68rem] font-ar text-siwa-gold font-semibold flex items-center gap-1.5 mb-1">
-            <span>{product.categoryLabel}</span>
-            {product.subcategoryLabel && (
-              <>
-                <span className="text-siwa-cream/30">/</span>
-                <span className="text-siwa-warm">{product.subcategoryLabel}</span>
-              </>
-            )}
-          </div>
-
-          <h3 className="font-ar text-[0.98rem] font-bold text-siwa-cream-light leading-[1.4] line-clamp-2">
-            {product.name}
-          </h3>
-
-          <p className="mt-1.5 text-[0.8rem] text-siwa-cream/70 leading-[1.6] line-clamp-2">
-            {product.shortDesc}
-          </p>
-        </div>
-
-        {/* Pricing & Actions */}
-        <div className="mt-4 pt-3 border-t border-[rgba(211,200,178,0.08)] flex items-center justify-between gap-2">
-          {/* Price display: crossed out original + current selling price */}
-          <div className="flex flex-col">
-            {product.oldPrice && (
-              <span className="font-number text-[0.78rem] text-siwa-cream/40 line-through leading-tight">
-                {money(product.oldPrice, product.currency)}
-              </span>
-            )}
-            <span className="font-number text-[1.12rem] font-bold text-siwa-cream-light leading-none">
-              {money(product.price, product.currency)}
-            </span>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <Link
-              to={`/shop/product/${product.id}`}
-              className="text-[0.78rem] text-siwa-cream/60 hover:text-siwa-cream-light hover:underline transition-colors font-ar"
-            >
-              تفاصيل
-            </Link>
-
-            <button
-              type="button"
-              id={`add-to-cart-${product.id}`}
-              onClick={handleClick}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[0.82rem] font-ar font-bold transition-all duration-300 active:scale-95 ${
-                adding
-                  ? 'bg-siwa-gold text-[#181009] shadow-[0_0_20px_rgba(146,108,72,0.4)]'
-                  : 'bg-[rgba(146,108,72,0.22)] hover:bg-siwa-gold text-siwa-cream-light hover:text-[#181009] border border-[rgba(146,108,72,0.45)]'
-              }`}
-            >
-              {adding ? (
-                <Sparkles className="w-3.5 h-3.5 animate-spin" strokeWidth={2} />
-              ) : (
-                <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
-              )}
-              <span>{adding ? 'تمت' : 'إضافة'}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

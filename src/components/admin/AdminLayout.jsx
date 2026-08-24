@@ -12,12 +12,13 @@ import {
   Home,
   Settings,
   Sparkles,
-  MapPin
+  MapPin,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { useAuth } from '../../store/auth';
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/store/toast.jsx';
-import logoImg from '@/images/Logo1.png';
+import Logo from '@/components/Logo.jsx';
 
 export default function AdminLayout() {
   const { user, logout, isAdmin } = useAuth();
@@ -43,11 +44,11 @@ export default function AdminLayout() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-shadow">
-        <div className="text-center p-8 bg-olive-deep/30 rounded-2xl border border-olive/30 backdrop-blur-md">
-          <h1 className="text-3xl font-bold text-cream mb-4">غير مصرح</h1>
-          <p className="text-sand">ليس لديك صلاحية للوصول إلى لوحة التحكم</p>
-          <Link to="/" className="mt-6 inline-block px-6 py-2 bg-olive text-cream rounded-full hover:bg-olive-light transition-colors">
+      <div className="min-h-screen flex items-center justify-center bg-[#150E08] text-[#F3E9D6]">
+        <div className="text-center p-8 bg-[#2A1A10] rounded-2xl border border-[#8A5833]/30 backdrop-blur-md">
+          <h1 className="text-3xl font-bold text-[#F3E9D6] mb-4">غير مصرح</h1>
+          <p className="text-[#DCC7A1]">ليس لديك صلاحية للوصول إلى لوحة التحكم</p>
+          <Link to="/" className="mt-6 inline-block px-6 py-2 bg-[#5B6B4A] text-white rounded-full hover:bg-[#6E7F5A] transition-colors">
             العودة للرئيسية
           </Link>
         </div>
@@ -60,6 +61,7 @@ export default function AdminLayout() {
     { path: '/admin/products', icon: Package, label: 'المنتجات' },
     { path: '/admin/categories', icon: ShoppingBag, label: 'الأقسام' },
     { path: '/admin/orders', icon: ShoppingBag, label: 'الطلبات' },
+    { path: '/admin/banners', icon: ImageIcon, label: 'البانرات' },
     { path: '/admin/regions', icon: MapPin, label: 'أسعار الشحن' },
     { path: '/admin/users', icon: Users, label: 'المستخدمون' },
     { path: '/admin/analytics', icon: TrendingUp, label: 'التحليلات' },
@@ -68,11 +70,11 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-shadow text-cream flex font-ar selection:bg-olive selection:text-cream">
+    <div data-theme="dark" className="dark min-h-screen bg-[#150E08] text-[#F3E9D6] flex font-ar selection:bg-[#5B6B4A] selection:text-white">
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-shadow/80 backdrop-blur-sm lg:hidden transition-opacity"
+          className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm lg:hidden transition-opacity"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
@@ -81,27 +83,27 @@ export default function AdminLayout() {
       {/* Sidebar */}
       <aside className={`
         fixed lg:static inset-y-0 right-0 z-50
-        w-72 bg-shadow/95 backdrop-blur-xl border-l border-olive/20 shadow-2xl
+        w-72 bg-[#1E130B]/95 backdrop-blur-xl border-l border-[#8A5833]/20 shadow-2xl
         transform transition-all duration-500 ease-cinematic flex flex-col
         ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
       `}>
-        <div className="p-6 border-b border-olive/20 flex flex-col items-center justify-center relative">
+        <div className="p-6 border-b border-[#8A5833]/20 flex flex-col items-center justify-center relative">
           <button
             type="button"
             onClick={() => setSidebarOpen(false)}
-            className="absolute top-4 left-4 rounded-lg p-2 text-sand hover:text-cream hover:bg-olive/20 transition-colors lg:hidden"
+            className="absolute top-4 left-4 rounded-lg p-2 text-[#DCC7A1] hover:text-white hover:bg-white/5 transition-colors lg:hidden"
             aria-label="إغلاق القائمة"
           >
             <X className="h-5 w-5" />
           </button>
 
-          <Link to="/admin/dashboard" className="flex flex-col items-center gap-3 group">
-            <div className="w-20 h-20 rounded-full bg-olive-deep/50 border border-olive/30 flex items-center justify-center p-2 group-hover:scale-105 transition-transform duration-300">
-              <img src={logoImg} alt="Wahat Sewa Logo" className="w-full h-auto object-contain drop-shadow-lg" />
+          <Link to="/admin/dashboard" className="flex flex-col items-center gap-2 group py-2">
+            <div className="text-[#F3E9D6] group-hover:text-white transition-transform duration-300 group-hover:scale-105">
+              <Logo className="h-16 w-auto" />
             </div>
             <div className="text-center">
-              <h2 className="text-xl font-bold text-cream tracking-wide">واحة سيوة</h2>
-              <p className="text-xs text-sand-light mt-1 uppercase tracking-widest opacity-80">لوحة الإدارة</p>
+              <h2 className="text-lg font-bold text-[#F3E9D6] tracking-wide">سحر سيوة</h2>
+              <p className="text-[0.65rem] text-[#DCC7A1]/60 uppercase tracking-widest">لوحة الإدارة الفاخرة</p>
             </div>
           </Link>
         </div>

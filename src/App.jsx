@@ -20,6 +20,7 @@ import ProfitAnalytics from '@/pages/admin/ProfitAnalytics.jsx';
 import AdminUsersPage from '@/pages/admin/AdminUsersPage.jsx';
 import AdminSettings from '@/pages/admin/AdminSettings.jsx';
 import HomepageProducts from '@/pages/admin/HomepageProducts.jsx';
+import BannersManagement from '@/pages/admin/BannersManagement.jsx';
 
 function AdminRoute({ children }) {
   const { loading, isAuthed, isAdmin } = useAuth();
@@ -77,6 +78,7 @@ export default function App() {
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="featured" element={<HomepageProducts />} />
+          <Route path="banners" element={<BannersManagement />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

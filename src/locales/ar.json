@@ -1,13 +1,17 @@
 {
   "nav": {
-    "home": "المتجر",
+    "home": "الرئيسية",
+    "shop": "المتجر",
+    "categories": "الأقسام",
+    "featured": "المميزة",
+    "deals": "العروض",
+    "philosophy": "عن سيوة",
     "journey": "الرحلة",
     "products": "المنتجات",
-    "philosophy": "الفلسفة",
     "contact": "تواصل",
-    "login": "تسجيل الدخول",
+    "login": "دخول",
     "account": "حسابي",
-    "admin": "لوحة الأدمن",
+    "admin": "لوحة الإدارة",
     "cart": "السلة"
   },
   "hero": {

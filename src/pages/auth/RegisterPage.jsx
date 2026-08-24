@@ -6,7 +6,6 @@ import { useAuth } from '@/store/auth.jsx';
 import { useToast } from '@/store/toast.jsx';
 import { useTranslation } from 'react-i18next';
 
-
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -63,7 +62,7 @@ export default function RegisterPage() {
     setIsSubmitting(true);
     const result = await register(name.trim(), whatsapp.trim(), password);
     if (result.success) {
-      toast.success(`أهلاً ${name.trim()}، تم إنشاء حسابك`);
+      toast.success(`أهلاً ${name.trim()}، تم إنشاء حسابك بنجاح`);
       navigate(result.user?.role === 'admin' ? '/admin/dashboard' : '/shop', { replace: true });
     } else {
       setError(result.error);
@@ -73,81 +72,96 @@ export default function RegisterPage() {
   };
 
   return (
-    <AuthShell title={t('auth.register_title', 'إنشاء حساب')} subtitle={t('auth.register_subtitle', 'حسابك يفتح لك تجربة شراء أسرع وواجهة حساب مرتبة.')}>
-      <form onSubmit={onSubmit} className="flex flex-col gap-5">
+    <AuthShell
+      title={t('auth.register_title', 'إنشاء حساب جديد')}
+      subtitle={t('auth.register_subtitle', 'انضم إلينا واستمتع بتجربة تسوق فريدة لمنتجات سيوة الأصيلة.')}
+    >
+      <form onSubmit={onSubmit} className="flex flex-col gap-5 text-right">
+        {/* Name */}
         <div>
-          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('auth.name', 'الاسم بالكامل')}</label>
-          <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
-            <UserCircle className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
+          <label className="block mb-2 text-[var(--text-secondary)] text-[0.88rem] font-bold font-ar">
+            {t('auth.name', 'الاسم بالكامل')}
+          </label>
+          <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-elevated)] transition-all duration-300 focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
+            <UserCircle className="w-[18px] h-[18px] text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
               type="text"
-              className="w-full bg-transparent outline-none text-cream placeholder:text-[rgba(245,239,227,0.30)] font-ar text-[0.95rem]"
-              placeholder="اسمك الكريم"
+              className="w-full bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-ar text-[0.95rem]"
+              placeholder="الاسم الثلاثي"
               autoComplete="name"
             />
           </div>
         </div>
 
+        {/* WhatsApp */}
         <div>
-          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('auth.whatsapp', 'رقم الواتساب')}</label>
-          <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
-            <MessageCircle className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
+          <label className="block mb-2 text-[var(--text-secondary)] text-[0.88rem] font-bold font-ar">
+            {t('auth.whatsapp', 'رقم الواتساب')}
+          </label>
+          <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-elevated)] transition-all duration-300 focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
+            <MessageCircle className="w-[18px] h-[18px] text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
             <input
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
               type="tel"
-              className="w-full bg-transparent outline-none text-cream placeholder:text-[rgba(245,239,227,0.30)] font-ar text-[0.95rem]"
+              className="w-full bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-ar text-[0.95rem]"
               placeholder="01XXXXXXXXX"
               autoComplete="tel"
             />
           </div>
         </div>
 
+        {/* Password */}
         <div>
-          <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('auth.password', 'كلمة المرور')}</label>
-          <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
-            <LockKeyhole className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
+          <label className="block mb-2 text-[var(--text-secondary)] text-[0.88rem] font-bold font-ar">
+            {t('auth.password', 'كلمة المرور')}
+          </label>
+          <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-elevated)] transition-all duration-300 focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
+            <LockKeyhole className="w-[18px] h-[18px] text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
             <input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type={showPass ? 'text' : 'password'}
-              className="w-full bg-transparent outline-none text-cream placeholder:text-[rgba(245,239,227,0.30)] font-ar text-[0.95rem]"
+              className="w-full bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-ar text-[0.95rem]"
               placeholder="••••••••"
               autoComplete="new-password"
             />
             <button
               type="button"
               onClick={() => setShowPass((v) => !v)}
-              className="text-sand opacity-50 hover:opacity-100 transition-opacity shrink-0"
-              aria-label="Show password"
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors shrink-0 cursor-pointer"
+              aria-label="إظهار كلمة المرور"
             >
-              {showPass ? <EyeOff className="w-[18px] h-[18px]" strokeWidth={1.5} /> : <Eye className="w-[18px] h-[18px]" strokeWidth={1.5} />}
+              {showPass ? <EyeOff className="w-[18px] h-[18px]" strokeWidth={1.8} /> : <Eye className="w-[18px] h-[18px]" strokeWidth={1.8} />}
             </button>
           </div>
         </div>
 
-        {error ? (
-          <div className="rounded-2xl border border-[rgba(232,168,124,0.25)] bg-[rgba(232,168,124,0.07)] px-4 py-3 text-sand-light text-[0.9rem] font-ar flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-sunset shrink-0" strokeWidth={2} />
-            {error}
+        {/* Error Alert */}
+        {error && (
+          <div className="rounded-2xl border border-[var(--discount-badge)]/30 bg-[var(--discount-badge)]/10 px-4 py-3 text-[var(--discount-badge)] text-[0.88rem] font-ar flex items-center gap-2">
+            <Sparkles className="w-4 h-4 shrink-0" strokeWidth={2} />
+            <span>{error}</span>
           </div>
-        ) : null}
+        )}
 
+        {/* Submit */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-2xl px-5 py-4 bg-siwa-gold hover:bg-siwa-warm text-[#181009] font-ar font-bold text-base transition-all duration-300 shadow-xl active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full rounded-2xl px-5 py-4 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-ar font-bold text-base transition-all duration-300 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-glow)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer mt-2"
         >
           <UserPlus className="w-5 h-5" strokeWidth={2} />
-          <span>{isSubmitting ? t('auth.registering', 'جاري إنشاء الحساب…') : t('auth.register', 'تسجيل')}</span>
+          <span>{isSubmitting ? t('auth.creating_account', 'جاري إنشاء الحساب…') : t('auth.register_button', 'إنشاء الحساب')}</span>
         </button>
 
-        <div className="text-[0.85rem] text-siwa-cream/70 font-ar text-center">
-          {t('auth.already_have_account', 'لديك حساب بالفعل؟')}{' '}
-          <Link to="/auth/login" className="no-underline text-siwa-gold hover:text-siwa-warm transition-colors inline-flex items-center gap-1 font-bold">
-            {t('auth.sign_in', 'تسجيل الدخول')}
+        {/* Link to login */}
+        <div className="flex items-center justify-center gap-2 text-[0.88rem] pt-2 border-t border-[var(--border-subtle)]">
+          <span className="text-[var(--text-secondary)] font-ar">لديك حساب بالفعل؟</span>
+          <Link to="/auth/login" className="text-[var(--siwa-earth)] hover:text-[var(--action-primary)] font-bold transition-colors font-ar flex items-center gap-1">
+            <span>تسجيل الدخول</span>
             <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
           </Link>
         </div>

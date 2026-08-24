@@ -3,65 +3,175 @@
 @tailwind utilities;
 
 @layer base {
+  /* ═══════════════════════════════════════════════════
+     SIWA BRAND — LIGHT MODE (DEFAULT)
+     Base: Siwa Salt #F3E9D6 / Oasis Clay #3B2316
+     ═══════════════════════════════════════════════════ */
   :root {
-    /* ─── Official Siwa Brand Color Palette ─── */
-    --siwa-primary: #181009;            /* Deep Brand Brown */
-    --siwa-surface: #21150D;            /* Dark Brown Surface */
-    --siwa-earth: #2D1D10;              /* Earth Brown */
-    --siwa-cream: #D3C8B2;              /* Warm Cream / Ivory */
-    --siwa-cream-light: #F5EFE3;        /* Bright Ivory Text */
-    --siwa-deep-earth: #382617;         /* Deep Earth Secondary Surface */
-    --siwa-gold: #926C48;               /* Muted Gold / Warm Brown */
-    --siwa-earth-gold: #7A5535;         /* Earth Gold Accent */
-    --siwa-warm: #A68462;               /* Warm Earth Accent */
-    --siwa-accent: #5D3D22;             /* Deep Accent Brown */
-    --siwa-light-earth: #B99E83;        /* Light Warm Earth */
+    /* ─── Core Brand Palette ─── */
+    --siwa-salt: #F3E9D6;
+    --siwa-salt-light: #FAF5EC;
+    --desert-sand: #DCC7A1;
+    --desert-sand-deep: #C4A87A;
+    --siwa-earth: #8A5833;
+    --siwa-earth-light: #A46B3F;
+    --oasis-clay: #3B2316;
+    --oasis-clay-deep: #2A1A10;
+    --palm-shade: #5B6B4A;
+    --palm-shade-light: #6E7F5A;
+    --palm-shade-dark: #4A5A3C;
 
-    /* ─── Functional & Layout Tokens ─── */
-    --bg-deep: #181009;
-    --bg-surface: #21150D;
-    --bg-elevated: #2D1D10;
-    --bg-earth: #382617;
+    /* ─── Semantic Surface Tokens ─── */
+    --bg-primary: #F3E9D6;
+    --bg-secondary: #EDE2CF;
+    --bg-elevated: #FFFFFF;
+    --bg-card: #FAF5EC;
+    --bg-card-hover: #FFFFFF;
+    --bg-overlay: rgba(59, 35, 22, 0.6);
+    --bg-glass: rgba(243, 233, 214, 0.7);
+    --bg-glass-strong: rgba(243, 233, 214, 0.9);
 
-    --cream: #D3C8B2;
-    --warm-white: #F5EFE3;
-    --sand: #B99E83;
-    --sand-light: #D3C8B2;
-    --sand-warm: #A68462;
-    --bronze: #926C48;
-    --bronze-light: #A68462;
-    --sunset: #C97B4F;
-    --sunset-deep: #926C48;
-    --shadow: #181009;
-    --shadow-soft: rgba(24, 16, 9, 0.4);
+    /* ─── Text Tokens ─── */
+    --text-primary: #3B2316;
+    --text-secondary: #6B4C38;
+    --text-tertiary: #8A7260;
+    --text-muted: #A89280;
+    --text-on-action: #FAF5EC;
+    --text-accent: #8A5833;
 
-    /* Gold / Warm Highlights */
-    --accent-gold: #926C48;
-    --accent-gold-hover: #A68462;
-    --accent-gold-light: #B99E83;
-    --accent-gold-glow: rgba(146, 108, 72, 0.25);
+    /* ─── Border Tokens ─── */
+    --border-default: rgba(59, 35, 22, 0.1);
+    --border-subtle: rgba(59, 35, 22, 0.06);
+    --border-strong: rgba(59, 35, 22, 0.18);
+    --border-accent: rgba(138, 88, 51, 0.3);
 
-    /* Mapped legacy aliases to earth/gold palette (removing green) */
-    --olive-deep: #21150D;
-    --olive: #7A5535;
-    --olive-light: #926C48;
-    --olive-glow: #A68462;
-    --glow-olive: rgba(146, 108, 72, 0.15);
-    --glow-sand: rgba(211, 200, 178, 0.25);
-    --glow-sunset: rgba(201, 123, 79, 0.2);
+    /* ─── Action / CTA (Palm Shade) ─── */
+    --action-primary: #5B6B4A;
+    --action-primary-hover: #4A5A3C;
+    --action-primary-text: #FAF5EC;
+    --action-secondary: #8A5833;
+    --action-secondary-hover: #A46B3F;
 
-    /* Typography */
-    --font-ar: 'Tajawal', sans-serif;
+    /* ─── Status / Feedback ─── */
+    --discount-badge: #C45E3B;
+    --discount-text: #FFFFFF;
+    --success: #5B6B4A;
+    --warning: #C4A87A;
+    --error: #C45E3B;
+
+    /* ─── Shadows ─── */
+    --shadow-sm: 0 1px 3px rgba(59, 35, 22, 0.06);
+    --shadow-md: 0 4px 16px rgba(59, 35, 22, 0.08);
+    --shadow-lg: 0 8px 32px rgba(59, 35, 22, 0.1);
+    --shadow-xl: 0 16px 48px rgba(59, 35, 22, 0.12);
+    --shadow-glow: 0 0 20px rgba(91, 107, 74, 0.15);
+
+    /* ─── Navbar ─── */
+    --nav-bg: rgba(243, 233, 214, 0.75);
+    --nav-bg-scrolled: rgba(243, 233, 214, 0.92);
+    --nav-border: rgba(59, 35, 22, 0.08);
+    --nav-border-scrolled: rgba(59, 35, 22, 0.12);
+    --nav-text: #3B2316;
+    --nav-text-muted: #6B4C38;
+
+    /* ─── Announcement Bar ─── */
+    --announce-bg: #3B2316;
+    --announce-text: #F3E9D6;
+
+    /* ─── Footer ─── */
+    --footer-bg: #2A1A10;
+    --footer-text: #DCC7A1;
+    --footer-muted: rgba(220, 199, 161, 0.6);
+
+    /* ─── Scrollbar ─── */
+    --scrollbar-track: #EDE2CF;
+    --scrollbar-thumb: #C4A87A;
+    --scrollbar-thumb-hover: #8A5833;
+
+    /* ─── Typography ─── */
+    --font-ar: 'Noto Kufi Arabic', 'Tajawal', sans-serif;
+    --font-display: 'Aref Ruqaa', 'Tajawal', serif;
     --font-en: 'Cormorant Garamond', serif;
-    --font-number: 'Cairo', 'Tajawal', sans-serif;
+    --font-number: 'Cairo', 'Noto Kufi Arabic', sans-serif;
 
-    /* Motion */
-    --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+    /* ─── Motion ─── */
     --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-expo: cubic-bezier(0.87, 0, 0.13, 1);
-    --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* ─── Spacing (consistent rhythm) ─── */
+    --section-gap: 6rem;
+
+    color-scheme: light;
   }
 
+  /* ═══════════════════════════════════════════════════
+     SIWA BRAND — DARK MODE
+     Base: Oasis Clay #3B2316 / Siwa Salt #F3E9D6
+     ═══════════════════════════════════════════════════ */
+  [data-theme="dark"] {
+    --bg-primary: #1E130B;
+    --bg-secondary: #2A1A10;
+    --bg-elevated: #3B2316;
+    --bg-card: rgba(59, 35, 22, 0.6);
+    --bg-card-hover: rgba(59, 35, 22, 0.8);
+    --bg-overlay: rgba(15, 10, 6, 0.8);
+    --bg-glass: rgba(30, 19, 11, 0.7);
+    --bg-glass-strong: rgba(30, 19, 11, 0.92);
+
+    --text-primary: #F3E9D6;
+    --text-secondary: #DCC7A1;
+    --text-tertiary: #B99E83;
+    --text-muted: #8A7260;
+    --text-on-action: #FAF5EC;
+    --text-accent: #C4A87A;
+
+    --border-default: rgba(220, 199, 161, 0.1);
+    --border-subtle: rgba(220, 199, 161, 0.06);
+    --border-strong: rgba(220, 199, 161, 0.18);
+    --border-accent: rgba(196, 168, 122, 0.25);
+
+    --action-primary: #6E7F5A;
+    --action-primary-hover: #5B6B4A;
+    --action-primary-text: #FAF5EC;
+    --action-secondary: #C4A87A;
+    --action-secondary-hover: #DCC7A1;
+
+    --discount-badge: #D4714E;
+    --discount-text: #FFFFFF;
+    --success: #6E7F5A;
+    --warning: #DCC7A1;
+    --error: #D4714E;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.35);
+    --shadow-glow: 0 0 20px rgba(196, 168, 122, 0.12);
+
+    --nav-bg: rgba(30, 19, 11, 0.75);
+    --nav-bg-scrolled: rgba(30, 19, 11, 0.92);
+    --nav-border: rgba(220, 199, 161, 0.08);
+    --nav-border-scrolled: rgba(220, 199, 161, 0.12);
+    --nav-text: #F3E9D6;
+    --nav-text-muted: #B99E83;
+
+    --announce-bg: #2A1A10;
+    --announce-text: #DCC7A1;
+
+    --footer-bg: #150E08;
+    --footer-text: #DCC7A1;
+    --footer-muted: rgba(220, 199, 161, 0.5);
+
+    --scrollbar-track: #1E130B;
+    --scrollbar-thumb: #5B3D28;
+    --scrollbar-thumb-hover: #8A5833;
+
+    color-scheme: dark;
+  }
+
+  /* ─── Base Element Styles ─── */
   html {
     scroll-behavior: smooth;
     font-size: 16px;
@@ -69,64 +179,76 @@
 
   body {
     font-family: var(--font-ar);
-    background: var(--siwa-primary);
-    color: var(--siwa-cream-light);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     overflow-x: hidden;
     line-height: 1.8;
     direction: rtl;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color-scheme: dark;
+    transition: background-color 0.4s var(--ease-smooth), color 0.3s var(--ease-smooth);
   }
 
-  /* Force dark styling on all form elements */
+  /* Theme-aware form elements */
   input, textarea, select {
-    color-scheme: dark;
+    color-scheme: inherit;
     background-color: transparent;
   }
 
-  /* Fix number input spinners on dark bg */
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
-    filter: invert(1);
     opacity: 0.5;
   }
 
-  /* Fix date input calendar icon on dark bg */
-  input[type="date"]::-webkit-calendar-picker-indicator {
+  [data-theme="dark"] input[type="number"]::-webkit-inner-spin-button,
+  [data-theme="dark"] input[type="number"]::-webkit-outer-spin-button {
     filter: invert(1);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
     opacity: 0.6;
     cursor: pointer;
   }
 
+  [data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+
+  /* Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--siwa-primary);
+    background: var(--scrollbar-track);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--siwa-earth-gold);
+    background: var(--scrollbar-thumb);
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--siwa-gold);
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  /* Selection */
+  ::selection {
+    background: rgba(91, 107, 74, 0.25);
+    color: var(--text-primary);
+  }
+
+  [data-theme="dark"] ::selection {
+    background: rgba(196, 168, 122, 0.3);
   }
 }
 
 @layer utilities {
-  .text-stroke-cream {
-    -webkit-text-stroke: 1.5px var(--siwa-cream);
-  }
-
-  /* Admin form input — dark earthy glass style */
+  /* ─── Admin form input — adapts to theme ─── */
   .admin-input {
-    background-color: rgba(33, 21, 13, 0.6);
-    border: 1px solid rgba(146, 108, 72, 0.3);
-    color: var(--siwa-cream-light);
+    background-color: rgba(30, 19, 11, 0.6);
+    border: 1px solid rgba(196, 168, 122, 0.2);
+    color: #F3E9D6;
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     width: 100%;
@@ -135,10 +257,117 @@
     color-scheme: dark;
   }
   .admin-input:focus {
-    border-color: var(--siwa-gold);
-    box-shadow: 0 0 0 1px var(--siwa-gold);
+    border-color: var(--siwa-earth);
+    box-shadow: 0 0 0 1px var(--siwa-earth);
   }
   .admin-input::placeholder {
-    color: rgba(211, 200, 178, 0.4);
+    color: rgba(220, 199, 161, 0.4);
+  }
+
+  /* ─── Themed glass surfaces ─── */
+  .glass-surface {
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-default);
+  }
+
+  .glass-surface-strong {
+    background: var(--bg-glass-strong);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* ─── Seamless Continuous Announcement Marquee ─── */
+  @keyframes marquee-scroll {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  @keyframes marquee-scroll-rtl {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .animate-marquee {
+    display: flex;
+    flex-shrink: 0;
+    will-change: transform;
+    animation: marquee-scroll-rtl 35s linear infinite;
+  }
+
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+
+  /* ─── Discount Side Badge Animations ─── */
+  @keyframes discount-shake {
+    0%, 100% { transform: translateY(-50%) rotate(0deg); }
+    15% { transform: translateY(-50%) rotate(-4deg) scale(1.05); }
+    30% { transform: translateY(-50%) rotate(4deg) scale(1.05); }
+    45% { transform: translateY(-50%) rotate(-2deg); }
+    60% { transform: translateY(-50%) rotate(2deg); }
+    75% { transform: translateY(-50%) rotate(0deg); }
+  }
+
+  @keyframes radar-wave {
+    0% { transform: scale(0.95); opacity: 0.8; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+
+  .animate-discount-tab {
+    animation: discount-shake 4s ease-in-out infinite;
+  }
+
+  .animate-radar {
+    animation: radar-wave 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  /* ─── Section reveal ─── */
+  .reveal-section {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ─── Product Card & Grid Fade In Animations ─── */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  .animate-fadeInUp {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  /* ─── Authentic Siwa Desert Pattern Background ─── */
+  .siwa-heritage-grid {
+    background-image: 
+      radial-gradient(circle, var(--siwa-earth) 1px, transparent 1px),
+      radial-gradient(circle, var(--desert-sand) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
   }
 }

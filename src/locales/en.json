@@ -1,9 +1,13 @@
 {
   "nav": {
-    "home": "Shop",
+    "home": "Home",
+    "shop": "Shop",
+    "categories": "Categories",
+    "featured": "Featured",
+    "deals": "Best Deals",
+    "philosophy": "About Siwa",
     "journey": "Our Journey",
     "products": "Products",
-    "philosophy": "Philosophy",
     "contact": "Contact",
     "login": "Login",
     "account": "My Account",

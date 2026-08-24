@@ -3,19 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-    <title>واحة سيوة - Siwa Oasis</title>
-    <meta name="description" content="واحة سيوة - منتجات طبيعية أصيلة من قلب الواحة المصرية" />
-    <meta name="theme-color" content="#1a1814" />
+    <title>سحر سيوة — منتجات طبيعية أصيلة | Siwa Magic</title>
+    <meta name="description" content="سحر سيوة — منتجات طبيعية أصيلة من قلب واحة سيوة المصرية. تمور، زيوت، أعشاب، منتجات العناية الطبيعية." />
+    <meta name="theme-color" content="#F3E9D6" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="واحة سيوة - Siwa Oasis" />
-    <meta property="og:description" content="منتجات طبيعية أصيلة من قلب الواحة المصرية" />
+    <meta property="og:title" content="سحر سيوة — منتجات طبيعية أصيلة | Siwa Magic" />
+    <meta property="og:description" content="منتجات طبيعية أصيلة من قلب واحة سيوة المصرية" />
     <meta property="og:image" content="/og-image.svg" />
     <meta property="og:type" content="website" />
 
@@ -23,9 +23,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@200;300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Cairo:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Noto+Kufi+Arabic:wght@300;400;500;600;700&family=Tajawal:wght@200;300;400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Cairo:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Theme initialization — prevents flash of wrong theme -->
+    <script>
+      (function() {
+        var stored = localStorage.getItem('siwa-theme');
+        var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
