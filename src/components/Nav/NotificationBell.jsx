@@ -21,68 +21,75 @@ export default function NotificationBell() {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'order_update': return <Package className="w-4 h-4 text-olive-glow" />;
-      case 'shipping': return <Truck className="w-4 h-4 text-blue-400" />;
-      case 'delivery': return <CheckCircle className="w-4 h-4 text-emerald-400" />;
-      default: return <Bell className="w-4 h-4 text-sand" />;
+      case 'order_update': return <Package className="w-4 h-4 text-[var(--action-primary)]" />;
+      case 'shipping': return <Truck className="w-4 h-4 text-blue-500" />;
+      case 'delivery': return <CheckCircle className="w-4 h-4 text-emerald-500" />;
+      default: return <Bell className="w-4 h-4 text-[var(--siwa-earth)]" />;
     }
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative font-ar" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
+        className="relative p-2.5 rounded-full bg-[var(--bg-card)] border border-[var(--border-default)] hover:border-[var(--border-accent)] text-[var(--text-primary)] transition-all group cursor-pointer active:scale-95 shadow-sm"
+        aria-label="الإشعارات"
       >
-        <Bell className={`w-5 h-5 transition-transform duration-300 ${unreadCount > 0 ? 'animate-bounce' : 'group-hover:rotate-12'}`} />
+        <Bell className={`w-[18px] h-[18px] transition-transform duration-300 ${unreadCount > 0 ? 'animate-bounce text-[var(--discount-badge)]' : 'group-hover:rotate-12'}`} />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-sunset text-white text-[0.65rem] font-bold rounded-full flex items-center justify-center border-2 border-[#1a1c13] shadow-lg">
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-[var(--discount-badge)] text-white text-[0.62rem] font-bold font-number rounded-full flex items-center justify-center border-2 border-[var(--bg-primary)] shadow-md px-1">
             {unreadCount > 9 ? '+9' : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-3 w-80 sm:w-96 bg-shadow/95 backdrop-blur-xl border border-olive/30 rounded-2xl shadow-2xl overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-200">
-          <div className="p-4 border-b border-olive/20 flex items-center justify-between bg-olive-deep/20">
-            <h3 className="font-bold text-cream">الإشعارات</h3>
+        <div className="absolute left-0 mt-3 w-80 sm:w-96 bg-[var(--bg-elevated)]/98 backdrop-blur-2xl border border-[var(--border-default)] rounded-2xl shadow-[var(--shadow-xl)] overflow-hidden z-[150] animate-in fade-in zoom-in-95 duration-200">
+          <div className="p-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--bg-secondary)]/50">
+            <h3 className="font-bold text-[var(--text-primary)] text-[0.95rem] flex items-center gap-2">
+              <Bell className="w-4 h-4 text-[var(--siwa-earth)]" />
+              <span>الإشعارات</span>
+            </h3>
             {unreadCount > 0 && (
               <button 
                 onClick={markAllAsRead}
-                className="text-xs text-olive-glow hover:text-white flex items-center gap-1 transition-colors"
+                className="text-xs text-[var(--action-primary)] hover:text-[var(--action-primary-hover)] font-bold flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <Check className="w-3 h-3" />
-                تحديد الكل كمقروء
+                <Check className="w-3.5 h-3.5" />
+                <span>تحديد الكل كمقروء</span>
               </button>
             )}
           </div>
 
-          <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
+          <div className="max-h-[380px] overflow-y-auto custom-scrollbar">
             {notifications.length === 0 ? (
-              <div className="p-12 text-center text-sand opacity-40">
-                <Bell className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                <p className="text-sm">لا توجد إشعارات حالياً</p>
+              <div className="p-10 text-center text-[var(--text-muted)] flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--border-subtle)] text-[var(--text-muted)] mb-3">
+                  <Bell className="w-6 h-6 opacity-40" />
+                </div>
+                <p className="text-sm font-medium text-[var(--text-secondary)]">لا توجد إشعارات حالياً</p>
+                <p className="text-xs text-[var(--text-muted)] mt-1">ستصلك التنبيهات حول طلباتك هنا فوراً</p>
               </div>
             ) : (
               notifications.map((n) => (
                 <div 
                   key={n.id}
                   onClick={() => !n.is_read && markAsRead(n.id)}
-                  className={`p-4 border-b border-olive/10 hover:bg-white/5 transition-colors cursor-pointer relative group ${!n.is_read ? 'bg-olive/5' : ''}`}
+                  className={`p-4 border-b border-[var(--border-subtle)] hover:bg-[var(--bg-secondary)]/60 transition-colors cursor-pointer relative group ${!n.is_read ? 'bg-[var(--action-primary)]/[0.06]' : ''}`}
                 >
                   {!n.is_read && (
-                    <div className="absolute top-4 left-4 w-2 h-2 bg-olive-glow rounded-full shadow-[0_0_10px_rgba(164,184,107,0.5)]" />
+                    <div className="absolute top-4 left-4 w-2 h-2 bg-[var(--discount-badge)] rounded-full shadow-[0_0_8px_rgba(196,94,59,0.6)]" />
                   )}
-                  <div className="flex gap-4">
-                    <div className="mt-1">
-                      <div className={`p-2 rounded-lg bg-shadow-soft border border-olive/20`}>
+                  <div className="flex gap-3.5 items-start">
+                    <div className="mt-0.5">
+                      <div className="p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-default)] shadow-xs">
                         {getIcon(n.type)}
                       </div>
                     </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="font-bold text-sm text-cream">{n.title}</p>
-                      <p className="text-xs text-sand leading-relaxed opacity-80">{n.message}</p>
-                      <p className="text-[0.6rem] text-sand opacity-40 font-mono mt-1">
+                    <div className="flex-1 space-y-1 text-right">
+                      <p className="font-bold text-sm text-[var(--text-primary)] group-hover:text-[var(--action-primary)] transition-colors">{n.title}</p>
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{n.message}</p>
+                      <p className="text-[0.68rem] text-[var(--text-muted)] font-ar mt-1.5 flex items-center gap-1">
                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ar })}
                       </p>
                     </div>
@@ -92,8 +99,8 @@ export default function NotificationBell() {
             )}
           </div>
 
-          <div className="p-3 bg-olive-deep/10 text-center">
-            <p className="text-[0.65rem] text-sand opacity-40">تصلك التحديثات لحظياً فور حدوثها</p>
+          <div className="p-2.5 bg-[var(--bg-secondary)]/30 border-t border-[var(--border-subtle)] text-center">
+            <p className="text-[0.7rem] text-[var(--text-muted)] font-ar">تصلك التحديثات لحظياً فور حدوثها</p>
           </div>
         </div>
       )}

@@ -270,56 +270,62 @@ function NotificationButton({ onPopup }) {
   };
 
   return (
-    <div className="relative" ref={notifRef}>
+    <div className="relative font-ar" ref={notifRef}>
       <button
         onClick={() => {
           setShowNotifications(!showNotifications);
           if (!showNotifications) fetchNotifications();
         }}
-        className="relative p-2 text-sand hover:text-cream hover:bg-olive/20 rounded-xl transition-all duration-300 group"
+        className="relative p-2.5 text-sand hover:text-cream hover:bg-white/10 rounded-xl transition-all duration-300 group cursor-pointer"
+        aria-label="إشعارات الإدارة"
       >
-        <Bell className="w-6 h-6 group-hover:animate-wiggle" />
+        <Bell className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 w-5 h-5 bg-sunset text-shadow text-xs font-bold rounded-full flex items-center justify-center border-2 border-shadow animate-pulse">
-            {unreadCount}
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-sunset text-white text-[0.62rem] font-bold font-number rounded-full flex items-center justify-center border-2 border-[#1a1c13] shadow-md px-1 animate-pulse">
+            {unreadCount > 9 ? '+9' : unreadCount}
           </span>
         )}
       </button>
 
       {showNotifications && (
-        <div className="absolute left-0 top-full mt-3 w-80 sm:w-96 bg-shadow border border-olive/20 rounded-2xl shadow-2xl z-50 overflow-hidden transform origin-top-left animate-in fade-in zoom-in-95 duration-200">
-          <div className="p-4 border-b border-olive/20 flex items-center justify-between bg-olive-deep/50 backdrop-blur-md">
-            <h3 className="font-bold text-cream">الإشعارات</h3>
+        <div className="absolute left-0 top-full mt-3 w-80 sm:w-96 bg-[#1e130b]/98 backdrop-blur-2xl border border-[rgba(220,199,161,0.15)] rounded-2xl shadow-2xl z-50 overflow-hidden transform origin-top-left animate-in fade-in zoom-in-95 duration-200">
+          <div className="p-4 border-b border-[rgba(220,199,161,0.1)] flex items-center justify-between bg-[#2a1a10]/80">
+            <h3 className="font-bold text-[#F3E9D6] text-sm flex items-center gap-2">
+              <Bell className="w-4 h-4 text-[#C4A87A]" />
+              <span>إشعارات الإدارة</span>
+            </h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="text-xs text-olive-glow hover:text-sand-light transition-colors px-2 py-1 bg-olive/20 rounded-md"
+                className="text-xs text-[#C4A87A] hover:text-[#FAF5EC] font-bold transition-colors px-2.5 py-1 bg-white/5 hover:bg-white/10 rounded-lg cursor-pointer"
               >
                 تعيين الكل كمقروء
               </button>
             )}
           </div>
 
-          <div className="max-h-[60vh] overflow-auto custom-scrollbar bg-shadow/95">
+          <div className="max-h-[60vh] overflow-auto custom-scrollbar">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-sand flex flex-col items-center gap-3">
-                <Bell className="w-10 h-10 text-olive/50 opacity-50" />
-                <p>لا توجد إشعارات جديدة</p>
+              <div className="p-8 text-center text-[#DCC7A1]/60 flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white/5">
+                  <Bell className="w-6 h-6 opacity-30 text-[#C4A87A]" />
+                </div>
+                <p className="text-sm font-medium text-[#DCC7A1]">لا توجد إشعارات جديدة</p>
               </div>
             ) : (
               <div className="flex flex-col">
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className="p-4 border-b border-olive/10 hover:bg-olive/10 cursor-pointer transition-colors group"
+                    className="p-4 border-b border-[rgba(220,199,161,0.06)] hover:bg-white/5 cursor-pointer transition-colors group text-right"
                     onClick={() => markAsRead(notification.id)}
                   >
                     <div className="flex justify-between items-start gap-2">
-                      <h4 className="font-bold text-sm text-cream group-hover:text-olive-glow transition-colors">{notification.title}</h4>
-                      <span className="w-2 h-2 rounded-full bg-sunset mt-1.5 flex-shrink-0" />
+                      <h4 className="font-bold text-sm text-[#F3E9D6] group-hover:text-[#C4A87A] transition-colors">{notification.title}</h4>
+                      <span className="w-2 h-2 rounded-full bg-[#C45E3B] mt-1.5 flex-shrink-0 shadow-[0_0_6px_rgba(196,94,59,0.7)]" />
                     </div>
-                    <p className="text-sm text-sand mt-1.5 leading-relaxed">{notification.message}</p>
-                    <p className="text-xs text-sand-warm/60 mt-3 flex items-center gap-1">
+                    <p className="text-xs text-[#DCC7A1] mt-1.5 leading-relaxed opacity-85">{notification.message}</p>
+                    <p className="text-[0.68rem] text-[#DCC7A1]/50 mt-2 font-mono">
                       {new Date(notification.created_at).toLocaleDateString('ar-EG', {
                         year: 'numeric',
                         month: 'short',

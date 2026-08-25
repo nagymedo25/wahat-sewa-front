@@ -24,17 +24,17 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell title={t('auth.forgot_title', 'استعادة كلمة المرور')} subtitle={t('auth.forgot_subtitle', 'أدخل بريدك وسنرسل لك رابط الاستعادة.')}>
       {!done ? (
-        <form onSubmit={onSubmit} className="flex flex-col gap-5">
+        <form onSubmit={onSubmit} className="flex flex-col gap-5 text-right">
           <div>
-            <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('auth.email', 'البريد الإلكتروني')}</label>
-            <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.12)] bg-[rgba(10,9,7,0.35)] transition-all duration-300 focus-within:border-[rgba(164,184,107,0.45)] focus-within:shadow-[0_0_20px_rgba(164,184,107,0.08)]">
-              <Mail className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
+            <label className="block mb-2 text-[var(--text-secondary)] text-[0.88rem] font-bold font-ar">{t('auth.email', 'البريد الإلكتروني')}</label>
+            <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-elevated)] transition-all duration-300 focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
+              <Mail className="w-[18px] h-[18px] text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
-                className="w-full bg-transparent outline-none text-cream placeholder:text-[rgba(245,239,227,0.30)] font-ar text-[0.95rem]"
-                placeholder="name@email.com"
+                className="w-full bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-ar text-[0.95rem]"
+                placeholder=""
                 autoComplete="email"
               />
             </div>
@@ -42,15 +42,15 @@ export default function ForgotPasswordPage() {
 
           <button
             type="submit"
-            className="w-full rounded-2xl px-5 py-4 bg-siwa-gold hover:bg-siwa-warm text-[#181009] font-ar font-bold text-base transition-all duration-300 shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full rounded-2xl px-5 py-4 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-ar font-bold text-base transition-all duration-300 shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-glow)] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer mt-2"
           >
             <Send className="w-4 h-4" strokeWidth={2} />
             <span>{t('auth.send_reset', 'إرسال الرابط')}</span>
           </button>
 
-          <div className="text-[0.85rem] text-siwa-cream/70 font-ar text-center">
+          <div className="text-[0.85rem] text-[var(--text-secondary)] font-ar text-center pt-2 border-t border-[var(--border-subtle)]">
             {t('auth.back_to', 'رجوع إلى')}{' '}
-            <Link to="/auth/login" className="no-underline text-siwa-gold hover:text-siwa-warm transition-colors inline-flex items-center gap-1 font-bold">
+            <Link to="/auth/login" className="no-underline text-[var(--siwa-earth)] hover:text-[var(--action-primary)] transition-colors inline-flex items-center gap-1 font-bold">
               {t('auth.back_to_login', 'تسجيل الدخول')}
               <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
             </Link>
@@ -58,22 +58,22 @@ export default function ForgotPasswordPage() {
         </form>
       ) : (
         <div className="flex flex-col items-center text-center gap-4">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.12)] border border-[rgba(164,184,107,0.25)]">
-            <CheckCircle2 className="w-7 h-7 text-olive-glow" strokeWidth={1.5} />
+          <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[var(--action-primary)]/10 border border-[var(--border-accent)] text-[var(--action-primary)]">
+            <CheckCircle2 className="w-8 h-8" strokeWidth={1.8} />
           </div>
           <div>
-            <div className="font-ar text-cream font-semibold text-[1.1rem]">{t('auth.sent_title', 'تم الإرسال')}</div>
-            <div className="mt-2 rounded-2xl border border-[rgba(164,184,107,0.20)] bg-[rgba(164,184,107,0.06)] px-4 py-3 text-sand-light text-[0.9rem] font-ar flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-olive-glow shrink-0" strokeWidth={2} />
-              {t('auth.sent_desc', 'تم إرسال رابط الاستعادة إلى: ')} <span className="text-cream font-en">{email}</span>
+            <div className="font-ar text-[var(--text-primary)] font-bold text-[1.2rem]">{t('auth.sent_title', 'تم الإرسال')}</div>
+            <div className="mt-2 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] px-4 py-3 text-[var(--text-secondary)] text-[0.9rem] font-ar flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[var(--action-primary)] shrink-0" strokeWidth={2} />
+              <span>{t('auth.sent_desc', 'تم إرسال رابط الاستعادة إلى: ')} <span className="text-[var(--text-primary)] font-bold font-en">{email}</span></span>
             </div>
           </div>
           <Link
             to="/auth/login"
-            className="mt-2 inline-flex items-center gap-1 no-underline text-olive-glow hover:text-cream transition-colors font-ar text-[0.9rem]"
+            className="mt-2 inline-flex items-center gap-1.5 no-underline text-[var(--siwa-earth)] hover:text-[var(--action-primary)] transition-colors font-ar font-bold text-[0.9rem]"
           >
-            <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2} />
-            {t('auth.back_to_login', 'تسجيل الدخول')}
+            <ArrowLeft className="w-4 h-4" strokeWidth={2} />
+            <span>{t('auth.back_to_login', 'تسجيل الدخول')}</span>
           </Link>
         </div>
       )}

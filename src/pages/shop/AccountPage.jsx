@@ -60,68 +60,68 @@ function NotificationsTab() {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'order_update': return <Package className="w-5 h-5 text-olive-glow" />;
-      case 'shipping': return <Truck className="w-5 h-5 text-blue-400" />;
-      case 'delivery': return <CheckCircle className="w-5 h-5 text-emerald-400" />;
-      default: return <Bell className="w-5 h-5 text-sand" />;
+      case 'order_update': return <Package className="w-5 h-5 text-[var(--action-primary)]" />;
+      case 'shipping': return <Truck className="w-5 h-5 text-blue-500" />;
+      case 'delivery': return <CheckCircle className="w-5 h-5 text-emerald-500" />;
+      default: return <Bell className="w-5 h-5 text-[var(--siwa-earth)]" />;
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 font-ar text-cream font-semibold text-[1.15rem]">
-          <Bell className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
-          {t('account.notifications_title', 'الإشعارات')}
+      <div className="flex items-center justify-between gap-4 border-b border-[var(--border-default)] pb-4">
+        <div className="flex items-center gap-2.5 font-ar text-[var(--text-primary)] font-bold text-[1.2rem]">
+          <Bell className="w-5 h-5 text-[var(--siwa-earth)]" strokeWidth={1.8} />
+          <span>{t('account.notifications_title', 'الإشعارات')}</span>
         </div>
         {unreadCount > 0 && (
           <button 
             onClick={markAllAsRead}
-            className="text-xs text-olive-glow hover:text-white flex items-center gap-1 transition-colors font-ar"
+            className="text-xs text-[var(--action-primary)] hover:text-[var(--action-primary-hover)] font-bold flex items-center gap-1 transition-colors font-ar cursor-pointer px-3 py-1.5 rounded-xl bg-[var(--action-primary)]/10 hover:bg-[var(--action-primary)]/15"
           >
             {t('account.mark_all_read', 'تحديد الكل كمقروء')}
           </button>
         )}
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3.5">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center text-center py-12">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.06)] border border-[rgba(164,184,107,0.12)] mb-5">
-              <Bell className="w-8 h-8 text-olive-glow opacity-40" strokeWidth={1.5} />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[var(--action-primary)]/10 border border-[var(--border-accent)] mb-4 text-[var(--action-primary)]">
+              <Bell className="w-8 h-8 opacity-50" strokeWidth={1.5} />
             </div>
-            <div className="text-cream font-ar font-semibold text-[1.1rem]">{t('account.no_notifications', 'لا توجد إشعارات')}</div>
-            <p className="mt-2 text-sand opacity-50 font-ar text-[0.9rem]">{t('account.no_notifications_desc', 'ستظهر هنا تنبيهات حالة طلباتك وتحديثات المتجر.')}</p>
+            <div className="text-[var(--text-primary)] font-ar font-bold text-[1.15rem]">{t('account.no_notifications', 'لا توجد إشعارات')}</div>
+            <p className="mt-1.5 text-[var(--text-secondary)] font-ar text-[0.92rem]">{t('account.no_notifications_desc', 'ستظهر هنا تنبيهات حالة طلباتك وتحديثات المتجر.')}</p>
           </div>
         ) : (
           notifications.map((n) => (
             <div 
               key={n.id}
               onClick={() => !n.is_read && markAsRead(n.id)}
-              className={`rounded-2xl border transition-all p-5 flex gap-4 cursor-pointer relative group ${
+              className={`rounded-2xl border transition-all p-4 sm:p-5 flex gap-4 cursor-pointer relative group ${
                 !n.is_read 
-                  ? 'bg-olive/10 border-olive/30 shadow-[0_0_20px_rgba(164,184,107,0.05)]' 
-                  : 'bg-[rgba(10,9,7,0.22)] border-[rgba(212,197,169,0.08)] opacity-80 hover:opacity-100 hover:border-[rgba(164,184,107,0.15)]'
+                  ? 'bg-[var(--action-primary)]/[0.07] border-[var(--action-primary)]/40 shadow-xs' 
+                  : 'bg-[var(--bg-card)] border-[var(--border-default)] hover:border-[var(--border-accent)] hover:shadow-sm'
               }`}
             >
               {!n.is_read && (
-                <div className="absolute top-6 left-6 w-2.5 h-2.5 bg-olive-glow rounded-full shadow-[0_0_10px_rgba(164,184,107,0.5)]" />
+                <div className="absolute top-5 left-5 w-2.5 h-2.5 bg-[var(--discount-badge)] rounded-full shadow-[0_0_8px_rgba(196,94,59,0.6)]" />
               )}
               
-              <div className="mt-1">
-                <div className={`p-3 rounded-xl bg-shadow-soft border border-olive/20`}>
+              <div className="mt-0.5">
+                <div className="p-3 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-default)] shadow-xs">
                   {getIcon(n.type)}
                 </div>
               </div>
 
-              <div className="flex-1 space-y-1.5">
+              <div className="flex-1 space-y-1.5 text-right">
                 <div className="flex justify-between items-start">
-                  <p className="font-bold text-cream group-hover:text-olive-glow transition-colors">{n.title}</p>
+                  <p className="font-bold text-[var(--text-primary)] group-hover:text-[var(--action-primary)] transition-colors text-[0.98rem]">{n.title}</p>
                 </div>
-                <p className="text-sm text-sand leading-relaxed opacity-80">{n.message}</p>
-                <div className="pt-2 flex items-center gap-2 text-[0.75rem] text-sand opacity-40 font-ar">
+                <p className="text-[0.9rem] text-[var(--text-secondary)] leading-relaxed">{n.message}</p>
+                <div className="pt-2 flex items-center gap-1.5 text-[0.75rem] text-[var(--text-muted)] font-ar">
                   <Clock className="w-3.5 h-3.5" />
-                  {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: i18n.language === 'ar' ? ar : enUS })}
+                  <span>{formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: i18n.language === 'ar' ? ar : enUS })}</span>
                 </div>
               </div>
             </div>
@@ -173,22 +173,22 @@ export default function AccountPage() {
   if (!isAuthed) {
     return (
       <GlassShell title={t('account.guest_title', 'الحساب')} subtitle={t('account.guest_subtitle', 'سجّل دخول لإدارة حسابك وتتبع الطلبات.')}>
-        <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-7 max-w-[780px]">
+        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-7 max-w-[780px] shadow-[var(--shadow-lg)]">
           <div className="flex flex-col items-center text-center py-6">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.08)] border border-[rgba(164,184,107,0.15)] mb-4">
-              <UserCircle className="w-7 h-7 text-olive-glow opacity-60" strokeWidth={1.5} />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[var(--action-primary)]/10 border border-[var(--border-accent)] mb-4 text-[var(--action-primary)]">
+              <UserCircle className="w-8 h-8" strokeWidth={1.5} />
             </div>
-            <div className="text-cream font-ar font-semibold text-[1.1rem]">{t('account.no_session', 'لا يوجد جلسة تسجيل دخول')}</div>
-            <div className="mt-1 text-sand opacity-60 font-ar text-[0.9rem]">{t('account.no_session_desc', 'سجّل دخول لتتمتع بكل المزايا.')}</div>
+            <div className="text-[var(--text-primary)] font-ar font-bold text-[1.2rem]">{t('account.no_session', 'لا يوجد جلسة تسجيل دخول')}</div>
+            <div className="mt-1 text-[var(--text-secondary)] font-ar text-[0.92rem]">{t('account.no_session_desc', 'سجّل دخول لتتمتع بكل المزايا.')}</div>
           </div>
           <div className="mt-6 flex items-center justify-center gap-3">
             <Link
               to="/auth/login?next=/shop/account"
-              className="rounded-2xl px-5 py-3 bg-[linear-gradient(135deg,rgba(74,90,42,0.55),rgba(164,184,107,0.18))] border border-[rgba(164,184,107,0.30)] text-cream font-ar font-semibold no-underline transition-all hover:shadow-[0_18px_50px_rgba(164,184,107,0.12)] active:scale-95"
+              className="rounded-2xl px-6 py-3 bg-[var(--action-primary)] text-[var(--action-primary-text)] font-ar font-bold no-underline transition-all hover:bg-[var(--action-primary-hover)] shadow-[var(--shadow-md)] active:scale-95"
             >
               {t('auth.sign_in', 'تسجيل الدخول')}
             </Link>
-            <Link to="/shop" className="no-underline text-sand-light hover:text-cream transition-colors inline-flex items-center gap-2 font-ar">
+            <Link to="/shop" className="no-underline text-[var(--siwa-earth)] hover:text-[var(--siwa-earth-light)] transition-colors inline-flex items-center gap-2 font-ar font-bold">
               <Compass className="w-4 h-4" strokeWidth={2} />
               {t('account.to_store', 'للمتجر')}
             </Link>
@@ -209,18 +209,18 @@ export default function AccountPage() {
     <GlassShell title={t('account.my_account', 'حسابي')} subtitle={t('account.subtitle', 'ملفك الشخصي، الطلبات، والإعدادات.')}>
       <div className="grid lg:grid-cols-[0.42fr_1fr] gap-7">
         {/* Sidebar */}
-        <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-6 h-fit">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.35)]">
-              <UserCircle className="w-5 h-5 text-cream opacity-90" strokeWidth={1.5} />
+        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-6 h-fit shadow-[var(--shadow-lg)]">
+          <div className="flex items-center gap-3.5 pb-5 border-b border-[var(--border-subtle)]">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-[var(--border-default)] bg-[var(--bg-card)] text-[var(--siwa-earth)] shadow-xs">
+              <UserCircle className="w-6 h-6" strokeWidth={1.8} />
             </div>
-            <div>
-              <div className="font-ar text-cream font-semibold">{user?.name || t('account.client', 'عميل')}</div>
-              <div className="text-sand opacity-60 font-en text-[0.85rem]">{user?.whatsapp || user?.email || t('account.no_info', 'لا يوجد معلومات')}</div>
+            <div className="text-right">
+              <div className="font-ar text-[var(--text-primary)] font-bold text-[1.05rem]">{user?.name || t('account.client', 'عميل')}</div>
+              <div className="text-[var(--text-secondary)] font-en text-[0.85rem] mt-0.5">{user?.whatsapp || user?.email || t('account.no_info', 'لا يوجد معلومات')}</div>
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col gap-2">
+          <div className="mt-5 flex flex-col gap-2">
             {tabs.map((t) => {
               const Icon = t.icon;
               const active = tab === t.key;
@@ -229,14 +229,14 @@ export default function AccountPage() {
                   key={t.key}
                   to={`/shop/account?tab=${t.key}`}
                   className={
-                    'no-underline rounded-2xl px-4 py-3 border transition-all flex items-center gap-2.5 ' +
+                    'no-underline rounded-2xl px-4 py-3 border transition-all flex items-center gap-3 ' +
                     (active
-                      ? 'border-[rgba(164,184,107,0.35)] bg-[rgba(74,90,42,0.18)] text-cream shadow-[0_0_16px_rgba(164,184,107,0.06)]'
-                      : 'border-[rgba(212,197,169,0.08)] bg-[rgba(10,9,7,0.22)] text-sand-light hover:text-cream hover:border-[rgba(212,197,169,0.18)]')
+                      ? 'border-[var(--action-primary)] bg-[var(--action-primary)]/10 text-[var(--action-primary)] font-bold shadow-xs'
+                      : 'border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)] hover:border-[var(--border-default)]')
                   }
                 >
-                  <Icon className="w-[18px] h-[18px]" strokeWidth={1.5} />
-                  <span className="font-ar text-[0.9rem]">{t.label}</span>
+                  <Icon className="w-[18px] h-[18px]" strokeWidth={1.8} />
+                  <span className="font-ar text-[0.92rem]">{t.label}</span>
                 </Link>
               );
             })}
@@ -245,15 +245,15 @@ export default function AccountPage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 border border-[rgba(232,168,124,0.18)] bg-[rgba(232,168,124,0.05)] text-sand-light hover:text-cream transition-colors active:scale-95 font-ar text-[0.9rem]"
+            className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 border border-[var(--discount-badge)]/25 bg-[var(--discount-badge)]/10 text-[var(--discount-badge)] hover:bg-[var(--discount-badge)]/15 transition-colors active:scale-95 font-ar font-bold text-[0.9rem] cursor-pointer"
           >
-            <LogOut className="w-[18px] h-[18px]" strokeWidth={1.5} />
+            <LogOut className="w-[18px] h-[18px]" strokeWidth={1.8} />
             {t('account.logout', 'تسجيل الخروج')}
           </button>
         </div>
 
         {/* Content */}
-        <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-7">
+        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-6 sm:p-7 shadow-[var(--shadow-lg)]">
           {tab === 'orders' && <OrdersTab orders={orders} />}
           {tab === 'notifications' && <NotificationsTab />}
           {tab === 'settings' && <SettingsTab />}
@@ -268,30 +268,30 @@ function ProfileTab({ user }) {
   const { t } = useTranslation();
   return (
     <div>
-      <div className="flex items-center gap-2 font-ar text-cream font-semibold text-[1.15rem]">
-        <UserCircle className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
-        {t('account.tab_profile', 'الملف الشخصي')}
+      <div className="flex items-center gap-2.5 font-ar text-[var(--text-primary)] font-bold text-[1.2rem] pb-4 border-b border-[var(--border-default)]">
+        <UserCircle className="w-5 h-5 text-[var(--siwa-earth)]" strokeWidth={1.8} />
+        <span>{t('account.tab_profile', 'الملف الشخصي')}</span>
       </div>
       <div className="mt-5 grid md:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-[rgba(212,197,169,0.08)] bg-[rgba(10,9,7,0.25)] p-5 transition-all hover:border-[rgba(164,184,107,0.15)]">
-          <div className="text-sand opacity-60 text-[0.8rem] font-ar flex items-center gap-1.5">
-            <UserCircle className="w-3.5 h-3.5" strokeWidth={2} />
-            {t('account.name', 'الاسم')}
+        <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-5 transition-all hover:border-[var(--border-accent)] shadow-xs">
+          <div className="text-[var(--text-muted)] text-[0.8rem] font-ar flex items-center gap-1.5 font-bold">
+            <UserCircle className="w-3.5 h-3.5 text-[var(--siwa-earth)]" strokeWidth={2} />
+            <span>{t('account.name', 'الاسم')}</span>
           </div>
-          <div className="mt-2 text-cream font-ar">{user?.name || t('account.client', 'عميل')}</div>
+          <div className="mt-2 text-[var(--text-primary)] font-ar font-bold text-[1.05rem]">{user?.name || t('account.client', 'عميل')}</div>
         </div>
-        <div className="rounded-2xl border border-[rgba(212,197,169,0.08)] bg-[rgba(10,9,7,0.25)] p-5 transition-all hover:border-[rgba(164,184,107,0.15)]">
-          <div className="text-sand opacity-60 text-[0.8rem] font-ar flex items-center gap-1.5">
-            <MessageCircle className="w-3.5 h-3.5" strokeWidth={2} />
-            {t('account.whatsapp', 'رقم الواتساب')}
+        <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-5 transition-all hover:border-[var(--border-accent)] shadow-xs">
+          <div className="text-[var(--text-muted)] text-[0.8rem] font-ar flex items-center gap-1.5 font-bold">
+            <MessageCircle className="w-3.5 h-3.5 text-[var(--siwa-earth)]" strokeWidth={2} />
+            <span>{t('account.whatsapp', 'رقم الواتساب')}</span>
           </div>
-          <div className="mt-2 text-cream font-en">{user?.whatsapp || t('account.not_specified', 'غير محدد')}</div>
+          <div className="mt-2 text-[var(--text-primary)] font-en font-bold text-[1.05rem]">{user?.whatsapp || t('account.not_specified', 'غير محدد')}</div>
         </div>
       </div>
       <div className="mt-6">
-        <Link to="/shop" className="no-underline text-olive-glow hover:text-cream transition-colors inline-flex items-center gap-2 font-ar">
+        <Link to="/shop" className="no-underline text-[var(--siwa-earth)] hover:text-[var(--siwa-earth-light)] transition-colors inline-flex items-center gap-2 font-ar font-bold">
           <Compass className="w-4 h-4" strokeWidth={2} />
-          {t('account.to_store', 'للمتجر')}
+          <span>{t('account.to_store', 'للمتجر')}</span>
         </Link>
       </div>
     </div>
@@ -303,14 +303,14 @@ function OrdersTab({ orders }) {
   if (orders.length === 0) {
     return (
       <div className="flex flex-col items-center text-center py-12">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.06)] border border-[rgba(164,184,107,0.12)] mb-5">
-          <ClipboardList className="w-8 h-8 text-olive-glow opacity-40" strokeWidth={1.5} />
+        <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[var(--action-primary)]/10 border border-[var(--border-accent)] mb-4 text-[var(--action-primary)]">
+          <ClipboardList className="w-8 h-8 opacity-50" strokeWidth={1.5} />
         </div>
-        <div className="text-cream font-ar font-semibold text-[1.1rem]">{t('account.no_orders', 'لا توجد طلبات')}</div>
-        <div className="mt-2 text-sand opacity-50 font-ar text-[0.9rem]">{t('account.start_shopping', 'ابدأ بتسوق منتجات الواحة ✨')}</div>
-        <Link to="/shop" className="mt-5 no-underline text-olive-glow hover:text-cream transition-colors inline-flex items-center gap-2 font-ar text-[0.9rem]">
+        <div className="text-[var(--text-primary)] font-ar font-bold text-[1.15rem]">{t('account.no_orders', 'لا توجد طلبات')}</div>
+        <div className="mt-1.5 text-[var(--text-secondary)] font-ar text-[0.92rem]">{t('account.start_shopping', 'ابدأ بتسوق منتجات الواحة ✨')}</div>
+        <Link to="/shop" className="mt-5 no-underline px-5 py-2.5 rounded-2xl bg-[var(--action-primary)] text-[var(--action-primary-text)] hover:bg-[var(--action-primary-hover)] font-bold transition-colors inline-flex items-center gap-2 font-ar text-[0.9rem] shadow-sm">
           <Compass className="w-4 h-4" strokeWidth={2} />
-          {t('account.explore_store', 'استكشف المتجر')}
+          <span>{t('account.explore_store', 'استكشف المتجر')}</span>
         </Link>
       </div>
     );
@@ -318,40 +318,40 @@ function OrdersTab({ orders }) {
 
   return (
     <div>
-      <div className="flex items-center gap-2 font-ar text-cream font-semibold text-[1.15rem]">
-        <ClipboardList className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
-        {t('account.tab_orders', 'الطلبات')}
+      <div className="flex items-center gap-2.5 font-ar text-[var(--text-primary)] font-bold text-[1.2rem] pb-4 border-b border-[var(--border-default)]">
+        <ClipboardList className="w-5 h-5 text-[var(--siwa-earth)]" strokeWidth={1.8} />
+        <span>{t('account.tab_orders', 'الطلبات')}</span>
       </div>
       <div className="mt-5 flex flex-col gap-4">
         {orders.map((order) => (
           <div
             key={order.id}
-            className="rounded-2xl border border-[rgba(212,197,169,0.08)] bg-[rgba(10,9,7,0.22)] p-5 transition-all hover:border-[rgba(164,184,107,0.15)]"
+            className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-5 transition-all hover:border-[var(--border-accent)] shadow-xs"
           >
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <PackageOpen className="w-4 h-4 text-olive-glow opacity-60" strokeWidth={1.5} />
-                <span className="font-en text-cream font-semibold text-[0.95rem]">#{order.id}</span>
+                <PackageOpen className="w-4 h-4 text-[var(--siwa-earth)]" strokeWidth={1.8} />
+                <span className="font-en text-[var(--text-primary)] font-bold text-[0.98rem]">#{order.id}</span>
               </div>
-              <span className={`text-[0.8rem] font-ar px-3 py-1 rounded-full border bg-[rgba(10,9,7,0.35)] ${getStatusColor(order.status)} border-[rgba(212,197,169,0.10)]`}>
+              <span className={`text-[0.8rem] font-ar font-bold px-3 py-1 rounded-full border border-[var(--border-accent)] bg-[var(--bg-secondary)] ${getStatusColor(order.status)}`}>
                 {order.status}
               </span>
             </div>
-            <div className="mt-3 flex flex-wrap gap-3 text-[0.8rem] text-sand opacity-60">
+            <div className="mt-3 flex flex-wrap gap-3 text-[0.82rem] text-[var(--text-secondary)]">
               <span className="inline-flex items-center gap-1">
-                <CalendarDays className="w-3.5 h-3.5" strokeWidth={2} />
+                <CalendarDays className="w-3.5 h-3.5 text-[var(--text-muted)]" strokeWidth={2} />
                 {new Date(order.date).toLocaleDateString('ar-EG')}
               </span>
-              <span className="inline-flex items-center gap-1">
-                <CreditCard className="w-3.5 h-3.5" strokeWidth={2} />
+              <span className="inline-flex items-center gap-1 font-number font-bold text-[var(--text-primary)]">
+                <CreditCard className="w-3.5 h-3.5 text-[var(--text-muted)]" strokeWidth={2} />
                 {order.total} {t('checkout.currency', 'ج.م')}
               </span>
               <span className="inline-flex items-center gap-1">
-                <MapPinned className="w-3.5 h-3.5" strokeWidth={2} />
+                <MapPinned className="w-3.5 h-3.5 text-[var(--text-muted)]" strokeWidth={2} />
                 {order.city}
               </span>
             </div>
-            <div className="mt-3 text-[0.8rem] text-sand opacity-50 font-ar truncate">
+            <div className="mt-3 text-[0.82rem] text-[var(--text-muted)] font-ar truncate border-t border-[var(--border-subtle)] pt-2.5">
               {order.items.map((it) => `${it.name} × ${it.qty}`).join('، ')}
             </div>
           </div>
@@ -415,92 +415,92 @@ function SettingsTab() {
     <div className="space-y-6">
       {/* Profile Info */}
       <div>
-        <div className="flex items-center gap-2 font-ar text-cream font-semibold text-[1.1rem]">
-          <UserCircle className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
-          {t('account.tab_profile', 'الملف الشخصي')}
+        <div className="flex items-center gap-2.5 font-ar text-[var(--text-primary)] font-bold text-[1.15rem] pb-3 border-b border-[var(--border-default)]">
+          <UserCircle className="w-5 h-5 text-[var(--siwa-earth)]" strokeWidth={1.8} />
+          <span>{t('account.tab_profile', 'الملف الشخصي')}</span>
         </div>
         <div className="mt-4 grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block mb-2 text-sand-light text-[0.8rem] font-ar">{t('account.name', 'الاسم')}</label>
+            <label className="block mb-2 text-[var(--text-secondary)] text-[0.85rem] font-bold font-ar">{t('account.name', 'الاسم')}</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-2xl px-4 py-3 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.30)] outline-none text-cream font-ar text-[0.95rem] transition-all focus:border-[rgba(164,184,107,0.35)] focus:shadow-[0_0_16px_rgba(164,184,107,0.06)]"
+              className="w-full rounded-2xl px-4 py-3 border border-[var(--border-default)] bg-[var(--bg-card)] outline-none text-[var(--text-primary)] font-ar text-[0.95rem] transition-all focus:border-[var(--border-accent)] focus:shadow-[var(--shadow-glow)]"
             />
           </div>
           <div>
-            <label className="block mb-2 text-sand-light text-[0.8rem] font-ar">{t('account.whatsapp', 'رقم الواتساب')}</label>
+            <label className="block mb-2 text-[var(--text-secondary)] text-[0.85rem] font-bold font-ar">{t('account.whatsapp', 'رقم الواتساب')}</label>
             <input
               value={whatsapp}
               onChange={(e) => setWhatsapp(e.target.value)}
               placeholder="01XXXXXXXXX"
-              className="w-full rounded-2xl px-4 py-3 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.30)] outline-none text-cream font-ar text-[0.95rem] placeholder:text-sand/30 transition-all focus:border-[rgba(164,184,107,0.35)] focus:shadow-[0_0_16px_rgba(164,184,107,0.06)]"
+              className="w-full rounded-2xl px-4 py-3 border border-[var(--border-default)] bg-[var(--bg-card)] outline-none text-[var(--text-primary)] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)] transition-all focus:border-[var(--border-accent)] focus:shadow-[var(--shadow-glow)]"
             />
           </div>
-          <div>
-            <label className="block mb-2 text-sand-light text-[0.8rem] font-ar">{t('account.default_address', 'العنوان الافتراضي')}</label>
+          <div className="md:col-span-2">
+            <label className="block mb-2 text-[var(--text-secondary)] text-[0.85rem] font-bold font-ar">{t('account.default_address', 'العنوان الافتراضي')}</label>
             <input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder={t('account.address_placeholder', 'الشارع - العمارة - الدور')}
-              className="w-full rounded-2xl px-4 py-3 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.30)] outline-none text-cream font-ar text-[0.95rem] placeholder:text-sand/30 transition-all focus:border-[rgba(164,184,107,0.35)] focus:shadow-[0_0_16px_rgba(164,184,107,0.06)]"
+              className="w-full rounded-2xl px-4 py-3 border border-[var(--border-default)] bg-[var(--bg-card)] outline-none text-[var(--text-primary)] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)] transition-all focus:border-[var(--border-accent)] focus:shadow-[var(--shadow-glow)]"
             />
           </div>
         </div>
         <button
           type="button"
           onClick={handleSave}
-          className="mt-4 inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 bg-[linear-gradient(135deg,rgba(74,90,42,0.55),rgba(164,184,107,0.18))] border border-[rgba(164,184,107,0.35)] text-cream font-ar font-semibold text-[0.9rem] transition-all hover:shadow-[0_12px_30px_rgba(164,184,107,0.10)] active:scale-[0.97]"
+          className="mt-4 inline-flex items-center gap-2 rounded-2xl px-6 py-3 bg-[var(--action-primary)] text-[var(--action-primary-text)] font-ar font-bold text-[0.92rem] transition-all hover:bg-[var(--action-primary-hover)] shadow-[var(--shadow-md)] active:scale-[0.98] cursor-pointer"
         >
           <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
-          {t('account.save_changes', 'حفظ التغييرات')}
+          <span>{t('account.save_changes', 'حفظ التغييرات')}</span>
         </button>
       </div>
 
-      <div className="h-px bg-[rgba(212,197,169,0.08)]" />
+      <div className="h-px bg-[var(--border-default)] my-2" />
 
       {/* Password */}
       <div>
-        <div className="flex items-center gap-2 font-ar text-cream font-semibold text-[1.1rem]">
-          <Settings2 className="w-5 h-5 text-olive-glow" strokeWidth={1.5} />
-          {t('account.change_password', 'تغيير كلمة المرور')}
+        <div className="flex items-center gap-2.5 font-ar text-[var(--text-primary)] font-bold text-[1.15rem] pb-3 border-b border-[var(--border-default)]">
+          <Settings2 className="w-5 h-5 text-[var(--siwa-earth)]" strokeWidth={1.8} />
+          <span>{t('account.change_password', 'تغيير كلمة المرور')}</span>
         </div>
         <div className="mt-4 grid md:grid-cols-3 gap-4">
           <div>
-            <label className="block mb-2 text-sand-light text-[0.8rem] font-ar">{t('account.current_password', 'كلمة المرور الحالية')}</label>
+            <label className="block mb-2 text-[var(--text-secondary)] text-[0.85rem] font-bold font-ar">{t('account.current_password', 'كلمة المرور الحالية')}</label>
             <input
               value={currentPass}
               onChange={(e) => setCurrentPass(e.target.value)}
               type="password"
-              className="w-full rounded-2xl px-4 py-3 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.30)] outline-none text-cream font-ar text-[0.95rem] transition-all focus:border-[rgba(164,184,107,0.35)] focus:shadow-[0_0_16px_rgba(164,184,107,0.06)]"
+              className="w-full rounded-2xl px-4 py-3 border border-[var(--border-default)] bg-[var(--bg-card)] outline-none text-[var(--text-primary)] font-ar text-[0.95rem] transition-all focus:border-[var(--border-accent)] focus:shadow-[var(--shadow-glow)]"
             />
           </div>
           <div>
-            <label className="block mb-2 text-sand-light text-[0.8rem] font-ar">{t('account.new_password', 'كلمة المرور الجديدة')}</label>
+            <label className="block mb-2 text-[var(--text-secondary)] text-[0.85rem] font-bold font-ar">{t('account.new_password', 'كلمة المرور الجديدة')}</label>
             <input
               value={newPass}
               onChange={(e) => setNewPass(e.target.value)}
               type="password"
-              className="w-full rounded-2xl px-4 py-3 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.30)] outline-none text-cream font-ar text-[0.95rem] transition-all focus:border-[rgba(164,184,107,0.35)] focus:shadow-[0_0_16px_rgba(164,184,107,0.06)]"
+              className="w-full rounded-2xl px-4 py-3 border border-[var(--border-default)] bg-[var(--bg-card)] outline-none text-[var(--text-primary)] font-ar text-[0.95rem] transition-all focus:border-[var(--border-accent)] focus:shadow-[var(--shadow-glow)]"
             />
           </div>
           <div>
-            <label className="block mb-2 text-sand-light text-[0.8rem] font-ar">{t('account.confirm_password', 'تأكيد كلمة المرور')}</label>
+            <label className="block mb-2 text-[var(--text-secondary)] text-[0.85rem] font-bold font-ar">{t('account.confirm_password', 'تأكيد كلمة المرور')}</label>
             <input
               value={confirmPass}
               onChange={(e) => setConfirmPass(e.target.value)}
               type="password"
-              className="w-full rounded-2xl px-4 py-3 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.30)] outline-none text-cream font-ar text-[0.95rem] transition-all focus:border-[rgba(164,184,107,0.35)] focus:shadow-[0_0_16px_rgba(164,184,107,0.06)]"
+              className="w-full rounded-2xl px-4 py-3 border border-[var(--border-default)] bg-[var(--bg-card)] outline-none text-[var(--text-primary)] font-ar text-[0.95rem] transition-all focus:border-[var(--border-accent)] focus:shadow-[var(--shadow-glow)]"
             />
           </div>
         </div>
         <button
           type="button"
           onClick={handlePassword}
-          className="mt-4 inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 bg-[linear-gradient(135deg,rgba(74,90,42,0.55),rgba(164,184,107,0.18))] border border-[rgba(164,184,107,0.35)] text-cream font-ar font-semibold text-[0.9rem] transition-all hover:shadow-[0_12px_30px_rgba(164,184,107,0.10)] active:scale-[0.97]"
+          className="mt-4 inline-flex items-center gap-2 rounded-2xl px-6 py-3 bg-[var(--action-primary)] text-[var(--action-primary-text)] font-ar font-bold text-[0.92rem] transition-all hover:bg-[var(--action-primary-hover)] shadow-[var(--shadow-md)] active:scale-[0.98] cursor-pointer"
         >
           <CheckCircle2 className="w-4 h-4" strokeWidth={2} />
-          {t('account.update_password', 'تحديث كلمة المرور')}
+          <span>{t('account.update_password', 'تحديث كلمة المرور')}</span>
         </button>
       </div>
     </div>

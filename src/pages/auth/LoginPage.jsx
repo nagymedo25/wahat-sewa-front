@@ -125,7 +125,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 type="email"
                 className="w-full bg-transparent outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-ar text-[0.95rem]"
-                placeholder="admin@wahatsewa.com"
+                placeholder=""
                 autoComplete="email"
               />
             ) : (

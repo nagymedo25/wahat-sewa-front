@@ -102,22 +102,22 @@ export default function CheckoutPage() {
   if (!isAuthed) {
     return (
       <GlassShell title={t('checkout.login_required_title', 'تسجيل الدخول مطلوب')} subtitle={t('checkout.login_required_subtitle', 'أكمل تسجيل الدخول لإتمام الدفع.')}>
-        <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-7 max-w-[720px]">
+        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-7 max-w-[720px] shadow-[var(--shadow-lg)]">
           <div className="flex flex-col items-center text-center py-6">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[rgba(164,184,107,0.08)] border border-[rgba(164,184,107,0.15)] mb-4">
-              <UserCircle className="w-7 h-7 text-olive-glow opacity-60" strokeWidth={1.5} />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[var(--action-primary)]/10 border border-[var(--border-accent)] mb-4 text-[var(--action-primary)]">
+              <UserCircle className="w-8 h-8" strokeWidth={1.5} />
             </div>
-            <div className="text-cream font-ar font-semibold text-[1.1rem]">{t('checkout.login_required_reason', 'عشان نحفظ تفاصيل الطلب')}</div>
-            <div className="mt-1 text-sand opacity-60 font-ar text-[0.9rem]">{t('checkout.login_required_action', 'لازم تسجّل دخول أولاً.')}</div>
+            <div className="text-[var(--text-primary)] font-ar font-bold text-[1.2rem]">{t('checkout.login_required_reason', 'عشان نحفظ تفاصيل الطلب')}</div>
+            <div className="mt-1 text-[var(--text-secondary)] font-ar text-[0.92rem]">{t('checkout.login_required_action', 'لازم تسجّل دخول أولاً.')}</div>
           </div>
           <div className="mt-6 flex items-center justify-center gap-3">
             <Link
               to="/auth/login?next=/shop/checkout"
-              className="rounded-2xl px-5 py-3 bg-[linear-gradient(135deg,rgba(74,90,42,0.55),rgba(164,184,107,0.18))] border border-[rgba(164,184,107,0.30)] text-cream font-ar font-semibold no-underline transition-all hover:shadow-[0_18px_50px_rgba(164,184,107,0.12)] active:scale-95"
+              className="rounded-2xl px-6 py-3 bg-[var(--action-primary)] text-[var(--action-primary-text)] font-ar font-bold no-underline transition-all hover:bg-[var(--action-primary-hover)] shadow-[var(--shadow-md)] active:scale-95"
             >
               {t('auth.sign_in', 'تسجيل الدخول')}
             </Link>
-            <Link to="/shop/cart" className="no-underline text-sand-light hover:text-cream transition-colors inline-flex items-center gap-2 font-ar">
+            <Link to="/shop/cart" className="no-underline text-[var(--siwa-earth)] hover:text-[var(--siwa-earth-light)] transition-colors inline-flex items-center gap-2 font-ar font-bold">
               <ArrowLeft className="w-4 h-4" strokeWidth={2} />
               {t('checkout.back_to_cart', 'رجوع للسلة')}
             </Link>
@@ -141,45 +141,45 @@ export default function CheckoutPage() {
         {steps.map((step, i) => (
           <div key={step.label} className="flex items-center gap-2">
             <div
-              className={`rounded-full px-4 py-1.5 text-[0.8rem] font-ar font-medium transition-all border ${
+              className={`rounded-full px-4 py-1.5 text-[0.8rem] font-ar font-bold transition-all border ${
                 step.active
-                  ? 'bg-[rgba(74,90,42,0.35)] border-[rgba(164,184,107,0.40)] text-cream'
-                  : 'bg-[rgba(26,24,20,0.35)] border-[rgba(212,197,169,0.10)] text-sand opacity-60'
+                  ? 'bg-[var(--action-primary)] text-[var(--action-primary-text)] border-[var(--action-primary)] shadow-sm'
+                  : 'bg-[var(--bg-elevated)] border-[var(--border-default)] text-[var(--text-muted)]'
               }`}
             >
               {step.label}
             </div>
             {i < steps.length - 1 && (
-              <div className={`w-6 h-px ${step.active ? 'bg-[rgba(164,184,107,0.30)]' : 'bg-[rgba(212,197,169,0.10)]'}`} />
+              <div className={`w-6 h-px ${step.active ? 'bg-[var(--action-primary)]/50' : 'bg-[var(--border-default)]'}`} />
             )}
           </div>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-7">
-        <div className="rounded-3xl border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.55)] [backdrop-filter:blur(18px)] p-7">
+        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-7 shadow-[var(--shadow-lg)]">
           <form onSubmit={onSubmit} className="flex flex-col gap-5">
             <div>
-              <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('checkout.name', 'الاسم')}</label>
-              <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.35)] transition-all focus-within:border-[rgba(164,184,107,0.35)] focus-within:shadow-[0_0_16px_rgba(164,184,107,0.06)]">
-                <UserCircle className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">{t('checkout.name', 'الاسم')}</label>
+              <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] transition-all focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
+                <UserCircle className="w-[18px] h-[18px] text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-transparent outline-none text-cream font-ar text-[0.95rem]"
+                  className="w-full bg-transparent outline-none text-[var(--text-primary)] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)]"
                   autoComplete="name"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('checkout.whatsapp', 'رقم الواتساب')}</label>
-              <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.35)] transition-all focus-within:border-[rgba(164,184,107,0.35)] focus-within:shadow-[0_0_16px_rgba(164,184,107,0.06)]">
-                <MessageCircle className="w-[18px] h-[18px] text-olive-glow shrink-0" strokeWidth={1.5} />
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">{t('checkout.whatsapp', 'رقم الواتساب')}</label>
+              <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] transition-all focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
+                <MessageCircle className="w-[18px] h-[18px] text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
                 <input
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  className="w-full bg-transparent outline-none text-cream font-ar text-[0.95rem]"
+                  className="w-full bg-transparent outline-none text-[var(--text-primary)] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)]"
                   placeholder="01XXXXXXXXX"
                   autoComplete="tel"
                 />
@@ -187,58 +187,52 @@ export default function CheckoutPage() {
             </div>
 
             <div>
-              <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('checkout.address', 'العنوان')}</label>
-              <div className="flex items-start gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.10)] bg-[rgba(10,9,7,0.35)] transition-all focus-within:border-[rgba(164,184,107,0.35)] focus-within:shadow-[0_0_16px_rgba(164,184,107,0.06)]">
-                <MapPin className="w-[18px] h-[18px] text-olive-glow mt-1 shrink-0" strokeWidth={1.5} />
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">{t('checkout.address', 'العنوان')}</label>
+              <div className="flex items-start gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] transition-all focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
+                <MapPin className="w-[18px] h-[18px] text-[var(--siwa-earth)] mt-1 shrink-0" strokeWidth={1.8} />
                 <textarea
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-transparent outline-none text-cream resize-none min-h-[84px] font-ar text-[0.95rem]"
+                  className="w-full bg-transparent outline-none text-[var(--text-primary)] resize-none min-h-[84px] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)]"
                   placeholder={t('checkout.address_placeholder', 'الشارع - العمارة - الدور')}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block mb-2 text-sand-light text-[0.9rem] font-ar">{t('checkout.city', 'المحافظة')}</label>
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">{t('checkout.city', 'المحافظة')}</label>
               {loadingRegions ? (
-                <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[rgba(212,197,169,0.08)] bg-[rgba(10,9,7,0.35)] animate-pulse">
-                  <div className="w-4 h-4 rounded-full bg-[rgba(164,184,107,0.12)]" />
-                  <div className="h-4 w-32 rounded-lg bg-[rgba(212,197,169,0.08)]" />
+                <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] animate-pulse">
+                  <div className="w-4 h-4 rounded-full bg-[var(--palm-shade)]/20" />
+                  <div className="h-4 w-32 rounded-lg bg-[var(--border-default)]" />
                 </div>
               ) : (
                 <div className="relative" data-city-picker>
                   <button
                     type="button"
                     onClick={() => setDropdownOpen(v => !v)}
-                    className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 border bg-[rgba(10,9,7,0.35)] text-right transition-all duration-300 cursor-pointer group
+                    className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3.5 border bg-[var(--bg-card)] text-right transition-all duration-300 cursor-pointer group
                       ${dropdownOpen
-                        ? 'border-[rgba(164,184,107,0.45)] shadow-[0_0_20px_rgba(164,184,107,0.08)]'
-                        : 'border-[rgba(212,197,169,0.10)] hover:border-[rgba(164,184,107,0.25)]'
+                        ? 'border-[var(--border-accent)] shadow-[var(--shadow-glow)]'
+                        : 'border-[var(--border-default)] hover:border-[var(--border-accent)]'
                       }`}
                   >
                     <MapPin
-                      className="w-[18px] h-[18px] shrink-0 transition-colors duration-300"
-                      style={{ color: selectedRegion && isSaeed(selectedRegion.name) ? '#fbbf24' : '#a4b86b' }}
-                      strokeWidth={1.5}
+                      className="w-[18px] h-[18px] shrink-0 transition-colors duration-300 text-[var(--siwa-earth)]"
+                      strokeWidth={1.8}
                     />
-                    <span className="flex-1 text-cream font-ar text-[0.95rem]">
+                    <span className="flex-1 text-[var(--text-primary)] font-ar text-[0.95rem] font-medium">
                       {selectedRegion ? selectedRegion.name : 'اختر المحافظة'}
                     </span>
                     {selectedRegion && (
                       <span
-                        className="text-[0.75rem] font-number px-2.5 py-0.5 rounded-full border transition-all duration-300"
-                        style={
-                          isSaeed(selectedRegion.name)
-                            ? { color: '#fbbf24', borderColor: 'rgba(245,158,11,0.30)', background: 'rgba(245,158,11,0.08)' }
-                            : { color: '#a4b86b', borderColor: 'rgba(164,184,107,0.25)', background: 'rgba(164,184,107,0.08)' }
-                        }
+                        className="text-[0.78rem] font-number px-2.5 py-0.5 rounded-full border border-[var(--border-accent)] bg-[var(--bg-secondary)] text-[var(--text-primary)] font-bold transition-all duration-300"
                       >
                         {selectedRegion.shipping_cost} ج.م
                       </span>
                     )}
                     <ChevronDown
-                      className="w-4 h-4 text-sand/40 shrink-0 transition-transform duration-300"
+                      className="w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform duration-300"
                       style={{ transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
                       strokeWidth={2}
                     />
@@ -246,10 +240,10 @@ export default function CheckoutPage() {
 
                   {dropdownOpen && (
                     <div
-                      className="absolute top-[calc(100%+8px)] right-0 left-0 z-50 rounded-2xl border border-[rgba(164,184,107,0.18)] bg-[rgba(16,14,10,0.96)] [backdrop-filter:blur(20px)] shadow-[0_20px_60px_rgba(0,0,0,0.55)] overflow-hidden"
+                      className="absolute top-[calc(100%+8px)] right-0 left-0 z-50 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-2xl shadow-[var(--shadow-xl)] overflow-hidden"
                       style={{ animation: 'dropdownIn 0.2s cubic-bezier(0.16,1,0.3,1) both' }}
                     >
-                      <div className="h-[1px] bg-gradient-to-r from-transparent via-[rgba(164,184,107,0.35)] to-transparent" />
+                      <div className="h-[2px] bg-gradient-to-r from-transparent via-[var(--action-primary)] to-transparent" />
                       <div className="max-h-[260px] overflow-y-auto custom-scrollbar py-1.5">
                         {regions.map((region) => {
                           const active = region.name === city;
@@ -259,37 +253,33 @@ export default function CheckoutPage() {
                               key={region.id}
                               type="button"
                               onClick={() => handleCityChange(region)}
-                              className={`w-full flex items-center gap-3 px-4 py-2.5 text-right transition-all duration-150 group/opt
+                              className={`w-full flex items-center gap-3 px-4 py-2.5 text-right transition-all duration-150 group/opt cursor-pointer
                                 ${active
-                                  ? 'bg-[rgba(164,184,107,0.10)]'
-                                  : 'hover:bg-[rgba(255,255,255,0.03)]'
+                                  ? 'bg-[var(--action-primary)]/10 text-[var(--action-primary)] font-bold'
+                                  : 'hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]'
                                 }`}
                             >
                               <div className="w-4 h-4 shrink-0 flex items-center justify-center">
                                 {active ? (
-                                  <Check className="w-3.5 h-3.5" style={{ color: saeed ? '#fbbf24' : '#a4b86b' }} strokeWidth={2.5} />
+                                  <Check className="w-3.5 h-3.5 text-[var(--action-primary)]" strokeWidth={2.5} />
                                 ) : (
                                   <div
-                                    className="w-1.5 h-1.5 rounded-full opacity-0 group-hover/opt:opacity-60 transition-opacity"
-                                    style={{ background: saeed ? '#fbbf24' : '#a4b86b' }}
+                                    className="w-1.5 h-1.5 rounded-full opacity-0 group-hover/opt:opacity-60 transition-opacity bg-[var(--siwa-earth)]"
                                   />
                                 )}
                               </div>
                               <span
                                 className="flex-1 font-ar text-[0.92rem] transition-colors duration-150"
-                                style={{ color: active ? (saeed ? '#fbbf24' : '#a4b86b') : 'rgba(212,197,169,0.85)' }}
                               >
                                 {region.name}
                               </span>
                               <span
-                                className="text-[0.75rem] font-number shrink-0"
-                                style={{ color: saeed ? 'rgba(251,191,36,0.65)' : 'rgba(164,184,107,0.55)' }}
+                                className="text-[0.78rem] font-number shrink-0 text-[var(--text-secondary)] font-bold"
                               >
                                 {region.shipping_cost} ج.م
                               </span>
                               {saeed && (
-                                <span className="text-[0.62rem] font-ar px-1.5 py-0.5 rounded-md border shrink-0"
-                                  style={{ color: '#fbbf24', borderColor: 'rgba(245,158,11,0.22)', background: 'rgba(245,158,11,0.06)' }}>
+                                <span className="text-[0.62rem] font-ar px-1.5 py-0.5 rounded-md border border-[var(--border-accent)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] shrink-0 font-bold">
                                   صعيد
                                 </span>
                               )}
@@ -297,9 +287,9 @@ export default function CheckoutPage() {
                           );
                         })}
                       </div>
-                      <div className="px-4 py-2 border-t border-[rgba(255,255,255,0.04)] flex items-center gap-1.5">
-                        <Truck className="w-3 h-3 text-sand/30" strokeWidth={1.5} />
-                        <span className="text-[0.7rem] text-sand/30 font-ar">سعر الشحن يتغير حسب المحافظة</span>
+                      <div className="px-4 py-2 border-t border-[var(--border-subtle)] flex items-center gap-1.5 bg-[var(--bg-secondary)]/40">
+                        <Truck className="w-3.5 h-3.5 text-[var(--text-muted)]" strokeWidth={1.5} />
+                        <span className="text-[0.72rem] text-[var(--text-muted)] font-ar">سعر الشحن يتغير حسب المحافظة</span>
                       </div>
                     </div>
                   )}
@@ -316,61 +306,62 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className="w-full relative overflow-hidden rounded-2xl px-5 py-4 bg-siwa-gold hover:bg-siwa-warm text-[#181009] font-ar font-bold text-[1rem] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+              className="w-full relative overflow-hidden rounded-2xl px-5 py-4 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--action-primary-text)] font-ar font-bold text-[1.05rem] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-glow)] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer mt-2"
             >
               <ClipboardCheck className="w-5 h-5" strokeWidth={2} />
               <span>{isSubmitting ? t('checkout.confirming', 'جاري التأكيد…') : t('checkout.confirm_order', 'تأكيد الطلب')}</span>
             </button>
 
-            <Link to="/shop/cart" className="no-underline text-siwa-cream/70 hover:text-siwa-cream-light transition-colors inline-flex items-center gap-2 font-ar text-[0.9rem]">
+            <Link to="/shop/cart" className="no-underline text-[var(--siwa-earth)] hover:text-[var(--siwa-earth-light)] transition-colors inline-flex items-center gap-2 font-ar font-bold text-[0.9rem] justify-center mt-1">
               <ArrowLeft className="w-4 h-4" strokeWidth={2} />
               <span>{t('checkout.back_to_cart', 'رجوع للسلة')}</span>
             </Link>
           </form>
         </div>
 
-        <div className="rounded-3xl border border-[rgba(211,200,178,0.12)] bg-[rgba(33,21,13,0.75)] [backdrop-filter:blur(18px)] p-7 h-fit shadow-xl">
-          <div className="flex items-center gap-2 font-ar text-siwa-cream-light font-bold text-[1.1rem]">
-            <Receipt className="w-4 h-4 text-siwa-gold" strokeWidth={1.5} />
+        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-7 h-fit shadow-[var(--shadow-xl)] space-y-4">
+          <div className="flex items-center gap-2.5 font-ar text-[var(--text-primary)] font-bold text-[1.15rem] pb-3 border-b border-[var(--border-default)]">
+            <Receipt className="w-5 h-5 text-[var(--siwa-earth)]" strokeWidth={1.8} />
             <span>{t('checkout.order_summary', 'ملخص الطلب')}</span>
           </div>
-          <div className="mt-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-3.5 pt-1">
             {items.length === 0 && (
               <div className="flex flex-col items-center py-6 gap-2">
-                <PackageOpen className="w-6 h-6 text-sand opacity-30" strokeWidth={1.5} />
-                <span className="text-sand opacity-50 text-[0.85rem] font-ar">{t('checkout.empty_cart', 'السلة فارغة')}</span>
+                <PackageOpen className="w-7 h-7 text-[var(--text-muted)]" strokeWidth={1.5} />
+                <span className="text-[var(--text-muted)] text-[0.88rem] font-ar">{t('checkout.empty_cart', 'السلة فارغة')}</span>
               </div>
             )}
             {items.map((it) => (
-              <div key={it.id} className="flex items-center justify-between text-sand opacity-85">
-                <span className="truncate font-ar text-[0.9rem]">{it.name} × {it.qty}</span>
-                <span className="font-number text-cream">{money(it.price * it.qty, t('checkout.currency', 'ج.م'))}</span>
+              <div key={it.id} className="flex items-center justify-between text-[var(--text-secondary)]">
+                <span className="truncate font-ar text-[0.92rem] font-medium">{it.name} × {it.qty}</span>
+                <span className="font-number text-[var(--text-primary)] font-bold">{money(it.price * it.qty, t('checkout.currency', 'ج.م'))}</span>
               </div>
             ))}
-            <div className="h-px bg-[rgba(212,197,169,0.10)]" />
-            <div className="flex items-center justify-between text-sand opacity-85">
+            <div className="h-px bg-[var(--border-default)] my-1" />
+            <div className="flex items-center justify-between text-[var(--text-secondary)]">
               <span className="inline-flex items-center gap-2">
-                <ShoppingBasket className="w-3.5 h-3.5 text-olive-glow opacity-60" strokeWidth={2} />
-                {t('checkout.subtotal', 'المجموع')}
+                <ShoppingBasket className="w-4 h-4 text-[var(--siwa-earth)] opacity-80" strokeWidth={1.8} />
+                <span>{t('checkout.subtotal', 'المجموع')}</span>
               </span>
-              <span className="font-number text-cream">{money(totals.subtotal, t('checkout.currency', 'ج.م'))}</span>
+              <span className="font-number text-[var(--text-primary)] font-bold">{money(totals.subtotal, t('checkout.currency', 'ج.م'))}</span>
             </div>
-            <div className="flex items-center justify-between text-sand opacity-85">
+            <div className="flex items-center justify-between text-[var(--text-secondary)]">
               <span className="inline-flex items-center gap-2">
-                <Truck className="w-3.5 h-3.5 text-olive-glow opacity-60" strokeWidth={2} />
-                {t('checkout.shipping', 'الشحن')}
+                <Truck className="w-4 h-4 text-[var(--siwa-earth)] opacity-80" strokeWidth={1.8} />
+                <span>{t('checkout.shipping', 'الشحن')}</span>
                 {selectedRegion && (
-                  <span className="text-[0.7rem] font-ar opacity-60">({selectedRegion.name})</span>
+                  <span className="text-[0.72rem] font-ar text-[var(--text-muted)]">({selectedRegion.name})</span>
                 )}
               </span>
-              <span className="font-number text-cream">{money(totals.shipping, t('checkout.currency', 'ج.م'))}</span>
+              <span className="font-number text-[var(--text-primary)] font-bold">{money(totals.shipping, t('checkout.currency', 'ج.م'))}</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sand-light font-ar">{t('checkout.total', 'الإجمالي')}</span>
-              <span className="font-number text-bronze-light text-[1.15rem] font-bold">{money(totals.total, t('checkout.currency', 'ج.م'))}</span>
+            <div className="h-px bg-[var(--border-default)] my-1" />
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[var(--text-primary)] font-black text-base">{t('checkout.total', 'الإجمالي')}</span>
+              <span className="font-number text-[var(--action-primary)] text-[1.35rem] font-black">{money(totals.total, t('checkout.currency', 'ج.م'))}</span>
             </div>
           </div>
-          <div className="mt-4 text-[0.8rem] text-sand opacity-50 leading-[1.8] text-center font-ar">
+          <div className="text-[0.78rem] text-[var(--text-muted)] leading-[1.8] text-center pt-2 font-ar border-t border-[var(--border-subtle)]">
             {t('checkout.payment_note', 'الدفع عند الاستلام. بإتمام الطلب توافق على الشروط.')}
           </div>
         </div>
