@@ -196,11 +196,11 @@ export default function ProductsManagement() {
                 style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
               >
                 <div className="flex gap-4">
-                  <div className="w-20 h-20 rounded-xl overflow-hidden border border-olive/20 bg-shadow flex-shrink-0">
+                  <div className="w-20 h-20 rounded-xl overflow-hidden border border-olive/20 bg-white p-1.5 flex-shrink-0 flex items-center justify-center">
                     <img 
                       src={product.image_url} 
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain [mix-blend-mode:multiply]"
                       onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
                     />
                   </div>
@@ -294,11 +294,11 @@ export default function ProductsManagement() {
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-4">
-                          <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-olive/20 bg-shadow flex-shrink-0 group-hover:border-olive-glow transition-colors">
+                          <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-olive/20 bg-white p-1 flex-shrink-0 group-hover:border-olive-glow transition-colors flex items-center justify-center">
                             <img 
                               src={product.image_url} 
                               alt={product.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              className="w-full h-full object-contain [mix-blend-mode:multiply] group-hover:scale-110 transition-transform duration-500"
                               onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
                             />
                           </div>

@@ -449,11 +449,11 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, onEplanSync, syncing
                     <tr key={item.id} className="hover:bg-olive/10 transition-colors">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-shadow border border-olive/20 overflow-hidden shrink-0">
+                          <div className="w-12 h-12 rounded-lg bg-white border border-olive/20 overflow-hidden shrink-0 p-0.5 flex items-center justify-center">
                             <img 
                               src={item.product_image} 
                               alt={item.product_name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-contain [mix-blend-mode:multiply]"
                               onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
                             />
                           </div>

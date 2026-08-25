@@ -129,28 +129,28 @@ export default function ProductDetailsPage() {
       <div className="grid lg:grid-cols-[1fr_0.88fr] gap-8 items-start">
         {/* Left Column: Product Image & Trust Badges */}
         <div className="space-y-5">
-          <div className="relative rounded-3xl border border-[var(--border-default)] bg-[var(--bg-card)] overflow-hidden shadow-lg">
-            <div className="relative h-[380px] md:h-[480px] overflow-hidden bg-[var(--bg-secondary)] flex items-center justify-center">
-              {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-[var(--border-subtle)]" />}
+          <div className="relative rounded-3xl border border-[var(--border-default)] bg-white overflow-hidden shadow-lg">
+            <div className="relative h-[380px] md:h-[480px] overflow-hidden bg-white flex items-center justify-center">
+              {!imgLoaded && <div className="absolute inset-0 bg-white/90 animate-pulse" />}
               <img
                 src={product.image}
                 alt={product.name}
                 onLoad={() => setImgLoaded(true)}
-                className={`w-full h-full object-contain p-6 transition-all duration-700 hover:scale-105 ${
+                className={`w-full h-full object-contain [mix-blend-mode:multiply] p-6 transition-all duration-700 hover:scale-105 ${
                   imgLoaded ? 'opacity-100' : 'opacity-0'
                 }`}
               />
 
               {/* Badge */}
               {product.badge && product.badge !== 'none' && (
-                <div className="absolute top-5 right-5 rounded-xl px-3.5 py-1.5 text-[0.75rem] font-ar font-bold bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-md backdrop-blur-md z-10">
+                <div className="absolute top-5 right-5 rounded-xl px-3.5 py-1.5 text-[0.75rem] font-ar font-bold bg-white/95 text-[#3B2316] border border-neutral-200 shadow-md backdrop-blur-md z-10 pointer-events-none">
                   {product.badge}
                 </div>
               )}
 
               {/* Discount Badge */}
               {product.oldPrice && product.oldPrice > product.price && (
-                <div className="absolute top-5 left-5 rounded-xl px-3.5 py-1.5 text-[0.75rem] font-number font-bold bg-[var(--discount-badge)] text-white shadow-md z-10">
+                <div className="absolute top-5 left-5 rounded-xl px-3.5 py-1.5 text-[0.75rem] font-number font-bold bg-[var(--discount-badge)] text-white shadow-md z-10 pointer-events-none">
                   {product.discountPercent ? `توفير ${product.discountAmount} ج.م (-${product.discountPercent}%)` : `توفير ${product.discountAmount} ج.م`}
                 </div>
               )}

@@ -112,13 +112,13 @@ export default function DiscountDrawer() {
               <Link
                 to={`/shop/product/${p.id}`}
                 onClick={() => setIsOpen(false)}
-                className="relative w-20 h-20 rounded-xl bg-[var(--bg-secondary)] overflow-hidden shrink-0 p-2 flex items-center justify-center"
+                className="relative w-20 h-20 rounded-xl bg-white overflow-hidden shrink-0 p-2 flex items-center justify-center border border-[var(--border-subtle)]"
               >
                 {p.image ? (
                   <img
                     src={p.image}
                     alt={p.name}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                    className="w-full h-full object-contain [mix-blend-mode:multiply] group-hover:scale-105 transition-transform"
                   />
                 ) : (
                   <Sparkles className="w-6 h-6 text-[var(--siwa-earth)] opacity-50" />

@@ -33,13 +33,13 @@ export default function ProductCard({ product, index = 0 }) {
       style={{ animationDelay: `${(index % 12) * 55}ms` }}
       data-product={product.id}
     >
-      {/* ── Image Container ── */}
+      {/* ── Image Container (Seamless White Blend) ── */}
       <Link
         to={`/shop/product/${product.id}`}
-        className="relative block w-full aspect-[4/3] overflow-hidden bg-[var(--bg-secondary)] p-4 cursor-pointer"
+        className="relative block w-full aspect-[4/3] overflow-hidden bg-white p-4 cursor-pointer flex items-center justify-center border-b border-[var(--border-subtle)]"
       >
         {!imgLoaded && (
-          <div className="absolute inset-0 animate-pulse bg-[var(--border-subtle)]" />
+          <div className="absolute inset-0 bg-white/90 animate-pulse" />
         )}
         
         {imgUrl ? (
@@ -49,25 +49,25 @@ export default function ProductCard({ product, index = 0 }) {
             loading="lazy"
             decoding="async"
             onLoad={() => setImgLoaded(true)}
-            className={`w-full h-full object-contain transition-transform duration-700 ease-cinematic group-hover:scale-108 ${
+            className={`w-full h-full object-contain [mix-blend-mode:multiply] transition-all duration-500 ease-cinematic group-hover:scale-108 ${
               imgLoaded ? 'opacity-100' : 'opacity-0'
             }`}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
+          <div className="w-full h-full flex items-center justify-center text-neutral-400">
             <span className="font-ar text-xs">لا توجد صورة</span>
           </div>
         )}
 
         {/* ── Badges ── */}
-        <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
+        <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10 pointer-events-none">
           {hasDiscount && (
             <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[0.7rem] font-bold font-number bg-[var(--discount-badge)] text-white shadow-sm">
               {discountPercent}%-
             </span>
           )}
           {product.badge && product.badge !== 'none' && (
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[0.65rem] font-medium font-ar bg-[var(--bg-elevated)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-sm backdrop-blur-md">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[0.65rem] font-medium font-ar bg-white/95 text-[#3B2316] border border-neutral-200 shadow-sm backdrop-blur-md">
               {product.badge}
             </span>
           )}

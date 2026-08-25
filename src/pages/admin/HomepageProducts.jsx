@@ -177,11 +177,11 @@ export default function HomepageProducts() {
                 key={product.id}
                 className="bg-olive-deep/20 border border-olive-glow/40 hover:border-olive-glow/70 rounded-2xl p-4 flex gap-4 transition-all duration-300 relative group"
               >
-                <div className="w-16 h-16 rounded-xl overflow-hidden border border-olive/20 bg-shadow flex-shrink-0">
+                <div className="w-16 h-16 rounded-xl overflow-hidden border border-olive/20 bg-white p-1 flex-shrink-0 flex items-center justify-center">
                   <img 
                     src={product.image_url} 
                     alt={product.name} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain [mix-blend-mode:multiply]"
                     onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
                   />
                 </div>

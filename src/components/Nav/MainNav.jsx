@@ -90,7 +90,7 @@ export default function MainNav({ isVisible, isScrolled, isNavHidden, isMobileMe
           {/* ── Logo ── */}
           <Link to="/" className="no-underline flex items-center gap-2 group shrink-0 py-0.5">
             <div className="text-[var(--text-primary)] transition-transform duration-300 group-hover:scale-105">
-              <Logo className={isScrolled ? 'h-11 md:h-13 lg:h-14 w-auto' : 'h-13 md:h-16 lg:h-18 w-auto'} />
+              <Logo className={isScrolled ? 'h-10 md:h-12 lg:h-14 w-auto' : 'h-12 sm:h-14 md:h-16 lg:h-20 w-auto'} />
             </div>
           </Link>
 
