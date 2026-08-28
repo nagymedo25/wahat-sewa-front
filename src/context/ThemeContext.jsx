@@ -6,12 +6,10 @@ const STORAGE_KEY = 'siwa-theme';
 
 export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(() => {
-    // Read from localStorage or default to light
+    // Read from localStorage or default to light on first visit
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === 'dark' || stored === 'light') return stored;
-      // Respect OS preference on first visit
-      if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark';
     }
     return 'light';
   });

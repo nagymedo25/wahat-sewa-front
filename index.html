@@ -31,8 +31,12 @@
     <script>
       (function() {
         var stored = localStorage.getItem('siwa-theme');
-        var theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        var theme = (stored === 'dark' || stored === 'light') ? stored : 'light';
         document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'dark') {
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', '#1E130B');
+        }
       })();
     </script>
   </head>
