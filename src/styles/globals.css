@@ -303,12 +303,12 @@
 
   /* ─── Discount Side Badge Animations ─── */
   @keyframes discount-shake {
-    0%, 100% { transform: translateY(-50%) rotate(0deg); }
-    15% { transform: translateY(-50%) rotate(-4deg) scale(1.05); }
-    30% { transform: translateY(-50%) rotate(4deg) scale(1.05); }
-    45% { transform: translateY(-50%) rotate(-2deg); }
-    60% { transform: translateY(-50%) rotate(2deg); }
-    75% { transform: translateY(-50%) rotate(0deg); }
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    15% { transform: rotate(-3deg) scale(1.03); }
+    30% { transform: rotate(3deg) scale(1.03); }
+    45% { transform: rotate(-2deg) scale(1.01); }
+    60% { transform: rotate(2deg) scale(1.01); }
+    75% { transform: rotate(0deg) scale(1); }
   }
 
   @keyframes radar-wave {
@@ -317,7 +317,7 @@
   }
 
   .animate-discount-tab {
-    animation: discount-shake 4s ease-in-out infinite;
+    animation: discount-shake 4.5s ease-in-out infinite;
   }
 
   .animate-radar {

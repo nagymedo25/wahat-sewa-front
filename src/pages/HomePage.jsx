@@ -145,7 +145,7 @@ export default function HomePage() {
       </main>
 
       {/* ── Side Discount Discovery Drawer ── */}
-      <DiscountDrawer />
+      <DiscountDrawer products={products} />
 
       {/* ── Footer ── */}
       <SiteFooter />
