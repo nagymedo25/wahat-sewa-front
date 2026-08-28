@@ -64,21 +64,27 @@ export default function ContactSection() {
 
           <div className="contact-social flex items-center justify-center gap-4 mb-10">
             <a
-              href="#"
+              href="https://www.instagram.com/sewa.magic?igsi=MndhZzl0ZDRwcTY3&utm_source=qr"
+              target="_blank"
+              rel="noreferrer"
               className="group relative w-11 h-11 rounded-full flex items-center justify-center border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.3)] backdrop-blur-sm text-sand-light transition-all duration-500 hover:text-cream hover:border-[rgba(164,184,107,0.6)] hover:shadow-[0_0_24px_rgba(164,184,107,0.25),inset_0_0_12px_rgba(164,184,107,0.1)] hover:scale-110 hover:-translate-y-1 overflow-hidden"
               aria-label="Instagram"
+              title="Instagram"
             >
               <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(164,184,107,0.25)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5 relative z-[1]">
-                <rect x="2" y="2" width="20" height="20" rx="5" />
-                <circle cx="12" cy="12" r="5" />
-                <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 relative z-[1]">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <circle cx="12" cy="12" r="4" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
               </svg>
             </a>
             <a
-              href="#"
+              href="https://www.facebook.com/share/1K5QwKifBB/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noreferrer"
               className="group relative w-11 h-11 rounded-full flex items-center justify-center border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.3)] backdrop-blur-sm text-sand-light transition-all duration-500 hover:text-cream hover:border-[rgba(164,184,107,0.6)] hover:shadow-[0_0_24px_rgba(164,184,107,0.25),inset_0_0_12px_rgba(164,184,107,0.1)] hover:scale-110 hover:-translate-y-1 overflow-hidden"
               aria-label="Facebook"
+              title="Facebook"
             >
               <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(164,184,107,0.25)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 relative z-[1]">
@@ -86,9 +92,25 @@ export default function ContactSection() {
               </svg>
             </a>
             <a
-              href="#"
+              href="https://www.tiktok.com/@sewa.magic?_r=1&_t=ZS-99GJ7cXvbF3"
+              target="_blank"
+              rel="noreferrer"
+              className="group relative w-11 h-11 rounded-full flex items-center justify-center border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.3)] backdrop-blur-sm text-sand-light transition-all duration-500 hover:text-cream hover:border-[rgba(164,184,107,0.6)] hover:shadow-[0_0_24px_rgba(164,184,107,0.25),inset_0_0_12px_rgba(164,184,107,0.1)] hover:scale-110 hover:-translate-y-1 overflow-hidden"
+              aria-label="TikTok"
+              title="TikTok"
+            >
+              <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(164,184,107,0.25)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 relative z-[1]">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298 0 .59.043.87.124v-3.53a6.34 6.34 0 0 0-.87-.06A6.33 6.33 0 0 0 3.12 15.6a6.34 6.34 0 0 0 10.82 4.48 6.27 6.27 0 0 0 1.89-4.48V8.67a8.28 8.28 0 0 0 4.84 1.56V6.78c-.37-.03-.73-.06-1.08-.09z" />
+              </svg>
+            </a>
+            <a
+              href="https://wa.me/201552500330"
+              target="_blank"
+              rel="noreferrer"
               className="group relative w-11 h-11 rounded-full flex items-center justify-center border border-[rgba(212,197,169,0.12)] bg-[rgba(26,24,20,0.3)] backdrop-blur-sm text-sand-light transition-all duration-500 hover:text-cream hover:border-[rgba(164,184,107,0.6)] hover:shadow-[0_0_24px_rgba(164,184,107,0.25),inset_0_0_12px_rgba(164,184,107,0.1)] hover:scale-110 hover:-translate-y-1 overflow-hidden"
               aria-label="WhatsApp"
+              title="WhatsApp"
             >
               <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(164,184,107,0.25)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 relative z-[1]">
