@@ -249,7 +249,7 @@ export default function AdminDashboard() {
                 {index + 1}
               </div>
               <div className="w-20 h-20 rounded-xl bg-white overflow-hidden border border-olive/20 flex-shrink-0 p-1 flex items-center justify-center">
-                <img src={product.image_url} alt={product.name} className="w-full h-full object-contain [mix-blend-mode:multiply] group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }} />
+                <img src={product.image_url} alt={product.name} className="w-full h-full object-contain [mix-blend-mode:multiply] group-hover:scale-110 transition-transform duration-500" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Crect width='100%25' height='100%25' fill='%2321150D'/%3E%3Ctext x='50%25' y='50%25' fill='%23DCC7A1' font-family='sans-serif' font-size='12' text-anchor='middle' dominant-baseline='middle'%3Eسيوة%3C/text%3E%3C/svg%3E"; }} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="truncate font-bold text-cream text-lg">{product.name}</p>

@@ -1,11 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 
-export default function PromoBanner({ banner, position = 'mid' }) {
+export default function PromoBanner({ banner, position = 'mid', onCtaClick }) {
+  const location = useLocation();
+
   // Default fallback banner data if not dynamically provided
   const title = banner?.title || (
     position === 'shop'
       ? 'تشكيلة منتجات سيوة الفاخرة — جودة طبيعية 100%'
+      : position === 'top'
+      ? 'أهلاً بكم في واحة سيوة — خيرات الطبيعة النقية بين يديك'
       : position === 'mid' 
       ? 'زيت زيتون سيوة البكر الممتاز — عصرة أولى على البارد'
       : 'تمور سيوة الفاخرة المحشوة بالمكسرات الطبيعية'
@@ -14,6 +18,8 @@ export default function PromoBanner({ banner, position = 'mid' }) {
   const subtitle = banner?.subtitle || (
     position === 'shop'
       ? 'استمتع بأجود المنتجات السيوية الطبيعية من التمور وزيت الزيتون والأعشاب النقية مباشرة من المزارع إليك'
+      : position === 'top'
+      ? 'استكشف منتجات واحتنا الغناء بأعلى معايير النقاء والأصالة مباشرة من المزارع إليك'
       : position === 'mid'
       ? 'نقاء لا مثيل له، مستخلص من أشجار الزيتون المعمرة في أرض الواحة الخصبة'
       : 'طعم أصيل غني بالفوائد الغذائية، مثالي للإهداء والمناسبات الراقية'
@@ -21,14 +27,33 @@ export default function PromoBanner({ banner, position = 'mid' }) {
 
   const badgeText = position === 'shop' 
     ? 'عروض وتخفيضات المتجر' 
+    : position === 'top'
+    ? 'موسم حصاد سيوة الأصيل'
     : 'عرض حصري من الواحة';
 
   const ctaText = banner?.cta_text || (position === 'shop' ? 'تصفح أفضل العروض' : 'اكتشف العرض الآن');
   const linkUrl = banner?.link_url || '/shop';
   const imageUrl = banner?.image_url;
 
+  const handleCtaClick = (e) => {
+    if (onCtaClick) {
+      e.preventDefault();
+      onCtaClick();
+      return;
+    }
+
+    // If currently on /shop and link points to /shop or hash, scroll smoothly to products section
+    if (location.pathname === '/shop' && (linkUrl === '/shop' || linkUrl === '/shop/' || linkUrl.startsWith('#'))) {
+      e.preventDefault();
+      const target = document.getElementById('products-grid') || document.getElementById('shop-search');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
   return (
-    <section className="py-12 px-6 md:px-12 lg:px-16" id={position === 'shop' ? 'promo-shop' : position === 'mid' ? 'promo-mid' : 'promo-bottom'}>
+    <section className="py-8 sm:py-12 px-4 sm:px-6 md:px-12 lg:px-16" id={position === 'shop' ? 'promo-shop' : position === 'top' ? 'promo-top' : position === 'mid' ? 'promo-mid' : 'promo-bottom'}>
       <div className="max-w-[1400px] mx-auto">
         <div className="relative rounded-3xl overflow-hidden min-h-[320px] sm:min-h-[380px] md:min-h-[440px] flex items-center bg-[#2A1A10] border border-[var(--border-accent)] shadow-[var(--shadow-xl)]">
           
@@ -66,7 +91,8 @@ export default function PromoBanner({ banner, position = 'mid' }) {
 
             <Link
               to={linkUrl}
-              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-ar text-sm font-bold shadow-[0_4px_20px_rgba(91,107,74,0.4)] hover:shadow-[0_0_30px_rgba(91,107,74,0.6)] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 group"
+              onClick={handleCtaClick}
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-ar text-sm font-bold shadow-[0_4px_20px_rgba(91,107,74,0.4)] hover:shadow-[0_0_30px_rgba(91,107,74,0.6)] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 group cursor-pointer"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />

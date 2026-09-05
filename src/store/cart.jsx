@@ -27,35 +27,43 @@ export function CartProvider({ children }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ items }));
   }, [items]);
 
-  const addItem = useCallback((product, qty = 1) => {
+  const addItem = useCallback((product, qty = 1, variant = null) => {
     if (!product?.id) return;
     const safeQty = Math.max(1, Number(qty) || 1);
+    const cartKey = variant ? `${product.id}_${variant.id || variant.name}` : String(product.id);
+    const itemPrice = variant?.price !== undefined && variant?.price !== null ? Number(variant.price) : Number(product.price);
+    const variantName = variant?.name || null;
+    const img = product.image || product.image_url || '';
 
     setItems((prev) => {
-      const found = prev.find((it) => it.id === product.id);
+      const found = prev.find((it) => (it.cartKey || it.id) === cartKey);
       if (found) {
-        return prev.map((it) => (it.id === product.id ? { ...it, qty: it.qty + safeQty } : it));
+        return prev.map((it) => ((it.cartKey || it.id) === cartKey ? { ...it, qty: it.qty + safeQty } : it));
       }
       return [
         ...prev,
         {
           id: product.id,
+          cartKey,
           name: product.name,
-          price: product.price,
-          currency: product.currency,
+          variantName,
+          variant,
+          image: img,
+          price: itemPrice,
+          currency: product.currency || 'ج.م',
           qty: safeQty,
         },
       ];
     });
   }, []);
 
-  const setQty = useCallback((productId, qty) => {
+  const setQty = useCallback((targetKey, qty) => {
     const nextQty = Math.max(1, Number(qty) || 1);
-    setItems((prev) => prev.map((it) => (it.id === productId ? { ...it, qty: nextQty } : it)));
+    setItems((prev) => prev.map((it) => ((it.cartKey || it.id) === targetKey ? { ...it, qty: nextQty } : it)));
   }, []);
 
-  const removeItem = useCallback((productId) => {
-    setItems((prev) => prev.filter((it) => it.id !== productId));
+  const removeItem = useCallback((targetKey) => {
+    setItems((prev) => prev.filter((it) => (it.cartKey || it.id) !== targetKey));
   }, []);
 
   const clear = useCallback(() => setItems([]), []);

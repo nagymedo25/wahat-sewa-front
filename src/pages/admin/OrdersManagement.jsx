@@ -454,7 +454,7 @@ function OrderDetailModal({ order, onClose, onStatusUpdate, onEplanSync, syncing
                               src={item.product_image} 
                               alt={item.product_name}
                               className="w-full h-full object-contain [mix-blend-mode:multiply]"
-                              onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Crect width='100%25' height='100%25' fill='%2321150D'/%3E%3Ctext x='50%25' y='50%25' fill='%23DCC7A1' font-family='sans-serif' font-size='12' text-anchor='middle' dominant-baseline='middle'%3Eسيوة%3C/text%3E%3C/svg%3E"; }}
                             />
                           </div>
                           <span className="font-bold text-cream">{item.product_name}</span>

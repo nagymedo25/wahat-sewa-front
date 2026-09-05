@@ -8,18 +8,11 @@ import { API_URL } from '@/services/api.js';
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
-  const { user } = useAuth();
+  const { user, api } = useAuth();
   const toast = useToast();
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [socket, setSocket] = useState(null);
-
-  const api = axios.create({
-    baseURL: API_URL,
-    headers: {
-      Authorization: `Bearer ${JSON.parse(localStorage.getItem('wahat_auth'))?.accessToken}`
-    }
-  });
 
   useEffect(() => {
     if (user) {
@@ -68,10 +61,12 @@ export const NotificationProvider = ({ children }) => {
   const fetchNotifications = async () => {
     try {
       const res = await api.get('/notifications');
-      setNotifications(res.data.notifications);
-      setUnreadCount(res.data.unreadCount);
+      setNotifications(res.data.notifications || []);
+      setUnreadCount(res.data.unreadCount || 0);
     } catch (err) {
-      console.error('Failed to fetch notifications');
+      if (err.response?.status !== 401) {
+        console.error('Failed to fetch notifications:', err);
+      }
     }
   };
 

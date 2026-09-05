@@ -77,6 +77,7 @@ export function normalizeProduct(product, index = 0) {
     stock: 999,
     sortOrder: Number(product.sort_order || 0),
     isActive: product.is_active ?? true,
+    variants: Array.isArray(product.variants) ? product.variants : [],
     source: 'api',
   };
 }

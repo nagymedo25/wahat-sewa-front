@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from '@/store/auth.jsx';
 import PageTransition from '@/components/PageTransition/PageTransition.jsx';
@@ -21,6 +22,7 @@ import AdminUsersPage from '@/pages/admin/AdminUsersPage.jsx';
 import AdminSettings from '@/pages/admin/AdminSettings.jsx';
 import HomepageProducts from '@/pages/admin/HomepageProducts.jsx';
 import BannersManagement from '@/pages/admin/BannersManagement.jsx';
+import { initTracking } from '@/services/tracking.js';
 
 function AdminRoute({ children }) {
   const { loading, isAuthed, isAdmin } = useAuth();
@@ -50,6 +52,10 @@ function PublicAuthRoute({ children }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    initTracking();
+  }, []);
+
   return (
     <>
       <PageTransition />
@@ -63,7 +69,7 @@ export default function App() {
         <Route path="/shop" element={<ShopHomePage />} />
         <Route path="/shop/product/:productId" element={<ProductDetailsPage />} />
         <Route path="/shop/cart" element={<CartPage />} />
-        <Route path="/shop/checkout" element={<CustomerRoute><CheckoutPage /></CustomerRoute>} />
+        <Route path="/shop/checkout" element={<CheckoutPage />} />
         <Route path="/shop/account" element={<CustomerRoute><AccountPage /></CustomerRoute>} />
 
         {/* Admin Routes */}

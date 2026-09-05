@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search, SlidersHorizontal, X, PackageSearch, Loader2, Sparkles,
   LayoutGrid, Rows3, ChevronRight, ChevronLeft, ChevronDown
@@ -8,6 +8,7 @@ import GlassShell from '@/components/Layout/GlassShell.jsx';
 import ShopSidebar, { SORT_OPTIONS } from '@/components/Products/ShopSidebar.jsx';
 import ProductCard from '@/components/Products/ProductCard.jsx';
 import PromoBanner from '@/components/Products/PromoBanner.jsx';
+import QuickViewModal from '@/components/Products/QuickViewModal.jsx';
 import { useCart } from '@/store/cart.jsx';
 import { useToast } from '@/store/toast.jsx';
 import { publicApi } from '@/services/api.js';
@@ -20,11 +21,18 @@ export default function ShopHomePage() {
   const { addItem } = useCart();
   const toast = useToast();
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [activeSubcategory, setActiveSubcategory] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sort, setSort] = useState('catalog');
+  const categoryParam = searchParams.get('category');
+  const subcategoryParam = searchParams.get('subcategory');
+  const searchParam = searchParams.get('search') || '';
+  const onSaleParam = searchParams.get('on_sale');
+  const sortParam = searchParams.get('sort') || (onSaleParam === 'true' ? 'best_selling' : 'catalog');
+
+  const [activeCategory, setActiveCategory] = useState(categoryParam || 'all');
+  const [activeSubcategory, setActiveSubcategory] = useState(subcategoryParam || null);
+  const [searchQuery, setSearchQuery] = useState(searchParam);
+  const [sort, setSort] = useState(sortParam);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   
@@ -41,9 +49,23 @@ export default function ShopHomePage() {
   const [categoriesTree, setCategoriesTree] = useState([]);
   const [flatCategories, setFlatCategories] = useState([]);
   const [banners, setBanners] = useState([]);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   const searchTimer = useRef(null);
   const productsTopRef = useRef(null);
+
+  // Sync state when URL params change (e.g. from homepage category clicks or browser back/forward)
+  useEffect(() => {
+    const cat = searchParams.get('category') || 'all';
+    const sub = searchParams.get('subcategory') || null;
+    const q = searchParams.get('search') || '';
+    const s = searchParams.get('sort') || (searchParams.get('on_sale') === 'true' ? 'best_selling' : 'catalog');
+    
+    setActiveCategory(cat);
+    setActiveSubcategory(sub);
+    setSearchQuery(q);
+    setSort(s);
+  }, [searchParams]);
 
   // ─── Fetch from API ───
   const fetchProducts = useCallback(async ({ category, subcategory, search, sortBy, min, max } = {}) => {
@@ -68,22 +90,16 @@ export default function ShopHomePage() {
     }
   }, []);
 
-  // ─── Initial boot ───
+  // ─── Initial boot: Load categories and banners (products are handled by filter effect) ───
   useEffect(() => {
     let isMounted = true;
     async function boot() {
       try {
-        const [prodRes, catRes, bannersRes] = await Promise.allSettled([
-          publicApi.get('/products'),
+        const [catRes, bannersRes] = await Promise.allSettled([
           publicApi.get('/categories'),
           publicApi.get('/banners'),
         ]);
         if (!isMounted) return;
-
-        if (prodRes.status === 'fulfilled') {
-          const rawProds = Array.isArray(prodRes.value.data?.products) ? prodRes.value.data.products : [];
-          setProducts(rawProds.map((p, i) => normalizeProduct(p, i)));
-        }
 
         if (catRes.status === 'fulfilled') {
           const rawCats = Array.isArray(catRes.value.data?.categories) ? catRes.value.data.categories : [];
@@ -97,8 +113,6 @@ export default function ShopHomePage() {
         }
       } catch (e) {
         console.error('Error booting shop catalog:', e);
-      } finally {
-        if (isMounted) setLoading(false);
       }
     }
     boot();
@@ -126,11 +140,31 @@ export default function ShopHomePage() {
   const handleSelectCategory = (catSlug) => {
     setActiveCategory(catSlug);
     setActiveSubcategory(null);
+    const next = new URLSearchParams(searchParams);
+    if (catSlug && catSlug !== 'all') {
+      next.set('category', catSlug);
+    } else {
+      next.delete('category');
+    }
+    next.delete('subcategory');
+    setSearchParams(next, { replace: true });
   };
 
   const handleSelectSubcategory = (catSlug, subSlug) => {
     setActiveCategory(catSlug);
     setActiveSubcategory(subSlug);
+    const next = new URLSearchParams(searchParams);
+    if (catSlug && catSlug !== 'all') {
+      next.set('category', catSlug);
+    } else {
+      next.delete('category');
+    }
+    if (subSlug) {
+      next.set('subcategory', subSlug);
+    } else {
+      next.delete('subcategory');
+    }
+    setSearchParams(next, { replace: true });
   };
 
   const handlePriceChange = (min, max) => {
@@ -145,7 +179,12 @@ export default function ShopHomePage() {
     setSort('catalog');
     setMinPrice('');
     setMaxPrice('');
-    setCurrentPage(1);
+    setSearchParams(new URLSearchParams(), { replace: true });
+  };
+
+  const handleBannerOffersClick = () => {
+    setSort('best_selling');
+    productsTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handlePageChange = (newPage) => {
@@ -176,11 +215,11 @@ export default function ShopHomePage() {
     >
       {/* ─── Shop Promo Banner ─── */}
       <div className="mb-10">
-        <PromoBanner banner={shopBanner} position="shop" />
+        <PromoBanner banner={shopBanner} position="shop" onCtaClick={handleBannerOffersClick} />
       </div>
 
       {/* ─── Top Control Bar: Search, Mobile Filter & View Toggle ─── */}
-      <div className="mb-8 space-y-4" ref={productsTopRef}>
+      <div className="mb-8 space-y-4" ref={productsTopRef} id="products-grid">
         <div className="flex items-center gap-3">
           {/* Search Bar */}
           <div className="relative flex-1">
@@ -378,7 +417,12 @@ export default function ShopHomePage() {
               }
             `}>
               {paginatedProducts.map((p, index) => (
-                <ProductCard key={`${p.id}-${currentPage}-${activeCategory}-${sort}`} product={p} index={index} />
+                <ProductCard
+                  key={`${p.id}-${currentPage}-${activeCategory}-${sort}`}
+                  product={p}
+                  index={index}
+                  onQuickView={setQuickViewProduct}
+                />
               ))}
             </div>
           )}
@@ -511,6 +555,13 @@ export default function ShopHomePage() {
           </div>
         </div>
       )}
+
+      {/* ── Quick View Modal ── */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={Boolean(quickViewProduct)}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </GlassShell>
   );
 }

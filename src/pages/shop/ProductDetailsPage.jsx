@@ -11,6 +11,7 @@ import { useToast } from '@/store/toast.jsx';
 import { loadProduct, normalizeProduct } from '@/services/catalog.js';
 import { publicApi } from '@/services/api.js';
 import { useTranslation } from 'react-i18next';
+import { trackAddToCart, trackViewContent } from '@/services/tracking.js';
 
 function money(value, currency = 'ج.م') {
   return `${Number(value).toLocaleString('ar-EG')} ${currency}`;
@@ -28,6 +29,7 @@ export default function ProductDetailsPage() {
   const [qty, setQty] = useState(1);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [added, setAdded] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -42,6 +44,12 @@ export default function ProductDetailsPage() {
 
       if (prod) {
         setProduct(prod);
+        if (Array.isArray(prod.variants) && prod.variants.length > 0) {
+          setSelectedVariant(prod.variants[0]);
+        } else {
+          setSelectedVariant(null);
+        }
+        trackViewContent(prod);
 
         // Fetch related products from same category
         try {
@@ -66,11 +74,14 @@ export default function ProductDetailsPage() {
 
   const handleAdd = useCallback(() => {
     if (!product) return;
-    addItem(product, qty);
+    addItem(product, qty, selectedVariant);
+    trackAddToCart(product, qty, selectedVariant);
     setAdded(true);
-    toast.success(t('shop.added_to_cart', 'تمت إضافة {{name}} للسلة', { name: product.name }));
+    toast.success(t('shop.added_to_cart', 'تمت إضافة {{name}} للسلة', {
+      name: `${product.name}${selectedVariant ? ` (${selectedVariant.name})` : ''}`
+    }));
     setTimeout(() => setAdded(false), 2200);
-  }, [product, qty, addItem, toast, t]);
+  }, [product, qty, selectedVariant, addItem, toast, t]);
 
   if (loading) {
     return (
@@ -102,6 +113,18 @@ export default function ProductDetailsPage() {
     );
   }
 
+  const currentPrice = selectedVariant
+    ? Number(selectedVariant.price)
+    : Number(product.price || 0);
+
+  const currentOldPrice = selectedVariant?.original_price
+    ? Number(selectedVariant.original_price)
+    : (product.oldPrice || null);
+
+  const hasDiscount = currentOldPrice && currentOldPrice > currentPrice;
+  const currentDiscountAmount = hasDiscount ? currentOldPrice - currentPrice : 0;
+  const currentDiscountPercent = hasDiscount ? Math.round((currentDiscountAmount / currentOldPrice) * 100) : null;
+
   return (
     <GlassShell
       title={product.name}
@@ -127,10 +150,10 @@ export default function ProductDetailsPage() {
       </div>
 
       <div className="grid lg:grid-cols-[1fr_0.88fr] gap-8 items-start">
-        {/* Left Column: Product Image & Trust Badges */}
+        {/* Left Column: Product Image */}
         <div className="space-y-5">
           <div className="relative rounded-3xl border border-[var(--border-default)] bg-white overflow-hidden shadow-lg">
-            <div className="relative h-[380px] md:h-[480px] overflow-hidden bg-white flex items-center justify-center">
+            <div className="relative h-[360px] sm:h-[420px] md:h-[480px] overflow-hidden bg-white flex items-center justify-center">
               {!imgLoaded && <div className="absolute inset-0 bg-white/90 animate-pulse" />}
               <img
                 src={product.image}
@@ -149,36 +172,18 @@ export default function ProductDetailsPage() {
               )}
 
               {/* Discount Badge */}
-              {product.oldPrice && product.oldPrice > product.price && (
+              {hasDiscount && (
                 <div className="absolute top-5 left-5 rounded-xl px-3.5 py-1.5 text-[0.75rem] font-number font-bold bg-[var(--discount-badge)] text-white shadow-md z-10 pointer-events-none">
-                  {product.discountPercent ? `توفير ${product.discountAmount} ج.م (-${product.discountPercent}%)` : `توفير ${product.discountAmount} ج.م`}
+                  {currentDiscountPercent ? `توفير ${currentDiscountAmount} ج.م (-${currentDiscountPercent}%)` : `توفير ${currentDiscountAmount} ج.م`}
                 </div>
               )}
             </div>
           </div>
-
-          {/* Trust Badges */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { Icon: Truck, label: 'شحن سريع ومباشر', sub: 'لكل محافظات مصر' },
-              { Icon: Package, label: 'تغليف فاخر وآمن', sub: 'يحفظ جودة المنتجات' },
-              { Icon: ShieldCheck, label: 'طبيعي 100%', sub: 'من مزارع واحة سيوة' },
-            ].map(({ Icon, label, sub }) => (
-              <div
-                key={label}
-                className="flex flex-col items-center gap-1.5 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-4 text-center transition-all duration-300 hover:border-[var(--border-accent)]"
-              >
-                <Icon className="w-5 h-5 text-[var(--siwa-earth)]" strokeWidth={1.8} />
-                <span className="text-[0.78rem] font-bold text-[var(--text-primary)]">{label}</span>
-                <span className="text-[0.68rem] text-[var(--text-tertiary)]">{sub}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
-        {/* Right Column: Pricing & Purchase Card */}
+        {/* Right Column: Pricing & Purchase Card & Trust Badges underneath */}
         <div className="space-y-6">
-          <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-card)] p-7 space-y-5 shadow-lg text-right">
+          <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-card)] p-6 sm:p-7 space-y-5 shadow-lg text-right">
             {/* Category / Subcategory tag */}
             <div className="flex items-center gap-2 text-xs font-bold text-[var(--siwa-earth)]">
               <span>{product.categoryLabel}</span>
@@ -190,25 +195,25 @@ export default function ProductDetailsPage() {
               )}
             </div>
 
-            <h1 className="font-ar text-[1.6rem] md:text-[2.1rem] font-black text-[var(--text-primary)] leading-[1.25]">
+            <h1 className="font-ar text-[1.5rem] sm:text-[1.8rem] md:text-[2.1rem] font-black text-[var(--text-primary)] leading-[1.25]">
               {product.name}
             </h1>
 
             {/* Price Presentation */}
             <div className="pt-2 flex items-baseline gap-3.5">
-              <span className="font-number text-[2.2rem] font-black text-[var(--text-primary)] leading-none">
-                {money(product.price, product.currency)}
+              <span className="font-number text-[2rem] sm:text-[2.2rem] font-black text-[var(--text-primary)] leading-none">
+                {money(currentPrice, product.currency)}
               </span>
 
-              {product.oldPrice && product.oldPrice > product.price && (
-                <span className="font-number text-[1.2rem] text-[var(--text-muted)] line-through">
-                  {money(product.oldPrice, product.currency)}
+              {hasDiscount && (
+                <span className="font-number text-[1.1rem] sm:text-[1.2rem] text-[var(--text-muted)] line-through">
+                  {money(currentOldPrice, product.currency)}
                 </span>
               )}
 
-              {product.discountPercent && (
+              {currentDiscountPercent && (
                 <span className="rounded-xl px-2.5 py-1 text-[0.78rem] font-number font-bold bg-[var(--discount-badge)] text-white">
-                  -{product.discountPercent}%
+                  -{currentDiscountPercent}%
                 </span>
               )}
             </div>
@@ -222,10 +227,43 @@ export default function ProductDetailsPage() {
             {/* Description */}
             <div className="pt-4 border-t border-[var(--border-subtle)]">
               <h4 className="text-xs font-bold text-[var(--text-primary)] mb-2 uppercase tracking-wider">تفاصيل المنتج:</h4>
-              <p className="text-[var(--text-secondary)] leading-[1.85] text-[0.94rem]">
+              <p className="text-[var(--text-secondary)] leading-[1.85] text-[0.92rem] sm:text-[0.94rem]">
                 {product.desc || product.description}
               </p>
             </div>
+
+            {/* Variants / Weights Selection */}
+            {Array.isArray(product.variants) && product.variants.length > 0 && (
+              <div className="pt-4 border-t border-[var(--border-subtle)] space-y-2.5">
+                <label className="block text-xs font-bold text-[var(--text-secondary)]">
+                  اختر الوزن أو الحجم:
+                </label>
+                <div className="flex flex-wrap gap-2 sm:gap-2.5">
+                  {product.variants.map((v, i) => {
+                    const isSelected = selectedVariant ? selectedVariant.name === v.name : i === 0;
+                    return (
+                      <button
+                        key={v.id || v.name || i}
+                        type="button"
+                        onClick={() => setSelectedVariant(v)}
+                        className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-[var(--action-primary)] text-white shadow-md ring-2 ring-[var(--action-primary)]/30 scale-[1.02]'
+                            : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] border border-[var(--border-default)] hover:border-[var(--siwa-earth)] hover:text-[var(--text-primary)]'
+                        }`}
+                      >
+                        <span>{v.name}</span>
+                        {v.price && (
+                          <span className="mr-1.5 text-[0.72rem] font-number opacity-90">
+                            ({v.price} ج.م)
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Quantity Selector & Add to Cart */}
             <div className="pt-4 border-t border-[var(--border-subtle)] space-y-4">
@@ -271,12 +309,30 @@ export default function ProductDetailsPage() {
                   ) : (
                     <>
                       <ShoppingBasket className="w-5 h-5" strokeWidth={2} />
-                      <span>إضافة إلى سلة الشراء</span>
+                      <span>إضافة إلى سلة الشراء ({currentPrice * qty} ج.م)</span>
                     </>
                   )}
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* ── Trust Badges (Positioned UNDER product details & compact font on mobile) ── */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3.5 pt-1">
+            {[
+              { Icon: Truck, label: 'شحن سريع ومباشر', sub: 'لكل محافظات مصر' },
+              { Icon: Package, label: 'تغليف فاخر وآمن', sub: 'يحفظ جودة المنتجات' },
+              { Icon: ShieldCheck, label: 'طبيعي 100%', sub: 'من مزارع واحة سيوة' },
+            ].map(({ Icon, label, sub }) => (
+              <div
+                key={label}
+                className="flex flex-col items-center gap-1 sm:gap-1.5 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] p-2.5 sm:p-4 text-center transition-all duration-300 hover:border-[var(--border-accent)] shadow-2xs"
+              >
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
+                <span className="text-[0.68rem] sm:text-[0.78rem] font-bold text-[var(--text-primary)] leading-tight">{label}</span>
+                <span className="text-[0.58rem] sm:text-[0.66rem] text-[var(--text-tertiary)] leading-tight">{sub}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>

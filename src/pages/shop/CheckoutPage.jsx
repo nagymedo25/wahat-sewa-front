@@ -1,14 +1,20 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, MessageCircle, UserCircle, ShoppingBasket, Truck, Receipt, Sparkles, ClipboardCheck, PackageOpen, ChevronDown, Check } from 'lucide-react';
+import {
+  ArrowLeft, MapPin, MessageCircle, UserCircle, ShoppingBasket, Truck,
+  Receipt, Sparkles, ClipboardCheck, PackageOpen, ChevronDown, Check,
+  Lock, Eye, EyeOff, CheckCircle2, PhoneCall
+} from 'lucide-react';
 import GlassShell from '@/components/Layout/GlassShell.jsx';
 import { useCart } from '@/store/cart.jsx';
 import { useAuth } from '@/store/auth.jsx';
 import { useToast } from '@/store/toast.jsx';
+import { publicApi } from '@/services/api.js';
 import { useTranslation } from 'react-i18next';
+import { trackInitiateCheckout, trackPurchase } from '@/services/tracking.js';
 
-function money(value, currency) {
-  return `${value} ${currency}`;
+function money(value, currency = 'ج.م') {
+  return `${Number(value).toLocaleString('ar-EG')} ${currency}`;
 }
 
 const UPPER_EGYPT = ['الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'الوادي الجديد', 'البحر الأحمر'];
@@ -16,7 +22,7 @@ const UPPER_EGYPT = ['الفيوم', 'بني سويف', 'المنيا', 'أسي�
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, totals, clear, setShippingCost } = useCart();
-  const { user, isAuthed, api } = useAuth();
+  const { user, isAuthed, register } = useAuth();
   const toast = useToast();
   const { t } = useTranslation();
 
@@ -25,17 +31,31 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [selectedRegion, setSelectedRegion] = useState(null);
+  const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [regions, setRegions] = useState([]);
   const [loadingRegions, setLoadingRegions] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  // Optional account creation
+  const [createAccount, setCreateAccount] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Order Confirmation State
+  const [confirmedOrder, setConfirmedOrder] = useState(null);
+
+  useEffect(() => {
+    trackInitiateCheckout(items, totals.total);
+  }, []);
+
   useEffect(() => {
     const fetchRegions = async () => {
       try {
-        const response = await api.get('/regions');
-        setRegions(response.data.regions);
-        const defaultCity = response.data.regions.find(r => r.name === 'القاهرة') || response.data.regions[0];
+        const response = await publicApi.get('/regions');
+        const regList = Array.isArray(response.data?.regions) ? response.data.regions : [];
+        setRegions(regList);
+        const defaultCity = regList.find(r => r.name === 'القاهرة') || regList[0];
         if (defaultCity) {
           setCity(defaultCity.name);
           setSelectedRegion(defaultCity);
@@ -48,7 +68,7 @@ export default function CheckoutPage() {
       }
     };
     fetchRegions();
-  }, [api, setShippingCost]);
+  }, [setShippingCost]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -66,16 +86,40 @@ export default function CheckoutPage() {
   };
 
   const canSubmit = useMemo(() => {
-    return items.length > 0 && name.trim() && whatsapp.trim() && address.trim() && city.trim();
+    const validPhone = /^01[0125]\d{8}$/.test(whatsapp.trim());
+    return items.length > 0 && name.trim().length >= 2 && validPhone && address.trim().length >= 5 && city.trim();
   }, [address, city, items.length, name, whatsapp]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    if (!canSubmit) return;
+    if (!canSubmit) {
+      if (!/^01[0125]\d{8}$/.test(whatsapp.trim())) {
+        toast.error('يرجى إدخال رقم هاتف محمول مصري صحيح (010, 011, 012, 015 مكون من 11 رقماً)');
+      } else {
+        toast.error('يرجى ملء جميع الحقول المطلوبة بشكل صحيح');
+      }
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const response = await api.post('/orders', {
+      // 1. Optional background registration if requested and not logged in
+      if (!isAuthed && createAccount && password.trim()) {
+        try {
+          await register({
+            name: name.trim(),
+            whatsapp: whatsapp.trim(),
+            password: password.trim(),
+          });
+        } catch (regErr) {
+          console.warn('Optional registration notice:', regErr.response?.data?.error || regErr.message);
+          // Non-blocking: continue with order as guest
+        }
+      }
+
+      // 2. Submit order
+      const response = await publicApi.post('/orders', {
         items: items.map((it) => ({
           product_id: it.id,
           quantity: it.qty,
@@ -86,40 +130,94 @@ export default function CheckoutPage() {
           address: address.trim(),
           city: city.trim(),
         },
+        notes: notes.trim() || undefined,
       });
 
-      const remoteOrder = response.data.order;
-      clear();
-      toast.success(t('checkout.order_confirmed', 'تم تأكيد طلبك #{{id}}', { id: String(remoteOrder.id).slice(0, 8) }));
-      navigate('/shop/account?tab=orders', { replace: true });
+      const remoteOrder = response.data?.order;
+      if (remoteOrder) {
+        // Track purchase in Meta, TikTok, GA4 & CAPI
+        trackPurchase(remoteOrder, items, { name: name.trim(), whatsapp: whatsapp.trim() });
+        setConfirmedOrder(remoteOrder);
+        clear();
+        toast.success(`تم تأكيد طلبك بنجاح! رقم الطلب #${String(remoteOrder.id).slice(0, 8)}`);
+      }
     } catch (error) {
-      toast.error(error.response?.data?.error || t('checkout.order_failed', 'تعذر إنشاء الطلب الآن. حاول مرة أخرى بعد قليل.'));
+      console.error('Order submission error:', error);
+      toast.error(error.response?.data?.error || 'تعذر إنشاء الطلب الآن. حاول مرة أخرى بعد قليل.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!isAuthed) {
+  const isSaeed = (cityName) => UPPER_EGYPT.includes(cityName?.trim());
+
+  // ─── If Order was placed successfully, show Confirmed Celebration Screen ───
+  if (confirmedOrder) {
+    const shortId = String(confirmedOrder.id).slice(0, 8);
+    const whatsappMsg = encodeURIComponent(`مرحباً سحر سيوة، أود الاستفسار عن طلبي رقم #${shortId} باسم ${confirmedOrder.shipping_address?.name}`);
+    const whatsappUrl = `https://wa.me/201553251467?text=${whatsappMsg}`;
+
     return (
-      <GlassShell title={t('checkout.login_required_title', 'تسجيل الدخول مطلوب')} subtitle={t('checkout.login_required_subtitle', 'أكمل تسجيل الدخول لإتمام الدفع.')}>
-        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-7 max-w-[720px] shadow-[var(--shadow-lg)]">
-          <div className="flex flex-col items-center text-center py-6">
-            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-[var(--action-primary)]/10 border border-[var(--border-accent)] mb-4 text-[var(--action-primary)]">
-              <UserCircle className="w-8 h-8" strokeWidth={1.5} />
-            </div>
-            <div className="text-[var(--text-primary)] font-ar font-bold text-[1.2rem]">{t('checkout.login_required_reason', 'عشان نحفظ تفاصيل الطلب')}</div>
-            <div className="mt-1 text-[var(--text-secondary)] font-ar text-[0.92rem]">{t('checkout.login_required_action', 'لازم تسجّل دخول أولاً.')}</div>
+      <GlassShell
+        title="تم تأكيد طلبك بنجاح!"
+        subtitle="شكراً لثقتك في خيرات سحر سيوة الطبيعية."
+      >
+        <div className="max-w-xl mx-auto rounded-3xl border border-[var(--border-accent)] bg-[var(--bg-card)] p-6 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.18)] text-center font-ar space-y-6 animate-scaleUp">
+          <div className="w-20 h-20 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 mx-auto flex items-center justify-center shadow-lg">
+            <CheckCircle2 className="w-10 h-10" strokeWidth={2.2} />
           </div>
-          <div className="mt-6 flex items-center justify-center gap-3">
-            <Link
-              to="/auth/login?next=/shop/checkout"
-              className="rounded-2xl px-6 py-3 bg-[var(--action-primary)] text-[var(--action-primary-text)] font-ar font-bold no-underline transition-all hover:bg-[var(--action-primary-hover)] shadow-[var(--shadow-md)] active:scale-95"
+
+          <div className="space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)]">
+              تهانينا! تم استلام طلبك بنجاح
+            </h2>
+            <p className="text-[var(--text-secondary)] text-sm sm:text-base leading-relaxed">
+              يقوم فريقنا الآن بتجهيز منتجات الواحة الطازجة وشحنها سريعاً إلى عنوانك.
+            </p>
+          </div>
+
+          <div className="rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-default)] p-5 text-right space-y-3 font-ar">
+            <div className="flex items-center justify-between text-sm pb-2 border-b border-[var(--border-subtle)]">
+              <span className="text-[var(--text-secondary)]">رقم الطلب:</span>
+              <span className="font-number font-bold text-[var(--siwa-earth)] text-base">#{shortId}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm pb-2 border-b border-[var(--border-subtle)]">
+              <span className="text-[var(--text-secondary)]">المستلم:</span>
+              <span className="font-bold text-[var(--text-primary)]">{confirmedOrder.shipping_address?.name}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm pb-2 border-b border-[var(--border-subtle)]">
+              <span className="text-[var(--text-secondary)]">رقم التواصل:</span>
+              <span className="font-number font-bold text-[var(--text-primary)]">{confirmedOrder.shipping_address?.whatsapp}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm pb-2 border-b border-[var(--border-subtle)]">
+              <span className="text-[var(--text-secondary)]">عنوان التوصيل:</span>
+              <span className="font-bold text-[var(--text-primary)]">{confirmedOrder.shipping_address?.city} - {confirmedOrder.shipping_address?.address}</span>
+            </div>
+            <div className="flex items-center justify-between text-base pt-1">
+              <span className="font-bold text-[var(--text-primary)]">المبلغ الإجمالي (شامل الشحن):</span>
+              <span className="font-number font-black text-lg text-[var(--action-primary)]">
+                {confirmedOrder.total_amount} ج.م
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:flex-1 py-3.5 px-5 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm inline-flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer no-underline"
             >
-              {t('auth.sign_in', 'تسجيل الدخول')}
-            </Link>
-            <Link to="/shop/cart" className="no-underline text-[var(--siwa-earth)] hover:text-[var(--siwa-earth-light)] transition-colors inline-flex items-center gap-2 font-ar font-bold">
-              <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-              {t('checkout.back_to_cart', 'رجوع للسلة')}
+              <MessageCircle className="w-4 h-4" />
+              <span>متابعة الطلب عبر الواتساب</span>
+            </a>
+
+            <Link
+              to="/shop"
+              className="w-full sm:flex-1 py-3.5 px-5 rounded-2xl bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-white font-bold text-sm inline-flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 no-underline"
+            >
+              <span>متابعة التسوق بالمتجر</span>
+              <ArrowLeft className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -129,14 +227,13 @@ export default function CheckoutPage() {
 
   const steps = [
     { label: t('checkout.step_cart', 'السلة'), active: true },
-    { label: t('checkout.step_payment', 'الدفع'), active: true },
+    { label: t('checkout.step_payment', 'إتمام الطلب'), active: true },
     { label: t('checkout.step_confirm', 'التأكيد'), active: false },
   ];
 
-  const isSaeed = (name) => UPPER_EGYPT.includes(name?.trim());
-
   return (
-    <GlassShell title={t('checkout.title', 'الدفع')} subtitle={t('checkout.subtitle', 'خطوات سريعة وإدخال منظم للعنوان وبيانات التواصل.')}>
+    <GlassShell title={t('checkout.title', 'إتمام الطلب السريع')} subtitle="طلب مباشر وسهل برقم الهاتف دون الحاجة لتسجيل مسبق.">
+      {/* Steps Indicator */}
       <div className="flex items-center justify-center gap-2 mb-8">
         {steps.map((step, i) => (
           <div key={step.label} className="flex items-center gap-2">
@@ -156,51 +253,71 @@ export default function CheckoutPage() {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-7">
-        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-7 shadow-[var(--shadow-lg)]">
+      <div className="grid lg:grid-cols-[1.15fr_0.85fr] gap-7 items-start">
+        {/* Left Column: Fast Order Form */}
+        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-6 sm:p-7 shadow-[var(--shadow-lg)]">
+          
+          {/* Guest Order Banner */}
+          {!isAuthed && (
+            <div className="mb-6 p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-accent)] flex items-center justify-between gap-3 text-right">
+              <div>
+                <span className="block text-xs font-bold text-[var(--siwa-earth)] mb-0.5">طلب فوري ومباشر كزائر</span>
+                <span className="block text-[0.82rem] text-[var(--text-secondary)]">يمكنك إتمام طلبك برقم هاتفك مباشرة دون الحاجة لإنشاء حساب.</span>
+              </div>
+              <Link
+                to="/auth/login?next=/shop/checkout"
+                className="px-3.5 py-2 rounded-xl bg-[var(--bg-elevated)] hover:bg-[var(--bg-secondary)] text-[var(--text-primary)] border border-[var(--border-default)] text-xs font-bold whitespace-nowrap transition-colors no-underline"
+              >
+                تسجيل الدخول
+              </Link>
+            </div>
+          )}
+
           <form onSubmit={onSubmit} className="flex flex-col gap-5">
+            {/* Recipient Name */}
             <div>
-              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">{t('checkout.name', 'الاسم')}</label>
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">
+                الاسم بالكامل <span className="text-red-400">*</span>
+              </label>
               <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] transition-all focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
                 <UserCircle className="w-[18px] h-[18px] text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  placeholder="مثال: محمود أحمد"
                   className="w-full bg-transparent outline-none text-[var(--text-primary)] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)]"
                   autoComplete="name"
+                  required
                 />
               </div>
             </div>
 
+            {/* Phone / WhatsApp */}
             <div>
-              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">{t('checkout.whatsapp', 'رقم الواتساب')}</label>
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">
+                رقم التليفون / الواتساب <span className="text-red-400">*</span>
+              </label>
               <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] transition-all focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
                 <MessageCircle className="w-[18px] h-[18px] text-[var(--siwa-earth)] shrink-0" strokeWidth={1.8} />
                 <input
                   value={whatsapp}
                   onChange={(e) => setWhatsapp(e.target.value)}
-                  className="w-full bg-transparent outline-none text-[var(--text-primary)] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)]"
+                  className="w-full bg-transparent outline-none text-[var(--text-primary)] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)] font-number"
                   placeholder="01XXXXXXXXX"
                   autoComplete="tel"
+                  required
                 />
               </div>
+              <span className="block mt-1.5 text-[0.75rem] text-[var(--text-tertiary)]">
+                سنقوم بالتواصل معك عبر هذا الرقم لتأكيد تفاصيل الشحن.
+              </span>
             </div>
 
+            {/* Governorate Selection */}
             <div>
-              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">{t('checkout.address', 'العنوان')}</label>
-              <div className="flex items-start gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] transition-all focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
-                <MapPin className="w-[18px] h-[18px] text-[var(--siwa-earth)] mt-1 shrink-0" strokeWidth={1.8} />
-                <textarea
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-transparent outline-none text-[var(--text-primary)] resize-none min-h-[84px] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)]"
-                  placeholder={t('checkout.address_placeholder', 'الشارع - العمارة - الدور')}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">{t('checkout.city', 'المحافظة')}</label>
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">
+                المحافظة <span className="text-red-400">*</span>
+              </label>
               {loadingRegions ? (
                 <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] animate-pulse">
                   <div className="w-4 h-4 rounded-full bg-[var(--palm-shade)]/20" />
@@ -289,80 +406,171 @@ export default function CheckoutPage() {
                       </div>
                       <div className="px-4 py-2 border-t border-[var(--border-subtle)] flex items-center gap-1.5 bg-[var(--bg-secondary)]/40">
                         <Truck className="w-3.5 h-3.5 text-[var(--text-muted)]" strokeWidth={1.5} />
-                        <span className="text-[0.72rem] text-[var(--text-muted)] font-ar">سعر الشحن يتغير حسب المحافظة</span>
+                        <span className="text-[0.72rem] text-[var(--text-muted)] font-ar">سعر الشحن يتغير تلقائياً حسب المحافظة</span>
                       </div>
                     </div>
                   )}
-                  <style>{`
-                    @keyframes dropdownIn {
-                      from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-                      to   { opacity: 1; transform: translateY(0)   scale(1);    }
-                    }
-                  `}</style>
                 </div>
               )}
             </div>
 
+            {/* Address */}
+            <div>
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">
+                العنوان بالتفصيل <span className="text-red-400">*</span>
+              </label>
+              <div className="flex items-start gap-3 rounded-2xl px-4 py-3.5 border border-[var(--border-default)] bg-[var(--bg-card)] transition-all focus-within:border-[var(--border-accent)] focus-within:shadow-[var(--shadow-glow)]">
+                <MapPin className="w-[18px] h-[18px] text-[var(--siwa-earth)] mt-1 shrink-0" strokeWidth={1.8} />
+                <textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full bg-transparent outline-none text-[var(--text-primary)] resize-none min-h-[80px] font-ar text-[0.95rem] placeholder:text-[var(--text-muted)]"
+                  placeholder="المنطقة - الشارع - رقم العمارة - الدور - رقم الشقة أو علامة مميزة"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Optional Notes */}
+            <div>
+              <label className="block mb-2 text-[var(--text-secondary)] text-[0.9rem] font-bold font-ar">
+                ملاحظات إضافية على الطلب (اختياري)
+              </label>
+              <div className="rounded-2xl px-4 py-3 border border-[var(--border-default)] bg-[var(--bg-card)] focus-within:border-[var(--border-accent)]">
+                <input
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="أي تعليمات خاصة بالتوصيل أو التغليف…"
+                  className="w-full bg-transparent outline-none text-[var(--text-primary)] font-ar text-[0.88rem] placeholder:text-[var(--text-muted)]"
+                />
+              </div>
+            </div>
+
+            {/* Optional Account Creation for Guests */}
+            {!isAuthed && (
+              <div className="p-4 rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={createAccount}
+                    onChange={(e) => setCreateAccount(e.target.checked)}
+                    className="w-4 h-4 rounded text-[var(--action-primary)] focus:ring-[var(--action-primary)] cursor-pointer"
+                  />
+                  <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+                    إنشاء حساب لمتابعة طلباتي مستقبلاً (اختياري)
+                  </span>
+                </label>
+
+                {createAccount && (
+                  <div className="pt-2 animate-fadeIn">
+                    <label className="block mb-1.5 text-xs font-bold text-[var(--text-secondary)]">
+                      كلمة المرور للحساب الجديد:
+                    </label>
+                    <div className="relative flex items-center rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2">
+                      <Lock className="w-4 h-4 text-[var(--text-muted)] shrink-0 ml-2" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="اختر كلمة مرور من 8 أحرف وأرقام"
+                        className="w-full bg-transparent outline-none text-xs font-ar text-[var(--text-primary)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer"
+                      >
+                        {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={!canSubmit || isSubmitting}
               className="w-full relative overflow-hidden rounded-2xl px-5 py-4 bg-[var(--action-primary)] hover:bg-[var(--action-primary-hover)] text-[var(--action-primary-text)] font-ar font-bold text-[1.05rem] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed shadow-[var(--shadow-md)] hover:shadow-[var(--shadow-glow)] active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer mt-2"
             >
               <ClipboardCheck className="w-5 h-5" strokeWidth={2} />
-              <span>{isSubmitting ? t('checkout.confirming', 'جاري التأكيد…') : t('checkout.confirm_order', 'تأكيد الطلب')}</span>
+              <span>{isSubmitting ? 'جاري تأكيد الطلب…' : 'تأكيد الطلب والدفع عند الاستلام'}</span>
             </button>
 
             <Link to="/shop/cart" className="no-underline text-[var(--siwa-earth)] hover:text-[var(--siwa-earth-light)] transition-colors inline-flex items-center gap-2 font-ar font-bold text-[0.9rem] justify-center mt-1">
               <ArrowLeft className="w-4 h-4" strokeWidth={2} />
-              <span>{t('checkout.back_to_cart', 'رجوع للسلة')}</span>
+              <span>رجوع للسلة</span>
             </Link>
           </form>
         </div>
 
-        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-7 h-fit shadow-[var(--shadow-xl)] space-y-4">
+        {/* Right Column: Order Summary */}
+        <div className="rounded-3xl border border-[var(--border-default)] bg-[var(--bg-elevated)] backdrop-blur-xl p-6 sm:p-7 h-fit shadow-[var(--shadow-xl)] space-y-4">
           <div className="flex items-center gap-2.5 font-ar text-[var(--text-primary)] font-bold text-[1.15rem] pb-3 border-b border-[var(--border-default)]">
             <Receipt className="w-5 h-5 text-[var(--siwa-earth)]" strokeWidth={1.8} />
-            <span>{t('checkout.order_summary', 'ملخص الطلب')}</span>
+            <span>ملخص الطلب</span>
           </div>
+
           <div className="flex flex-col gap-3.5 pt-1">
             {items.length === 0 && (
               <div className="flex flex-col items-center py-6 gap-2">
                 <PackageOpen className="w-7 h-7 text-[var(--text-muted)]" strokeWidth={1.5} />
-                <span className="text-[var(--text-muted)] text-[0.88rem] font-ar">{t('checkout.empty_cart', 'السلة فارغة')}</span>
+                <span className="text-[var(--text-muted)] text-[0.88rem] font-ar">السلة فارغة</span>
               </div>
             )}
+
             {items.map((it) => (
-              <div key={it.id} className="flex items-center justify-between text-[var(--text-secondary)]">
-                <span className="truncate font-ar text-[0.92rem] font-medium">{it.name} × {it.qty}</span>
-                <span className="font-number text-[var(--text-primary)] font-bold">{money(it.price * it.qty, t('checkout.currency', 'ج.م'))}</span>
+              <div key={it.cartKey || it.id} className="flex items-center justify-between text-[var(--text-secondary)]">
+                <div className="flex items-center gap-1.5 truncate max-w-[70%]">
+                  <span className="truncate font-ar text-[0.92rem] font-medium">{it.name}</span>
+                  {it.variantName && (
+                    <span className="text-[0.72rem] font-bold text-[var(--siwa-earth)] shrink-0">
+                      ({it.variantName})
+                    </span>
+                  )}
+                  <span className="text-xs font-number text-[var(--text-muted)] shrink-0">× {it.qty}</span>
+                </div>
+                <span className="font-number text-[var(--text-primary)] font-bold shrink-0">
+                  {money(it.price * it.qty, 'ج.م')}
+                </span>
               </div>
             ))}
+
             <div className="h-px bg-[var(--border-default)] my-1" />
+
             <div className="flex items-center justify-between text-[var(--text-secondary)]">
               <span className="inline-flex items-center gap-2">
                 <ShoppingBasket className="w-4 h-4 text-[var(--siwa-earth)] opacity-80" strokeWidth={1.8} />
-                <span>{t('checkout.subtotal', 'المجموع')}</span>
+                <span>المجموع</span>
               </span>
-              <span className="font-number text-[var(--text-primary)] font-bold">{money(totals.subtotal, t('checkout.currency', 'ج.م'))}</span>
+              <span className="font-number text-[var(--text-primary)] font-bold">{money(totals.subtotal, 'ج.م')}</span>
             </div>
+
             <div className="flex items-center justify-between text-[var(--text-secondary)]">
               <span className="inline-flex items-center gap-2">
                 <Truck className="w-4 h-4 text-[var(--siwa-earth)] opacity-80" strokeWidth={1.8} />
-                <span>{t('checkout.shipping', 'الشحن')}</span>
+                <span>الشحن</span>
                 {selectedRegion && (
                   <span className="text-[0.72rem] font-ar text-[var(--text-muted)]">({selectedRegion.name})</span>
                 )}
               </span>
-              <span className="font-number text-[var(--text-primary)] font-bold">{money(totals.shipping, t('checkout.currency', 'ج.م'))}</span>
+              <span className="font-number text-[var(--text-primary)] font-bold">{money(totals.shipping, 'ج.م')}</span>
             </div>
+
             <div className="h-px bg-[var(--border-default)] my-1" />
+
             <div className="flex items-center justify-between pt-1">
-              <span className="text-[var(--text-primary)] font-black text-base">{t('checkout.total', 'الإجمالي')}</span>
-              <span className="font-number text-[var(--action-primary)] text-[1.35rem] font-black">{money(totals.total, t('checkout.currency', 'ج.م'))}</span>
+              <span className="text-[var(--text-primary)] font-black text-base">الإجمالي النهائي</span>
+              <span className="font-number text-[var(--action-primary)] text-[1.4rem] font-black">
+                {money(totals.total, 'ج.م')}
+              </span>
             </div>
           </div>
-          <div className="text-[0.78rem] text-[var(--text-muted)] leading-[1.8] text-center pt-2 font-ar border-t border-[var(--border-subtle)]">
-            {t('checkout.payment_note', 'الدفع عند الاستلام. بإتمام الطلب توافق على الشروط.')}
+
+          <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[0.78rem] text-[var(--text-secondary)] leading-relaxed text-center font-ar">
+            <span className="font-bold text-[var(--siwa-earth)] block mb-0.5">الدفع عند الاستلام نقداً</span>
+            يمكنك معاينة المنتجات عند وصول مندوب الشحن قبل سداد القيمة.
           </div>
         </div>
       </div>

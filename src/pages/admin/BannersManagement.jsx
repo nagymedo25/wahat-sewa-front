@@ -31,6 +31,14 @@ const POSITIONS = [
     icon: ShoppingBag,
   },
   {
+    value: 'top',
+    label: 'الصفحة الرئيسية — أعلى الصفحة (Top Banner)',
+    scope: 'home',
+    description: 'يظهر في أعلى الصفحة الرئيسية مباشرة تحت قسم الترحيب للترويج الفوري',
+    badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+    icon: Sparkles,
+  },
+  {
     value: 'mid',
     label: 'الصفحة الرئيسية — وسط الصفحة',
     scope: 'home',
@@ -553,7 +561,7 @@ export default function BannersManagement() {
                 <label className="block font-ar text-xs font-bold text-[#DCC7A1] mb-2">
                   مكان ونوع ظهور البانر *
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                   {POSITIONS.map((pos) => {
                     const isSelected = formData.position === pos.value;
                     const Icon = pos.icon;

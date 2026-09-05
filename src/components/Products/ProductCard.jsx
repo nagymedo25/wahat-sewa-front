@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, Star, Check, Sparkles } from 'lucide-react';
+import { ShoppingBag, Star, Check, Sparkles, Eye } from 'lucide-react';
 import { useCart } from '@/store/cart.jsx';
 import { useToast } from '@/store/toast.jsx';
 import { useTranslation } from 'react-i18next';
+import { trackAddToCart } from '@/services/tracking.js';
 
-export default function ProductCard({ product, index = 0 }) {
+export default function ProductCard({ product, index = 0, onQuickView }) {
   const { t } = useTranslation();
   const { addItem } = useCart();
   const toast = useToast();
@@ -23,6 +24,7 @@ export default function ProductCard({ product, index = 0 }) {
     e.stopPropagation();
     addItem(product, 1);
     setIsAdded(true);
+    trackAddToCart(product, 1);
     toast?.success?.(`تمت إضافة "${product.name}" إلى السلة بنجاح`);
     setTimeout(() => setIsAdded(false), 1500);
   };
@@ -34,30 +36,34 @@ export default function ProductCard({ product, index = 0 }) {
       data-product={product.id}
     >
       {/* ── Image Container (Seamless White Blend) ── */}
-      <Link
-        to={`/shop/product/${product.id}`}
-        className="relative block w-full aspect-[4/3] overflow-hidden bg-white p-4 cursor-pointer flex items-center justify-center border-b border-[var(--border-subtle)]"
-      >
-        {!imgLoaded && (
-          <div className="absolute inset-0 bg-white/90 animate-pulse" />
-        )}
-        
-        {imgUrl ? (
-          <img
-            src={imgUrl}
-            alt={product.name}
-            loading="lazy"
-            decoding="async"
-            onLoad={() => setImgLoaded(true)}
-            className={`w-full h-full object-contain [mix-blend-mode:multiply] transition-all duration-500 ease-cinematic group-hover:scale-108 ${
-              imgLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-neutral-400">
-            <span className="font-ar text-xs">لا توجد صورة</span>
-          </div>
-        )}
+      <div className="relative block w-full aspect-[4/3] overflow-hidden bg-white p-4 flex items-center justify-center border-b border-[var(--border-subtle)]">
+        {/* Clickable image leading to details */}
+        <Link
+          to={`/shop/product/${product.id}`}
+          className="absolute inset-0 flex items-center justify-center p-4 z-0 cursor-pointer"
+          aria-label={product.name}
+        >
+          {!imgLoaded && (
+            <div className="absolute inset-0 bg-white/90 animate-pulse" />
+          )}
+          
+          {imgUrl ? (
+            <img
+              src={imgUrl}
+              alt={product.name}
+              loading="lazy"
+              decoding="async"
+              onLoad={() => setImgLoaded(true)}
+              className={`w-full h-full object-contain [mix-blend-mode:multiply] transition-all duration-500 ease-cinematic group-hover:scale-108 ${
+                imgLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-neutral-400">
+              <span className="font-ar text-xs">لا توجد صورة</span>
+            </div>
+          )}
+        </Link>
 
         {/* ── Badges ── */}
         <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10 pointer-events-none">
@@ -72,7 +78,23 @@ export default function ProductCard({ product, index = 0 }) {
             </span>
           )}
         </div>
-      </Link>
+
+        {/* ── Quick View Overlay on Hover ── */}
+        <div className="absolute inset-x-3 bottom-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden sm:block">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onQuickView?.(product);
+            }}
+            className="w-full py-2 px-3 rounded-xl bg-neutral-900/90 hover:bg-neutral-950 text-white text-xs font-bold font-ar flex items-center justify-center gap-1.5 backdrop-blur-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-lg border border-white/10"
+          >
+            <Eye className="w-3.5 h-3.5 text-[#EAD8B1]" />
+            <span>عرض سريع</span>
+          </button>
+        </div>
+      </div>
 
       {/* ── Card Content ── */}
       <div className="flex flex-col flex-1 p-4 sm:p-5 gap-3 justify-between text-right">
@@ -114,29 +136,47 @@ export default function ProductCard({ product, index = 0 }) {
             </div>
           </div>
 
-          {/* Add to Cart Button */}
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            aria-label="إضافة للسلة"
-            className={`relative inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl font-ar text-[0.78rem] sm:text-[0.82rem] font-bold transition-all duration-300 shadow-sm cursor-pointer active:scale-95 ${
-              isAdded
-                ? 'bg-[var(--palm-shade-dark)] text-white scale-95'
-                : 'bg-[var(--action-primary)] text-white hover:bg-[var(--action-primary-hover)] hover:shadow-[var(--shadow-glow)]'
-            }`}
-          >
-            {isAdded ? (
-              <>
-                <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
-                <span>تمت</span>
-              </>
-            ) : (
-              <>
-                <ShoppingBag className="w-3.5 h-3.5" strokeWidth={2} />
-                <span>إضافة</span>
-              </>
-            )}
-          </button>
+          {/* Buttons Area */}
+          <div className="flex items-center gap-1.5">
+            {/* Quick View Button (Directly visible on mobile and desktop) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onQuickView?.(product);
+              }}
+              aria-label="عرض سريع"
+              title="عرض سريع وتحديد الوزن والكمية"
+              className="inline-flex items-center justify-center w-8 h-8 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--action-primary)] hover:border-[var(--action-primary)] transition-all cursor-pointer active:scale-95 shadow-2xs"
+            >
+              <Eye className="w-4 h-4" strokeWidth={1.8} />
+            </button>
+
+            {/* Add to Cart Button */}
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              aria-label="إضافة للسلة"
+              className={`relative inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl font-ar text-[0.78rem] sm:text-[0.82rem] font-bold transition-all duration-300 shadow-sm cursor-pointer active:scale-95 ${
+                isAdded
+                  ? 'bg-[var(--palm-shade-dark)] text-white scale-95'
+                  : 'bg-[var(--action-primary)] text-white hover:bg-[var(--action-primary-hover)] hover:shadow-[var(--shadow-glow)]'
+              }`}
+            >
+              {isAdded ? (
+                <>
+                  <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  <span>تمت</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-3.5 h-3.5" strokeWidth={2} />
+                  <span>إضافة</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

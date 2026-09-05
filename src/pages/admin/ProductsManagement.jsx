@@ -1,8 +1,11 @@
 import { useAuth } from '../../store/auth';
 import { useEffect, useState } from 'react';
-import { Plus, Edit, Trash2, Search, Eye, EyeOff, X, Check, Link as LinkIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Eye, EyeOff, X, Check, Link as LinkIcon, Sparkles, Scale, Tag } from 'lucide-react';
 import { useToast } from '@/store/toast.jsx';
 import CloudinaryUploader from '@/components/admin/CloudinaryUploader.jsx';
+
+const WEIGHT_PRESETS = ['250 جرام', '500 جرام', '1 كجم', '2 كجم', '5 كجم', '1 لتر', '5 لتر'];
+const FALLBACK_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Crect width='100%25' height='100%25' fill='%2321150D'/%3E%3Ctext x='50%25' y='50%25' fill='%23DCC7A1' font-family='sans-serif' font-size='12' text-anchor='middle' dominant-baseline='middle'%3Eسيوة%3C/text%3E%3C/svg%3E";
 
 function buildProductPayload(formData) {
   return {
@@ -20,6 +23,7 @@ function buildProductPayload(formData) {
     stock: Number.parseInt(formData.stock || 0, 10),
     sort_order: Number.parseInt(formData.sort_order || 0, 10),
     is_active: formData.is_active ?? true,
+    variants: Array.isArray(formData.variants) ? formData.variants.filter(v => v.name && v.price) : [],
   };
 }
 
@@ -201,7 +205,7 @@ export default function ProductsManagement() {
                       src={product.image_url} 
                       alt={product.name}
                       className="w-full h-full object-contain [mix-blend-mode:multiply]"
-                      onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                      onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMAGE; }}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -299,7 +303,7 @@ export default function ProductsManagement() {
                               src={product.image_url} 
                               alt={product.name}
                               className="w-full h-full object-contain [mix-blend-mode:multiply] group-hover:scale-110 transition-transform duration-500"
-                              onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+                              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMAGE; }}
                             />
                           </div>
                           <div>
@@ -402,7 +406,8 @@ function ProductModal({ product, categories, onSave, onClose }) {
     badge: 'none',
     stock: 0,
     sort_order: 0,
-    is_active: true
+    is_active: true,
+    variants: [],
   });
 
   useEffect(() => {
@@ -420,11 +425,38 @@ function ProductModal({ product, categories, onSave, onClose }) {
       sort_order: 0,
       is_active: true,
       ...product,
+      variants: Array.isArray(product?.variants) ? product.variants : [],
     });
   }, [product]);
 
   const parentCategories = categories.filter(c => !c.parent_id);
   const availableSubcategories = categories.filter(c => c.parent_id === formData.category_id);
+
+  const handleAddVariant = (presetName = '') => {
+    setFormData(prev => ({
+      ...prev,
+      variants: [
+        ...(prev.variants || []),
+        { id: `v_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`, name: presetName, price: '', original_price: '' }
+      ]
+    }));
+  };
+
+  const handleUpdateVariant = (index, field, value) => {
+    setFormData(prev => {
+      const updated = [...(prev.variants || [])];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, variants: updated };
+    });
+  };
+
+  const handleRemoveVariant = (index) => {
+    setFormData(prev => {
+      const updated = [...(prev.variants || [])];
+      updated.splice(index, 1);
+      return { ...prev, variants: updated };
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -615,6 +647,113 @@ function ProductModal({ product, categories, onSave, onClose }) {
                     rows={4}
                     className="w-full px-4 py-3 bg-olive-deep/20 border border-olive/20 rounded-xl text-cream placeholder-sand/50 focus:outline-none focus:border-olive-glow focus:ring-1 focus:ring-olive-glow transition-all resize-none custom-scrollbar"
                   />
+                </div>
+
+                {/* ── خيارات الأوزان (تصميم مريح ومستغل للمساحات) ── */}
+                <div className="rounded-2xl border border-olive/25 bg-olive-deep/15 p-3.5 space-y-3 font-ar">
+                  {/* الشريط العلوي المدمج: الأوزان السريعة + زر الإضافة */}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-xs font-bold text-cream flex items-center gap-1 ml-1">
+                        <Scale className="w-3.5 h-3.5 text-olive-glow" />
+                        <span>خيارات الأوزان:</span>
+                      </span>
+                      {WEIGHT_PRESETS.map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => handleAddVariant(preset)}
+                          className="px-2.5 py-1 rounded-lg bg-olive-deep/40 hover:bg-olive/40 text-sand hover:text-cream text-[0.72rem] font-bold border border-olive/25 hover:border-olive-glow transition-all cursor-pointer active:scale-95"
+                        >
+                          + {preset}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleAddVariant()}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-olive/30 hover:bg-olive/50 text-olive-glow text-xs font-bold border border-olive/30 transition-all cursor-pointer active:scale-95"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>إضافة وزن آخر</span>
+                    </button>
+                  </div>
+
+                  {/* قائمة الأوزان في أسطر أفقية مريحة للعين */}
+                  {Array.isArray(formData.variants) && formData.variants.length > 0 ? (
+                    <div className="space-y-2">
+                      {/* عناوين الأعمدة للشاشات الكبيرة */}
+                      <div className="hidden sm:grid sm:grid-cols-12 gap-2 px-3 text-[0.7rem] font-bold text-sand/60">
+                        <span className="col-span-5">اسم الوزن / الحجم</span>
+                        <span className="col-span-3">سعر البيع (ج.م) *</span>
+                        <span className="col-span-3">قبل الخصم (اختياري)</span>
+                        <span className="col-span-1 text-center">حذف</span>
+                      </div>
+
+                      {formData.variants.map((v, idx) => (
+                        <div
+                          key={v.id || idx}
+                          className="p-2.5 rounded-xl bg-shadow/60 border border-olive/20 hover:border-olive/35 transition-all grid grid-cols-1 sm:grid-cols-12 gap-2 items-center"
+                        >
+                          {/* الاسم */}
+                          <div className="sm:col-span-5">
+                            <input
+                              type="text"
+                              placeholder="اسم الوزن (مثال: 500 جرام)"
+                              value={v.name}
+                              onChange={(e) => handleUpdateVariant(idx, 'name', e.target.value)}
+                              className="w-full px-3 py-1.5 bg-olive-deep/25 border border-olive/20 rounded-lg text-cream text-xs placeholder-sand/40 outline-none focus:border-olive-glow"
+                              required
+                            />
+                          </div>
+
+                          {/* السعر */}
+                          <div className="sm:col-span-3">
+                            <input
+                              type="number"
+                              placeholder="سعر البيع (ج.م)"
+                              value={v.price}
+                              min="0"
+                              step="0.01"
+                              onChange={(e) => handleUpdateVariant(idx, 'price', e.target.value)}
+                              className="w-full px-3 py-1.5 bg-olive-deep/25 border border-olive/20 rounded-lg text-cream text-xs placeholder-sand/40 outline-none focus:border-olive-glow font-number"
+                              required
+                            />
+                          </div>
+
+                          {/* السعر قبل الخصم */}
+                          <div className="sm:col-span-3">
+                            <input
+                              type="number"
+                              placeholder="قبل الخصم (اختياري)"
+                              value={v.original_price || ''}
+                              min="0"
+                              step="0.01"
+                              onChange={(e) => handleUpdateVariant(idx, 'original_price', e.target.value)}
+                              className="w-full px-3 py-1.5 bg-olive-deep/25 border border-olive/20 rounded-lg text-cream text-xs placeholder-sand/40 outline-none focus:border-olive-glow font-number"
+                            />
+                          </div>
+
+                          {/* زر الحذف */}
+                          <div className="sm:col-span-1 flex justify-center">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveVariant(idx)}
+                              className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/15 rounded-lg transition-colors cursor-pointer"
+                              title="حذف هذا الوزن"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-2.5 text-xs text-sand/50 bg-shadow/20 rounded-xl border border-dashed border-olive/15">
+                      اضغط على أحد الأوزان السريعة بالأعلى لتفعيل خيارات المنتج
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

@@ -1,15 +1,24 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBasket, ChevronLeft, X } from 'lucide-react';
 import { useCart } from '@/store/cart.jsx';
 
 export default function CartBar() {
   const { items, totals } = useCart();
+  const location = useLocation();
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const prevCountRef = useRef(0);
 
   const itemCount = items.reduce((sum, it) => sum + (it.qty || 1), 0);
+
+  // Show only on shop browsing pages (/shop, /shop/product/:id) and NEVER on the cart page (/shop/cart) or checkout
+  const isShopBrowsingPage = 
+    (location.pathname === '/shop' || 
+     location.pathname === '/shop/' || 
+     location.pathname.startsWith('/shop/product/')) &&
+    location.pathname !== '/shop/cart' &&
+    location.pathname !== '/shop/checkout';
 
   // Re-show if a new item is added
   useEffect(() => {
@@ -21,13 +30,13 @@ export default function CartBar() {
 
   // Control visibility
   useEffect(() => {
-    if (itemCount > 0 && !dismissed) {
+    if (itemCount > 0 && !dismissed && isShopBrowsingPage) {
       const t = setTimeout(() => setVisible(true), 80);
       return () => clearTimeout(t);
     } else {
       setVisible(false);
     }
-  }, [itemCount, dismissed]);
+  }, [itemCount, dismissed, isShopBrowsingPage]);
 
   const handleDismiss = (e) => {
     e.preventDefault();
@@ -35,7 +44,7 @@ export default function CartBar() {
     setDismissed(true);
   };
 
-  if (itemCount === 0) return null;
+  if (!isShopBrowsingPage || itemCount === 0) return null;
 
   return (
     <>

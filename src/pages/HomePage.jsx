@@ -91,6 +91,7 @@ export default function HomePage() {
     return () => observer.disconnect();
   }, [products, categories, banners]);
 
+  const topBanner = banners.find((b) => b.position === 'top') || null;
   const midBanner = banners.find((b) => b.position === 'mid') || null;
   const bottomBanner = banners.find((b) => b.position === 'bottom') || null;
 
@@ -112,6 +113,13 @@ export default function HomePage() {
       <main className="flex-1 relative">
         {/* 1. Hero Section */}
         <HeroSection />
+
+        {/* 1.5 Top Promo Banner (if set by admin) */}
+        {topBanner && (
+          <div className="reveal-section">
+            <PromoBanner banner={topBanner} position="top" />
+          </div>
+        )}
 
         {/* 2. Category Discovery */}
         <div className="reveal-section">

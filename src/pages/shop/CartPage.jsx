@@ -48,54 +48,67 @@ export default function CartPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {items.map((it) => (
-                <div
-                  key={it.id}
-                  className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] hover:border-[var(--border-accent)] p-4 sm:p-5 transition-all duration-300 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="font-bold text-[var(--text-primary)] text-[1.05rem] leading-snug">{it.name}</div>
-                      <div className="mt-1 text-[var(--text-secondary)] font-number text-[0.88rem]">{money(it.price, it.currency)} / قطعة</div>
-                    </div>
+              {items.map((it) => {
+                const itemKey = it.cartKey || it.id;
+                return (
+                  <div
+                    key={itemKey}
+                    className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-card)] hover:border-[var(--border-accent)] p-4 sm:p-5 transition-all duration-300 shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)]"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-bold text-[var(--text-primary)] text-[1.05rem] leading-snug">{it.name}</span>
+                          {it.variantName && (
+                            <span className="px-2.5 py-0.5 rounded-lg bg-[var(--action-primary)]/15 text-[var(--siwa-earth)] text-xs font-bold border border-[var(--border-accent)]">
+                              {it.variantName}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-1 text-[var(--text-secondary)] font-number text-[0.88rem]">{money(it.price, it.currency)} / قطعة</div>
+                      </div>
 
-                    <button
-                      type="button"
-                      onClick={() => handleRemove(it)}
-                      className="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--discount-badge)] hover:border-[var(--discount-badge)]/30 hover:bg-[var(--discount-badge)]/10 transition-all active:scale-95 cursor-pointer"
-                      aria-label="remove"
-                    >
-                      <Trash2 className="w-4 h-4" strokeWidth={1.6} />
-                    </button>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2 rounded-xl px-3 py-1.5 border border-[var(--border-default)] bg-[var(--bg-elevated)] shadow-inner">
                       <button
                         type="button"
-                        onClick={() => setQty(it.id, it.qty - 1)}
-                        className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--action-primary)] hover:text-white hover:border-[var(--action-primary)] transition-colors active:scale-95 cursor-pointer"
-                        aria-label="decrease quantity"
+                        onClick={() => {
+                          removeItem(itemKey);
+                          toast.info(`تمت إزالة ${it.name} من السلة`);
+                        }}
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-[var(--border-default)] bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--discount-badge)] hover:border-[var(--discount-badge)]/30 hover:bg-[var(--discount-badge)]/10 transition-all active:scale-95 cursor-pointer"
+                        aria-label="remove"
                       >
-                        <Minus className="w-3.5 h-3.5" strokeWidth={2} />
-                      </button>
-                      <div className="w-8 text-center font-number text-[var(--text-primary)] font-bold text-[0.98rem]">{it.qty}</div>
-                      <button
-                        type="button"
-                        onClick={() => setQty(it.id, it.qty + 1)}
-                        className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--action-primary)] hover:text-white hover:border-[var(--action-primary)] transition-colors active:scale-95 cursor-pointer"
-                        aria-label="increase quantity"
-                      >
-                        <Plus className="w-3.5 h-3.5" strokeWidth={2} />
+                        <Trash2 className="w-4 h-4" strokeWidth={1.6} />
                       </button>
                     </div>
 
-                    <div className="font-number text-[var(--text-primary)] font-black text-[1.15rem]">
-                      {money(it.price * it.qty, it.currency)}
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2 rounded-xl px-3 py-1.5 border border-[var(--border-default)] bg-[var(--bg-elevated)] shadow-inner">
+                        <button
+                          type="button"
+                          onClick={() => setQty(itemKey, it.qty - 1)}
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--action-primary)] hover:text-white hover:border-[var(--action-primary)] transition-colors active:scale-95 cursor-pointer"
+                          aria-label="decrease quantity"
+                        >
+                          <Minus className="w-3.5 h-3.5" strokeWidth={2} />
+                        </button>
+                        <div className="w-8 text-center font-number text-[var(--text-primary)] font-bold text-[0.98rem]">{it.qty}</div>
+                        <button
+                          type="button"
+                          onClick={() => setQty(itemKey, it.qty + 1)}
+                          className="inline-flex items-center justify-center w-7 h-7 rounded-lg border border-[var(--border-default)] bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--action-primary)] hover:text-white hover:border-[var(--action-primary)] transition-colors active:scale-95 cursor-pointer"
+                          aria-label="increase quantity"
+                        >
+                          <Plus className="w-3.5 h-3.5" strokeWidth={2} />
+                        </button>
+                      </div>
+
+                      <div className="font-number text-[var(--text-primary)] font-black text-[1.15rem]">
+                        {money(it.price * it.qty, it.currency)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="flex items-center justify-between gap-4 mt-3 pt-4 border-t border-[var(--border-subtle)]">
                 <Link to="/shop" className="no-underline text-[var(--siwa-earth)] hover:text-[var(--siwa-earth-light)] transition-colors inline-flex items-center gap-2 font-bold text-[0.92rem]">
